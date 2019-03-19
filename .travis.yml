@@ -1,7 +1,9 @@
 language: scala
+language java
 jdk: oraclejdk8
 
 script:
+  - sbt update
   - sbt test
   - mkdir dist
   - mkdir dist/conf
