@@ -1,14 +1,5 @@
 language: scala
-language java
 jdk: oraclejdk8
-
-script:
-  - sbt update
-  - sbt test
-  - mkdir dist
-  - mkdir dist/conf
-  - mv conf/application.conf dist/conf/application.conf
-  - sbt dist
 
 # Use container-based infrastructure
 sudo: false
