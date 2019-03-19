@@ -28,7 +28,7 @@ public class IntegrationTest extends WithServer {
             CompletionStage<WSResponse> stage = ws.url("/").get();
             WSResponse response = stage.toCompletableFuture().get();
             String body = response.getBody();
-            assertThat(body, containsString("Add Person"));
+            assertThat(body, containsString("ok"));
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
@@ -46,7 +46,7 @@ public class IntegrationTest extends WithServer {
 
         Result result = route(app, tokenRequest);
         final String body = contentAsString(result);
-        assertThat(body, containsString("Add Person"));
+        assertThat(body, containsString("ok"));
     }
 
 }
