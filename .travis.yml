@@ -1,15 +1,18 @@
 language: scala
 jdk: oraclejdk8
-
-# Use container-based infrastructure
 sudo: false
 before_cache:
-  # Cleanup the cached directories to avoid unnecessary cache updates
   - find $HOME/.ivy2/cache -name "ivydata-*.properties" -print -delete
   - find $HOME/.sbt        -name "*.lock"               -print -delete
-# These directories are cached to S3 at the end of the build
 cache:
   directories:
-    - $HOME/.ivy2/cache
-    - $HOME/.sbt
-
+    - "$HOME/.ivy2/cache"
+    - "$HOME/.sbt"
+deploy:
+  provider: gae
+  keyfile: service-account.json
+  project: pts6-bijbaan
+  skip_cleanup: true
+before_install:
+  - openssl aes-256-cbc -K $encrypted_4715f1439d03_key -iv $encrypted_4715f1439d03_iv
+    -in service-account.json.enc -out service-account.json -d

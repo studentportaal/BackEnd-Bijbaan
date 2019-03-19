@@ -1,6 +1,6 @@
 name := """bijbaan-server"""
 
-version := "0.0.1"
+version := ""
 
 lazy val root = (project in file(".")).enablePlugins(PlayJava)
 

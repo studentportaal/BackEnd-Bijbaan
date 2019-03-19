@@ -25,3 +25,5 @@ hs_err_pid*
 .idea/
 .idea/web/WEB-INF/web.xml
 .idea/vcs.xml
+
+service-account.json
