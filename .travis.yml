@@ -1,6 +1,7 @@
 language: scala
 jdk: oraclejdk8
 sudo: false
+script: sbt dist
 before_cache:
   - find $HOME/.ivy2/cache -name "ivydata-*.properties" -print -delete
   - find $HOME/.sbt        -name "*.lock"               -print -delete
