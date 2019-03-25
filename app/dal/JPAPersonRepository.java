@@ -8,6 +8,7 @@ import javax.persistence.EntityManager;
 import java.util.List;
 import java.util.concurrent.CompletionStage;
 import java.util.function.Function;
+import java.util.function.Supplier;
 import java.util.stream.Stream;
 
 import static java.util.concurrent.CompletableFuture.supplyAsync;
@@ -28,7 +29,14 @@ public class JPAPersonRepository implements PersonRepository {
 
     @Override
     public CompletionStage<Person> add(Person person) {
-        return supplyAsync(() -> wrap(em -> insert(em, person)), executionContext);
+        return supplyAsync(new Supplier<Person>() {
+            @Override
+            public Person get() {
+                return JPAPersonRepository.this.wrap((EntityManager em) -> {
+                    return JPAPersonRepository.this.insert(em, person);
+                });
+            }
+        }, executionContext);
     }
 
     @Override
