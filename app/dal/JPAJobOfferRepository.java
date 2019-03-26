@@ -6,11 +6,20 @@ import play.db.jpa.JPAApi;
 
 import javax.inject.Inject;
 import javax.persistence.EntityManager;
+import javax.persistence.PersistenceContext;
+import javax.persistence.TypedQuery;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
+import java.util.*;
+import java.util.function.Function;
+import java.util.stream.Stream;
+
+import static java.util.concurrent.CompletableFuture.supplyAsync;
 import java.util.function.Function;
 import java.util.function.Supplier;
 
 import static java.util.concurrent.CompletableFuture.supplyAsync;
+
 
 public class JPAJobOfferRepository implements JobOfferRepository {
 
@@ -41,13 +50,7 @@ public class JPAJobOfferRepository implements JobOfferRepository {
 
     @Override
     public CompletionStage<JobOffer> updateJobOffer(JobOffer jobOffer) {
-        return supplyAsync(new Supplier<JobOffer>() {
-            @Override
-            public JobOffer get() {
-                return JPAJobOfferRepository.this.wrap((EntityManager em) ->
-                JPAJobOfferRepository.this.update(em, jobOffer));
-            }
-        }, executionContext);
+        return null;
     }
 
     @Override
@@ -55,13 +58,23 @@ public class JPAJobOfferRepository implements JobOfferRepository {
         return null;
     }
 
-    private <T> T wrap(Function<EntityManager, T> function) {
-        return jpaApi.withTransaction(function);
+    @Override
+    public CompletionStage<Stream<JobOffer>> getAllJobOffers() {
+        return supplyAsync(() -> wrap(this::list), executionContext);
     }
 
     private JobOffer insert(EntityManager em, JobOffer jobOffer) {
         em.persist(jobOffer);
         return jobOffer;
+    }
+
+    private <T> T wrap(Function<EntityManager, T> function) {
+        return jpaApi.withTransaction(function);
+    }
+
+    private Stream<JobOffer> list(EntityManager em) {
+        List<JobOffer> jobOffers = em.createNamedQuery("JobOffer.getAllJobOffers", JobOffer.class).getResultList();
+        return jobOffers.stream();
     }
 
     private void delete(EntityManager em, JobOffer jobOffer) {
@@ -72,4 +85,5 @@ public class JPAJobOfferRepository implements JobOfferRepository {
         em.merge(jobOffer);
         return jobOffer;
     }
+
 }

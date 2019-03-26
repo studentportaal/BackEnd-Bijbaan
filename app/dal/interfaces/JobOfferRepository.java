@@ -6,6 +6,7 @@ import dal.JPAPersonRepository;
 import models.JobOffer;
 
 import java.util.concurrent.CompletionStage;
+import java.util.stream.Stream;
 
 @ImplementedBy(JPAJobOfferRepository.class)
 public interface JobOfferRepository {
@@ -13,4 +14,5 @@ public interface JobOfferRepository {
     CompletionStage<JobOffer> removeJobOffer(JobOffer jobOffer);
     CompletionStage<JobOffer> updateJobOffer(JobOffer jobOffer);
     JobOffer getJobOfferById(String id);
+    CompletionStage<Stream<JobOffer>> getAllJobOffers();
 }

@@ -13,6 +13,11 @@ import play.mvc.Http;
 import play.mvc.Result;
 
 import javax.inject.Inject;
+import java.util.concurrent.CompletionStage;
+import java.util.concurrent.ExecutionException;
+import java.util.stream.Collectors;
+
+import static play.libs.Json.toJson;
 
 public class JobOfferController extends Controller {
 
@@ -42,15 +47,29 @@ public class JobOfferController extends Controller {
         }
     }
 
-    public Result removeJobOffer(){
+    public CompletionStage<Result> removeJobOffer(){
         return null;
     }
 
-    public Result updateJobOffer(){
+    public CompletionStage<Result> updateJobOffer(){
         return null;
     }
 
-    public Result getJobOfferById(){
+    public CompletionStage<Result> getJobOfferById(){
         return null;
+    }
+
+    public Result getAllJobOffers(){
+        try {
+
+            return ok(toJson(jobOfferRepository.getAllJobOffers()
+                    .toCompletableFuture()
+                    .get()
+                    .collect(Collectors.toList())));
+        } catch (InterruptedException | ExecutionException e) {
+            e.printStackTrace();
+        }
+
+        return ok();
     }
 }

@@ -16,3 +16,4 @@ POST    /joboffer/addjoboffer       controllers.JobOfferController.addJobOffer(r
 GET     /joboffer/getjobofferbyid   controllers.JobOfferController.getJobOfferById()
 DELETE  /joboffer/removejoboffer    controllers.JobOfferController.removeJobOffer()
 PUT     /joboffer/updatejoboffer    controllers.JobOfferController.updateJobOffer()
+GET     /joboffer                   controllers.JobOfferController.getAllJobOffers()

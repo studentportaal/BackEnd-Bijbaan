@@ -7,7 +7,8 @@ import javax.persistence.*;
 
 @Entity
 @NamedQueries({
-        @NamedQuery(name = "JobOffer.getJobOfferById", query = "SELECT j FROM JobOffer j WHERE j.id = :id")
+        @NamedQuery(name = "JobOffer.getJobOfferById", query = "SELECT j FROM JobOffer j WHERE j.id = :id"),
+        @NamedQuery(name = "JobOffer.getAllJobOffers", query = "SELECT j from JobOffer j")
 })
 
 public class JobOffer {
@@ -26,10 +27,6 @@ public class JobOffer {
     private String function;
     @Constraints.Required
     private double salary;
-//  TODO:
-//    private DateTime posted;
-//    private Company company;
-//    private Skills skills;
 
     public String getId() {
         return id;
