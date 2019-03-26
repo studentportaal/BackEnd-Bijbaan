@@ -1,4 +1,4 @@
-package dal;
+package dal.context;
 
 import akka.actor.ActorSystem;
 import play.libs.concurrent.CustomExecutionContext;

@@ -1,10 +1,7 @@
 package controllers;
 
-import com.fasterxml.jackson.databind.JsonNode;
-import dal.JobOfferRepository;
-import play.libs.concurrent.HttpExecutionContext;
+import dal.repository.JobOfferRepository;
 import play.mvc.Http;
-import play.mvc.BodyParser;
 import play.mvc.Controller;
 import play.mvc.Result;
 
