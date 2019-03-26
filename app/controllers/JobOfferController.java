@@ -8,6 +8,8 @@ import play.data.FormFactory;
 import play.libs.Json;
 import play.libs.concurrent.HttpExecutionContext;
 import play.mvc.BodyParser;
+import dal.repository.JobOfferRepository;
+import play.mvc.Http;
 import play.mvc.Controller;
 import play.mvc.Http;
 import play.mvc.Result;
@@ -47,15 +49,15 @@ public class JobOfferController extends Controller {
         }
     }
 
-    public CompletionStage<Result> removeJobOffer(){
+    public CompletionStage<Result> removeJobOffer() {
         return null;
     }
 
-    public CompletionStage<Result> updateJobOffer(){
+    public CompletionStage<Result> updateJobOffer() {
         return null;
     }
 
-    public CompletionStage<Result> getJobOfferById(){
+    public CompletionStage<Result> getJobOfferById() {
         return null;
     }
 

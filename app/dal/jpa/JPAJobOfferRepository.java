@@ -1,14 +1,12 @@
-package dal;
+package dal.jpa;
 
-import dal.interfaces.JobOfferRepository;
-import models.JobOffer;
+import dal.context.DatabaseExecutionContext;
+import dal.repository.JobOfferRepository;
+import models.domain.JobOffer;
 import play.db.jpa.JPAApi;
 
 import javax.inject.Inject;
 import javax.persistence.EntityManager;
-import javax.persistence.PersistenceContext;
-import javax.persistence.TypedQuery;
-import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
 import java.util.*;
 import java.util.function.Function;

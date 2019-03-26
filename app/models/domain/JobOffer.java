@@ -1,4 +1,4 @@
-package models;
+package models.domain;
 
 import org.hibernate.annotations.GenericGenerator;
 import play.data.validation.Constraints;
