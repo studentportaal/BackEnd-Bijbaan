@@ -29,14 +29,14 @@ public class JobOfferController extends Controller {
 
     @BodyParser.Of(BodyParser.Json.class)
     public Result addJobOffer(final Http.Request request){
-        JsonNode json = request.body().asJson();
-        JobOffer jobOffer = Json.fromJson(json, JobOffer.class);
         Form<JobOffer> jobOfferValidator = formFactory.form(JobOffer.class).bindFromRequest(request);
 
         if(jobOfferValidator.hasErrors()){
             return badRequest();
         }
         else{
+            JsonNode json = request.body().asJson();
+            JobOffer jobOffer = Json.fromJson(json, JobOffer.class);
             jobOfferRepository.addJobOffer(jobOffer);
             return created(json);
         }
