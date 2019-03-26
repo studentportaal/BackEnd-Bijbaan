@@ -42,7 +42,7 @@ public class UnitTest {
         UserRepository repository = mock(UserRepository.class);
         FormFactory formFactory = mock(FormFactory.class);
         HttpExecutionContext ec = new HttpExecutionContext(ForkJoinPool.commonPool());
-        final UserController controller = new UserController(formFactory, repository, ec);
+        final UserController controller = new UserController(formFactory, repository);
         final Result result = controller.index(request.build());
 
         assertThat(result.status()).isEqualTo(OK);
@@ -86,7 +86,7 @@ public class UnitTest {
         HttpExecutionContext ec = new HttpExecutionContext(ForkJoinPool.commonPool());
 
         // Create controller and call method under test:
-        final UserController controller = new UserController(formFactory, repository, ec);
+        final UserController controller = new UserController(formFactory, repository);
 
         Result stage = controller.addPerson(request);
 
