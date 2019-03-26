@@ -29,19 +29,14 @@ public class JPAPersonRepository implements PersonRepository {
 
     @Override
     public CompletionStage<Person> add(Person person) {
-        return supplyAsync(new Supplier<Person>() {
-            @Override
-            public Person get() {
-                return JPAPersonRepository.this.wrap((EntityManager em) -> {
-                    return JPAPersonRepository.this.insert(em, person);
-                });
-            }
-        }, executionContext);
+        return supplyAsync(()
+                -> JPAPersonRepository.this.wrap((EntityManager em)
+                -> JPAPersonRepository.this.insert(em, person)), executionContext);
     }
 
     @Override
     public CompletionStage<Stream<Person>> list() {
-        return supplyAsync(() -> wrap(em -> list(em)), executionContext);
+        return supplyAsync(() -> wrap(this::list), executionContext);
     }
 
     private <T> T wrap(Function<EntityManager, T> function) {
