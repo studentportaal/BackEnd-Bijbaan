@@ -1,7 +1,7 @@
 package controllers;
 
 import com.fasterxml.jackson.databind.JsonNode;
-import dal.interfaces.JobOfferRepository;
+import dal.repository.JobOfferRepository;
 import models.domain.JobOffer;
 import play.data.Form;
 import play.data.FormFactory;
