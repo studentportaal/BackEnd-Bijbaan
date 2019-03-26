@@ -1,19 +1,20 @@
 package security;
 
-import org.junit.jupiter.api.Test;
+import org.junit.Test;
 
 import java.util.Arrays;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.Assert.*;
+
 
 /**
  * @author Max Meijer
  * Created on 26/03/2019
  */
-class PasswordHelperTest {
+public class PasswordHelperTest {
 
     @Test
-    void generateSalt() {
+    public void generateSalt() {
 
         byte[] firstSalt = PasswordHelper.generateSalt();
         byte[] secondSalt = PasswordHelper.generateSalt();
@@ -28,7 +29,7 @@ class PasswordHelperTest {
     }
 
     @Test
-    void generateHash() {
+    public void generateHash() {
         byte[] salt = PasswordHelper.generateSalt();
         byte[] salt1 = PasswordHelper.generateSalt();
 
@@ -43,7 +44,7 @@ class PasswordHelperTest {
 
 
     @Test
-    void generateSameHash() {
+    public void generateSameHash() {
         final String passwordText = "password";
         byte[] salt = PasswordHelper.generateSalt();
 
