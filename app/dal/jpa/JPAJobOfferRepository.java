@@ -7,14 +7,10 @@ import play.db.jpa.JPAApi;
 
 import javax.inject.Inject;
 import javax.persistence.EntityManager;
+import java.util.List;
 import java.util.concurrent.CompletionStage;
-import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Stream;
-
-import static java.util.concurrent.CompletableFuture.supplyAsync;
-import java.util.function.Function;
-import java.util.function.Supplier;
 
 import static java.util.concurrent.CompletableFuture.supplyAsync;
 
@@ -32,13 +28,9 @@ public class JPAJobOfferRepository implements JobOfferRepository {
 
     @Override
     public CompletionStage<JobOffer> addJobOffer(JobOffer jobOffer) {
-        return supplyAsync(new Supplier<JobOffer>() {
-            @Override
-            public JobOffer get() {
-                return JPAJobOfferRepository.this.wrap((EntityManager em) ->
-                        JPAJobOfferRepository.this.insert(em, jobOffer));
-            }
-        }, executionContext);
+        return supplyAsync(()
+                -> JPAJobOfferRepository.this.wrap((EntityManager em)
+                -> JPAJobOfferRepository.this.insert(em, jobOffer)), executionContext);
     }
 
     @Override
@@ -74,14 +66,4 @@ public class JPAJobOfferRepository implements JobOfferRepository {
         List<JobOffer> jobOffers = em.createNamedQuery("JobOffer.getAllJobOffers", JobOffer.class).getResultList();
         return jobOffers.stream();
     }
-
-    private void delete(EntityManager em, JobOffer jobOffer) {
-        em.remove(jobOffer);
-    }
-
-    private JobOffer update(EntityManager em, JobOffer jobOffer) {
-        em.merge(jobOffer);
-        return jobOffer;
-    }
-
 }

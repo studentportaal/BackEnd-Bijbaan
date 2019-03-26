@@ -1,9 +1,8 @@
 package dal.interfaces;
 
 import com.google.inject.ImplementedBy;
-import dal.JPAJobOfferRepository;
-import dal.JPAPersonRepository;
-import models.JobOffer;
+import dal.jpa.JPAJobOfferRepository;
+import models.domain.JobOffer;
 
 import java.util.concurrent.CompletionStage;
 import java.util.stream.Stream;

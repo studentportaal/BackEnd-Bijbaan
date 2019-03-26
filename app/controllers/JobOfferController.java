@@ -2,14 +2,11 @@ package controllers;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import dal.interfaces.JobOfferRepository;
-import models.JobOffer;
+import models.domain.JobOffer;
 import play.data.Form;
 import play.data.FormFactory;
 import play.libs.Json;
-import play.libs.concurrent.HttpExecutionContext;
 import play.mvc.BodyParser;
-import dal.repository.JobOfferRepository;
-import play.mvc.Http;
 import play.mvc.Controller;
 import play.mvc.Http;
 import play.mvc.Result;
@@ -25,13 +22,11 @@ public class JobOfferController extends Controller {
 
     private final FormFactory formFactory;
     private final JobOfferRepository jobOfferRepository;
-    private final HttpExecutionContext ec;
 
     @Inject
-    public JobOfferController(FormFactory formFactory, JobOfferRepository jobOfferRepository, HttpExecutionContext ec){
+    public JobOfferController(FormFactory formFactory, JobOfferRepository jobOfferRepository){
         this.formFactory = formFactory;
         this.jobOfferRepository = jobOfferRepository;
-        this.ec = ec;
     }
 
     @BodyParser.Of(BodyParser.Json.class)
