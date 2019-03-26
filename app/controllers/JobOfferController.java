@@ -18,12 +18,10 @@ import static play.libs.Json.toJson;
 public class JobOfferController extends Controller {
 
     private final JobOfferRepository jobOfferRepository;
-    private final HttpExecutionContext ec;
 
     @Inject
-    public JobOfferController(JobOfferRepository jobOfferRepository, HttpExecutionContext ec) {
+    public JobOfferController(JobOfferRepository jobOfferRepository) {
         this.jobOfferRepository = jobOfferRepository;
-        this.ec = ec;
     }
 
     public CompletionStage<Result> addJobOffer(Http.Request request) {
@@ -49,9 +47,7 @@ public class JobOfferController extends Controller {
                     .toCompletableFuture()
                     .get()
                     .collect(Collectors.toList())));
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        } catch (ExecutionException e) {
+        } catch (InterruptedException | ExecutionException e) {
             e.printStackTrace();
         }
 

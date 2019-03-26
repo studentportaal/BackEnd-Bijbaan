@@ -18,10 +18,6 @@ public class JobOffer {
     private String information;
     private String function;
     private double salary;
-//  TODO:
-//    private DateTime posted;
-//    private Company company;
-//    private Skills skills;
 
     public String getId() {
         return id;
