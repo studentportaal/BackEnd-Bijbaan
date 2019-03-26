@@ -32,13 +32,11 @@ public class UserController extends Controller {
 
     private final FormFactory formFactory;
     private final UserRepository userRepository;
-    private final HttpExecutionContext ec;
 
     @Inject
-    public UserController(FormFactory formFactory, UserRepository userRepository, HttpExecutionContext ec) {
+    public UserController(FormFactory formFactory, UserRepository userRepository) {
         this.formFactory = formFactory;
         this.userRepository = userRepository;
-        this.ec = ec;
     }
 
     public Result index(final Http.Request request) {
@@ -47,7 +45,6 @@ public class UserController extends Controller {
 
     @BodyParser.Of(BodyParser.Json.class)
     public Result addPerson(final Http.Request request) {
-        //return ok();
         JsonNode json = request.body().asJson();
 
         Form<UserDto> userValidationForm = formFactory.form(UserDto.class)

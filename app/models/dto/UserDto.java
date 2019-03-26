@@ -24,6 +24,7 @@ public class UserDto {
     private String institute;
 
     public UserDto() {
+        // Empty constructor for Json parsing.
     }
 
     public String getUuid() {

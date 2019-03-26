@@ -17,6 +17,8 @@ import play.Logger;
 public class PasswordHelper {
     private static Logger.ALogger logger = Logger.of(PasswordHelper.class);
 
+    private PasswordHelper() {}
+
     public static byte[] generateSalt() {
         logger.debug("Generating salt");
         SecureRandom random = new SecureRandom();
@@ -36,6 +38,6 @@ public class PasswordHelper {
             logger.error(e.getMessage());
         }
 
-        return null;
+        return new byte[0];
     }
 }

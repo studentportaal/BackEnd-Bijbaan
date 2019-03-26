@@ -6,6 +6,8 @@ package exception;
  */
 public class Util {
 
+    private Util() {}
+
     public static Throwable getRootCause(Throwable t) {
         Throwable cause = null;
         Throwable result = t;
