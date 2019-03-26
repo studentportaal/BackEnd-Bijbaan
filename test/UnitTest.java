@@ -1,7 +1,7 @@
 import com.typesafe.config.Config;
 import com.typesafe.config.ConfigFactory;
 import controllers.PersonController;
-import dal.PersonRepository;
+import dal.interfaces.PersonRepository;
 import models.Person;
 import org.hibernate.validator.messageinterpolation.ParameterMessageInterpolator;
 import org.junit.Test;

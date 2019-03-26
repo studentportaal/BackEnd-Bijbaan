@@ -1,12 +1,16 @@
-package dal;
+package dal.interfaces;
 
+import com.google.inject.ImplementedBy;
+import dal.JPAJobOfferRepository;
+import dal.JPAPersonRepository;
 import models.JobOffer;
 
 import java.util.concurrent.CompletionStage;
 
+@ImplementedBy(JPAJobOfferRepository.class)
 public interface JobOfferRepository {
     CompletionStage<JobOffer> addJobOffer(JobOffer jobOffer);
-    CompletionStage<JobOffer> removeJobOffer(String id);
+    CompletionStage<JobOffer> removeJobOffer(JobOffer jobOffer);
     CompletionStage<JobOffer> updateJobOffer(JobOffer jobOffer);
     JobOffer getJobOfferById(String id);
 }

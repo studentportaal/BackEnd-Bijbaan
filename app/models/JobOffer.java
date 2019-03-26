@@ -1,5 +1,7 @@
 package models;
 
+import org.hibernate.annotations.GenericGenerator;
+
 import javax.persistence.*;
 
 @Entity
@@ -10,7 +12,8 @@ import javax.persistence.*;
 public class JobOffer {
 
     @Id
-    @GeneratedValue()
+    @GeneratedValue(generator = "UUID")
+    @GenericGenerator(name = "UUID", strategy = "org.hibernate.id.UUIDGenerator")
     private String id;
     private String location;
     private String title;

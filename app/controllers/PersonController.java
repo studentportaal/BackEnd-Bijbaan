@@ -1,6 +1,6 @@
 package controllers;
 
-import dal.PersonRepository;
+import dal.interfaces.PersonRepository;
 import models.Person;
 import play.data.FormFactory;
 import play.libs.concurrent.HttpExecutionContext;

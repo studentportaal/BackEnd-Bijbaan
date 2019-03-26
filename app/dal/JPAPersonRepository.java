@@ -1,5 +1,6 @@
 package dal;
 
+import dal.interfaces.PersonRepository;
 import models.Person;
 import play.db.jpa.JPAApi;
 

@@ -1,6 +1,7 @@
-package dal;
+package dal.interfaces;
 
 import com.google.inject.ImplementedBy;
+import dal.JPAPersonRepository;
 import models.Person;
 
 import java.util.concurrent.CompletionStage;

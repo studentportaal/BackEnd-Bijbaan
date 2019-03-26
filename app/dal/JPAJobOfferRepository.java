@@ -1,43 +1,75 @@
 package dal;
 
+import dal.interfaces.JobOfferRepository;
 import models.JobOffer;
+import play.db.jpa.JPAApi;
 
+import javax.inject.Inject;
 import javax.persistence.EntityManager;
-import javax.persistence.PersistenceContext;
-import javax.persistence.TypedQuery;
 import java.util.concurrent.CompletionStage;
-import java.util.*;
+import java.util.function.Function;
+import java.util.function.Supplier;
 
+import static java.util.concurrent.CompletableFuture.supplyAsync;
 
-//TODO:
-//  return the right object
 public class JPAJobOfferRepository implements JobOfferRepository {
-    @PersistenceContext
-    EntityManager em;
 
-    @Override
-    public CompletionStage<JobOffer> addJobOffer(JobOffer jobOffer) {
-        em.persist(jobOffer);
-        return null;
+    private final JPAApi jpaApi;
+    private final DatabaseExecutionContext executionContext;
+
+    @Inject
+    public JPAJobOfferRepository(JPAApi jpaApi, DatabaseExecutionContext executionContext){
+        this.jpaApi = jpaApi;
+        this.executionContext = executionContext;
     }
 
     @Override
-    public CompletionStage<JobOffer> removeJobOffer(String id) {
-        em.remove(null);
+    public CompletionStage<JobOffer> addJobOffer(JobOffer jobOffer) {
+        return supplyAsync(new Supplier<JobOffer>() {
+            @Override
+            public JobOffer get() {
+                return JPAJobOfferRepository.this.wrap((EntityManager em) ->
+                        JPAJobOfferRepository.this.insert(em, jobOffer));
+            }
+        }, executionContext);
+    }
+
+    @Override
+    public CompletionStage<JobOffer> removeJobOffer(JobOffer jobOffer) {
         return null;
     }
 
     @Override
     public CompletionStage<JobOffer> updateJobOffer(JobOffer jobOffer) {
-        em.merge(jobOffer);
-        return null;
+        return supplyAsync(new Supplier<JobOffer>() {
+            @Override
+            public JobOffer get() {
+                return JPAJobOfferRepository.this.wrap((EntityManager em) ->
+                JPAJobOfferRepository.this.update(em, jobOffer));
+            }
+        }, executionContext);
     }
 
     @Override
     public JobOffer getJobOfferById(String id) {
-        TypedQuery query = em.createNamedQuery("JobOffer.getJobOfferById", JobOffer.class);
-        query.setParameter("id", id);
-        List<JobOffer> jobOfferList = query.getResultList();
-        return jobOfferList.get(0);
+        return null;
+    }
+
+    private <T> T wrap(Function<EntityManager, T> function) {
+        return jpaApi.withTransaction(function);
+    }
+
+    private JobOffer insert(EntityManager em, JobOffer jobOffer) {
+        em.persist(jobOffer);
+        return jobOffer;
+    }
+
+    private void delete(EntityManager em, JobOffer jobOffer) {
+        em.remove(jobOffer);
+    }
+
+    private JobOffer update(EntityManager em, JobOffer jobOffer) {
+        em.merge(jobOffer);
+        return jobOffer;
     }
 }

@@ -1,31 +1,48 @@
 package controllers;
 
+import com.fasterxml.jackson.databind.JsonNode;
+import dal.interfaces.JobOfferRepository;
+import models.JobOffer;
+import play.data.FormFactory;
+import play.libs.Json;
+import play.libs.concurrent.HttpExecutionContext;
+import play.mvc.BodyParser;
 import play.mvc.Controller;
+import play.mvc.Http;
 import play.mvc.Result;
 
 import javax.inject.Inject;
-import java.util.concurrent.CompletionStage;
 
 public class JobOfferController extends Controller {
 
+    private final FormFactory formFactory;
+    private final JobOfferRepository jobOfferRepository;
+    private final HttpExecutionContext ec;
+
     @Inject
-    public JobOfferController(){
-
+    public JobOfferController(FormFactory formFactory, JobOfferRepository jobOfferRepository, HttpExecutionContext ec){
+        this.formFactory = formFactory;
+        this.jobOfferRepository = jobOfferRepository;
+        this.ec = ec;
     }
 
-    public CompletionStage<Result> addJobOffer(){
+    @BodyParser.Of(BodyParser.Json.class)
+    public Result addJobOffer(final Http.Request request){
+        JsonNode json = request.body().asJson();
+        JobOffer jobOffer = Json.fromJson(json, JobOffer.class);
+        jobOfferRepository.addJobOffer(jobOffer);
+        return created(json);
+    }
+
+    public Result removeJobOffer(){
         return null;
     }
 
-    public CompletionStage<Result> removeJobOffer(){
+    public Result updateJobOffer(){
         return null;
     }
 
-    public CompletionStage<Result> updateJobOffer(){
-        return null;
-    }
-
-    public CompletionStage<Result> getJobOfferById(){
+    public Result getJobOfferById(){
         return null;
     }
 }
