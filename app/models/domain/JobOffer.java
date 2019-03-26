@@ -1,5 +1,8 @@
 package models.domain;
 
+import org.hibernate.annotations.GenericGenerator;
+import play.data.validation.Constraints;
+
 import javax.persistence.*;
 
 @Entity
@@ -11,12 +14,18 @@ import javax.persistence.*;
 public class JobOffer {
 
     @Id
-    @GeneratedValue()
+    @GeneratedValue(generator = "UUID")
+    @GenericGenerator(name = "UUID", strategy = "org.hibernate.id.UUIDGenerator")
     private String id;
+    @Constraints.Required
     private String location;
+    @Constraints.Required
     private String title;
+    @Constraints.Required
     private String information;
+    @Constraints.Required
     private String function;
+    @Constraints.Required
     private double salary;
 
     public String getId() {

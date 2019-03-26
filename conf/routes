@@ -12,7 +12,7 @@ GET     /assets/*file               controllers.Assets.at(path="/public", file)
 
 
 #JobOffers
-POST    /joboffer/addjoboffer       controllers.JobOfferController.addJobOffer(req: Request)
+POST    /joboffer/addjoboffer       controllers.JobOfferController.addJobOffer(request: Request)
 GET     /joboffer/getjobofferbyid   controllers.JobOfferController.getJobOfferById()
 DELETE  /joboffer/removejoboffer    controllers.JobOfferController.removeJobOffer()
 PUT     /joboffer/updatejoboffer    controllers.JobOfferController.updateJobOffer()
