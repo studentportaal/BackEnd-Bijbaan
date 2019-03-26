@@ -3,6 +3,7 @@ package controllers;
 import com.fasterxml.jackson.databind.JsonNode;
 import dal.interfaces.JobOfferRepository;
 import models.JobOffer;
+import play.data.Form;
 import play.data.FormFactory;
 import play.libs.Json;
 import play.libs.concurrent.HttpExecutionContext;
@@ -30,8 +31,15 @@ public class JobOfferController extends Controller {
     public Result addJobOffer(final Http.Request request){
         JsonNode json = request.body().asJson();
         JobOffer jobOffer = Json.fromJson(json, JobOffer.class);
-        jobOfferRepository.addJobOffer(jobOffer);
-        return created(json);
+        Form<JobOffer> jobOfferValidator = formFactory.form(JobOffer.class).bindFromRequest(request);
+
+        if(jobOfferValidator.hasErrors()){
+            return badRequest();
+        }
+        else{
+            jobOfferRepository.addJobOffer(jobOffer);
+            return created(json);
+        }
     }
 
     public Result removeJobOffer(){
