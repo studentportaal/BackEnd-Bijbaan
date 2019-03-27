@@ -41,7 +41,6 @@ public class UnitTest {
 
         UserRepository repository = mock(UserRepository.class);
         FormFactory formFactory = mock(FormFactory.class);
-        HttpExecutionContext ec = new HttpExecutionContext(ForkJoinPool.commonPool());
         final UserController controller = new UserController(formFactory, repository);
         final Result result = controller.index(request.build());
 
@@ -57,39 +56,4 @@ public class UnitTest {
 
         assertThat(true).isEqualTo(true);
     }
-
-    @Test
-    public void checkAddPerson() {
-        // Don't need to be this involved in setting up the mock, but for demo it works:
-        UserRepository repository = mock(UserRepository.class);
-        User user = new User();
-        user.setUuid("asd");
-        user.setFirstName("Steve");
-        when(repository.add(any())).thenReturn(supplyAsync(() -> user));
-
-        // Set up the request builder to reflect input
-        Http.Request request = Helpers.fakeRequest("POST", "/").bodyJson(Json.toJson(user)).build().withTransientLang("es");
-
-        // Easier to mock out the form factory inputs here
-        Messages messages = mock(Messages.class);
-        MessagesApi messagesApi = mock(MessagesApi.class);
-        when(messagesApi.preferred(request)).thenReturn(messages);
-
-        ValidatorFactory validatorFactory = Validation.byDefaultProvider().configure()
-                .messageInterpolator(new ParameterMessageInterpolator())
-                .buildValidatorFactory();
-
-        Config config = ConfigFactory.load();
-        FormFactory formFactory = new FormFactory(messagesApi, new Formatters(messagesApi), validatorFactory, config);
-
-        // It is okay to use commonPool here since this is just a test.
-        HttpExecutionContext ec = new HttpExecutionContext(ForkJoinPool.commonPool());
-
-        // Create controller and call method under test:
-        final UserController controller = new UserController(formFactory, repository);
-
-        Result stage = controller.addPerson(request);
-
-    }
-
 }

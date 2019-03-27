@@ -8,7 +8,6 @@ import models.dto.UserDto;
 import play.data.Form;
 import play.data.FormFactory;
 import play.libs.Json;
-import play.libs.concurrent.HttpExecutionContext;
 import play.mvc.BodyParser;
 import play.mvc.Controller;
 import play.mvc.Http;
@@ -17,6 +16,9 @@ import security.PasswordHelper;
 
 import javax.inject.Inject;
 import javax.validation.ConstraintViolationException;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.concurrent.ExecutionException;
 import java.util.stream.Collectors;
 
@@ -44,7 +46,7 @@ public class UserController extends Controller {
     }
 
     @BodyParser.Of(BodyParser.Json.class)
-    public Result addPerson(final Http.Request request) {
+    public Result addUser(final Http.Request request) {
         JsonNode json = request.body().asJson();
 
         Form<UserDto> userValidationForm = formFactory.form(UserDto.class)
@@ -62,7 +64,18 @@ public class UserController extends Controller {
         User user = new User();
         user.setFirstName(userDto.getFirstName());
         user.setLastName(userDto.getLastName());
-        user.setDateOfBirth(userDto.getDateOfBirth());
+
+        Date parsed;
+        try {
+            SimpleDateFormat format =
+                    new SimpleDateFormat("yyyy-MM-dd");
+            parsed = format.parse(userDto.getDateOfBirth());
+        }
+        catch(ParseException pe) {
+            return badRequest(toJson(new ApiError<>("Invalid date, use: yyyy-MM-dd")));
+        }
+
+        user.setDateOfBirth(parsed);
         user.setEmail(userDto.getEmail());
         user.setInstitute(userDto.getInstitute());
         user.setSalt(salt);
@@ -76,7 +89,7 @@ public class UserController extends Controller {
         }
     }
 
-    public Result getPersons() throws ExecutionException, InterruptedException {
+    public Result getAllUsers() throws ExecutionException, InterruptedException {
         return ok(toJson(userRepository.list().toCompletableFuture().get().collect(Collectors.toList())));
     }
 
