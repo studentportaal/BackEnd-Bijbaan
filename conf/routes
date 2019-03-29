@@ -4,7 +4,7 @@
 
 # Home page
 GET     /                         controllers.UserController.index(req: Request)
-POST    /user                     controllers.UserController.addUser(req: Request)
+POST    /users                    controllers.UserController.addUser(req: Request)
 GET     /users                    controllers.UserController.getAllUsers()
 
 # Map static resources from the /public folder to the /assets URL path
