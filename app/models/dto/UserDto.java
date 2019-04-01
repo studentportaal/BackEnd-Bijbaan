@@ -2,8 +2,6 @@ package models.dto;
 
 import play.data.validation.Constraints;
 
-import java.util.Date;
-
 /**
  * @author Max Meijer
  * Created on 26/03/2019
@@ -16,8 +14,7 @@ public class UserDto {
     private String lastName;
     @Constraints.Required
     private String email;
-    @Constraints.Required
-    private Date dateOfBirth;
+    private String dateOfBirth;
     @Constraints.Required
     private String password;
     @Constraints.Required
@@ -59,11 +56,11 @@ public class UserDto {
         this.email = email;
     }
 
-    public Date getDateOfBirth() {
+    public String getDateOfBirth() {
         return dateOfBirth;
     }
 
-    public void setDateOfBirth(Date dateOfBirth) {
+    public void setDateOfBirth(String dateOfBirth) {
         this.dateOfBirth = dateOfBirth;
     }
 
@@ -81,5 +78,18 @@ public class UserDto {
 
     public void setInstitute(String institute) {
         this.institute = institute;
+    }
+
+    @Override
+    public String toString() {
+        return "UserDto{" +
+                "uuid='" + uuid + '\'' +
+                ", firstName='" + firstName + '\'' +
+                ", lastName='" + lastName + '\'' +
+                ", email='" + email + '\'' +
+                ", dateOfBirth=" + dateOfBirth +
+                ", password='" + password + '\'' +
+                ", institute='" + institute + '\'' +
+                '}';
     }
 }
