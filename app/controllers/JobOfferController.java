@@ -57,6 +57,15 @@ public class JobOfferController extends Controller {
     }
 
     public Result getAllJobOffers(){
+        //THIS IS TEMPORARY
+        JobOffer offer = new JobOffer();
+        offer.setFunction("test");
+        offer.setInformation("dit is een test job offer");
+        offer.setLocation("test locatie");
+        offer.setSalary(3000);
+        offer.setTitle("Dit is een test job offer");
+        jobOfferRepository.addJobOffer(offer);
+
         try {
 
             return ok(toJson(jobOfferRepository.getAllJobOffers()
