@@ -14,3 +14,7 @@ GET     /assets/*file               controllers.Assets.at(path="/public", file)
 #JobOffers
 POST    /joboffer                   controllers.JobOfferController.addJobOffer(request: Request)
 GET     /joboffers                  controllers.JobOfferController.getAllJobOffers()
+
+#Company
+POST    /company                    controllers.CompanyController.addCompany(request: Request)
+PUT     /company                    controllers.CompanyController.updateCompany(request: Request)
