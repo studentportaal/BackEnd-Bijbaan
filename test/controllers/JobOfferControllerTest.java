@@ -68,7 +68,8 @@ public class JobOfferControllerTest {
 
         when(repository.addJobOffer(any())).thenReturn(supplyAsync(() -> jobOffer));
 
-        request = Helpers.fakeRequest("POST", "/").bodyJson(Json.toJson(jobOffer)).build().withTransientLang("es");
+        request = Helpers.fakeRequest("POST", "/")
+                .bodyJson(Json.toJson(jobOffer)).build().withTransientLang("es");
 
         when(messagesApi.preferred(request)).thenReturn(messages);
 

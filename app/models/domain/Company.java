@@ -17,7 +17,7 @@ public class Company {
     @Constraints.Required
     private String name;
     @Constraints.Required
-    private String location;
+    private String city;
     @Constraints.Required
     private String streetname;
     @Constraints.Required
@@ -43,12 +43,12 @@ public class Company {
         this.name = name;
     }
 
-    public String getLocation() {
-        return location;
+    public String getCity() {
+        return city;
     }
 
-    public void setLocation(String location) {
-        this.location = location;
+    public void setCity(String city) {
+        this.city = city;
     }
 
     public String getStreetname() {
