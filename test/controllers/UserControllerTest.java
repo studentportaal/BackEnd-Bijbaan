@@ -82,7 +82,7 @@ public class UserControllerTest {
     }
 
     @Test
-    public void checkAddUSerInvalidObject() {
+    public void checkAddUserInvalidObject() {
         // Don't need to be this involved in setting up the mock, but for demo it works:
         UserRepository repository = mock(UserRepository.class);
 
@@ -118,7 +118,7 @@ public class UserControllerTest {
     }
 
     @Test
-    public void checkAddUSerInvalidDate() {
+    public void checkAddUserInvalidDate() {
         // Don't need to be this involved in setting up the mock, but for demo it works:
         UserRepository repository = mock(UserRepository.class);
 

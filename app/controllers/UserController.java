@@ -109,4 +109,14 @@ public class UserController extends Controller {
     }
 
 
+    public Result getUser(String id) {
+        try{
+            return ok(toJson(userRepository.getById(id).toCompletableFuture().get()));
+        } catch (InterruptedException e) {
+            return badRequest(toJson(new ApiError<>("User not found")));
+        } catch (ExecutionException e) {
+            return badRequest(toJson(new ApiError<>("User not found")));
+        }
+    }
+
 }

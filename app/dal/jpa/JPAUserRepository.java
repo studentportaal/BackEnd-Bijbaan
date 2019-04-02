@@ -55,6 +55,11 @@ public class JPAUserRepository implements UserRepository {
         return supplyAsync(() -> Arrays.equals(dBHashedPassword, userHashedPassword)) ;
     }
 
+    @Override
+    public CompletionStage<User> getById(String id) {
+        return supplyAsync(()->wrap(em -> getById(em,id) ),executionContext);
+    }
+
     private <T> T wrap(Function<EntityManager, T> function) {
         return jpaApi.withTransaction(function);
     }
@@ -62,6 +67,10 @@ public class JPAUserRepository implements UserRepository {
     private User insert(EntityManager em, User user) {
         em.persist(user);
         return user;
+    }
+    private User getById(EntityManager em, String id){
+        return em.createNamedQuery("getUser", User.class).setParameter("id",id).getSingleResult();
+
     }
 
     private User update(EntityManager em, User user){
