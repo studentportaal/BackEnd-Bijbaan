@@ -10,6 +10,7 @@ import play.mvc.BodyParser;
 import play.mvc.Controller;
 import play.mvc.Http;
 import play.mvc.Result;
+import scala.Int;
 
 import javax.inject.Inject;
 import java.util.concurrent.CompletionStage;
@@ -56,22 +57,21 @@ public class JobOfferController extends Controller {
         return null;
     }
 
-    public Result getAllJobOffers(){
-        //THIS IS TEMPORARY
-        JobOffer offer = new JobOffer();
-        offer.setFunction("test");
-        offer.setInformation("dit is een test job offer");
-        offer.setLocation("test locatie");
-        offer.setSalary(3000);
-        offer.setTitle("Dit is een test job offer");
-        jobOfferRepository.addJobOffer(offer);
+    public Result getJobOfferCount(){
+        try{
+            return ok(toJson(jobOfferRepository.getJobOfferCount().toCompletableFuture().get()));
+        } catch (InterruptedException | ExecutionException e){
+            e.printStackTrace();
+        }
 
+        return ok();
+    }
+
+    public Result getAllJobOffers(String startNr, String amount){
         try {
-
-            return ok(toJson(jobOfferRepository.getAllJobOffers()
+            return ok(toJson(jobOfferRepository.getAllJobOffers(Integer.parseInt(startNr), Integer.parseInt(amount))
                     .toCompletableFuture()
-                    .get()
-                    .collect(Collectors.toList())));
+                    .get()));
         } catch (InterruptedException | ExecutionException e) {
             e.printStackTrace();
         }
