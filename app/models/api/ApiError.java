@@ -8,6 +8,8 @@ public class ApiError<T> {
 
     private T message;
 
+    public ApiError() {}
+
     public ApiError(T message) {
         this.message = message;
     }
