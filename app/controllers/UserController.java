@@ -2,9 +2,9 @@ package controllers;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import dal.repository.UserRepository;
+import models.api.ApiError;
 import models.converters.UserConverter;
 import models.domain.User;
-import models.api.ApiError;
 import models.dto.UserDto;
 import play.data.Form;
 import play.data.FormFactory;
@@ -18,8 +18,6 @@ import security.PasswordHelper;
 import javax.inject.Inject;
 import javax.validation.ConstraintViolationException;
 import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import java.util.Date;
 import java.util.concurrent.ExecutionException;
 import java.util.stream.Collectors;
 
@@ -38,10 +36,10 @@ public class UserController extends Controller {
     private final UserConverter userConverter;
 
     @Inject
-    public UserController(FormFactory formFactory, UserRepository userRepository, UserConverter userConverter) {
+    public UserController(FormFactory formFactory, UserRepository userRepository) {
         this.formFactory = formFactory;
         this.userRepository = userRepository;
-        this.userConverter = userConverter;
+        this.userConverter = new UserConverter();
     }
 
     public Result index(final Http.Request request) {
@@ -85,6 +83,7 @@ public class UserController extends Controller {
         return ok(toJson(userRepository.list().toCompletableFuture().get().collect(Collectors.toList())));
     }
 
+    @SuppressWarnings("Duplicates")
     public Result updateUser(Http.Request request){
         JsonNode json = request.body().asJson();
         Form<UserDto> validationForm = formFactory.form(UserDto.class)
@@ -117,6 +116,34 @@ public class UserController extends Controller {
         } catch (ExecutionException e) {
             return badRequest(toJson(new ApiError<>("User not found")));
         }
+    }
+
+    @SuppressWarnings("Duplicates")
+    public Result login(Http.Request request){
+
+        JsonNode json = request.body().asJson();
+        String email = json.get("email").toString();
+        String password = json.get("password").toString();
+
+        if(userRepository != null){
+            System.out.println("REPOSTIROY IS FINE");
+        }
+
+        if(email == null || password == null || email.isEmpty() || password.isEmpty()){
+            return badRequest(toJson(new ApiError<>("Invalid json format")));
+        }
+
+        try {
+            User user = userRepository.login(email, password).toCompletableFuture().get();
+            if(user != null) {
+                return ok(toJson(user));
+            }
+        } catch (InterruptedException e) {
+            return badRequest(toJson(new ApiError<>("Invalid username and/or password")));
+        } catch (ExecutionException e) {
+            return badRequest(toJson(new ApiError<>("Invalid username and/or password")));
+        }
+        return badRequest(toJson(new ApiError<>("Invalid username and/or password")));
     }
 
 }

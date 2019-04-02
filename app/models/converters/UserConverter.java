@@ -1,12 +1,18 @@
 package models.converters;
 
+import com.fasterxml.jackson.databind.JsonNode;
+import models.api.ApiError;
 import models.domain.User;
 import models.dto.UserDto;
-import security.PasswordHelper;
+import play.data.Form;
+import play.data.FormFactory;
+import play.mvc.Http;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+
+import static play.libs.Json.toJson;
 
 public class UserConverter {
     public User convertDtoToUser(UserDto userDto) throws ParseException {
@@ -29,5 +35,9 @@ public class UserConverter {
         user.setInstitute(userDto.getInstitute());
 
         return user;
+    }
+
+    public UserDto convertFormToUser(FormFactory formFactory, Http.Request request){
+        return null;
     }
 }

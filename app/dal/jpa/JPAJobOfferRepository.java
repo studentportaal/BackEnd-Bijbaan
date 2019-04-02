@@ -29,8 +29,7 @@ public class JPAJobOfferRepository implements JobOfferRepository {
     @Override
     public CompletionStage<JobOffer> addJobOffer(JobOffer jobOffer) {
         return supplyAsync(()
-                -> JPAJobOfferRepository.this.wrap((EntityManager em)
-                -> JPAJobOfferRepository.this.insert(em, jobOffer)), executionContext);
+                -> wrap(em -> insert(em, jobOffer)), executionContext);
     }
 
     @Override

@@ -3,6 +3,7 @@ package dal.jpa;
 import dal.context.DatabaseExecutionContext;
 import dal.repository.UserRepository;
 import models.domain.User;
+import play.api.Play;
 import play.db.jpa.JPAApi;
 import security.PasswordHelper;
 
@@ -12,6 +13,7 @@ import javax.transaction.Transactional;
 import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.CompletionStage;
+import java.util.concurrent.ExecutionException;
 import java.util.function.Function;
 import java.util.stream.Stream;
 
@@ -47,12 +49,20 @@ public class JPAUserRepository implements UserRepository {
     }
 
     @Override
-    public CompletionStage<Boolean> login(String email, String password) {
+    public CompletionStage<User> login(String email, String password) {
         byte[] salt = getUserHash(email);
         byte[] dBHashedPassword = getPassword(email);
         byte[] userHashedPassword = PasswordHelper.generateHash(salt, password);
 
-        return supplyAsync(() -> Arrays.equals(dBHashedPassword, userHashedPassword)) ;
+        try {
+            if(supplyAsync(() -> Arrays.equals(dBHashedPassword, userHashedPassword)).get().booleanValue())
+            return supplyAsync(() -> wrap(em -> getByEmail(em, email)), executionContext) ;
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        } catch (ExecutionException e) {
+            e.printStackTrace();
+        }
+        return null;
     }
 
     @Override
@@ -70,7 +80,12 @@ public class JPAUserRepository implements UserRepository {
     }
     private User getById(EntityManager em, String id){
         return em.createNamedQuery("getUser", User.class).setParameter("id",id).getSingleResult();
+    }
 
+    private User getByEmail(EntityManager em, String email){
+        return em.createNamedQuery("getUserByEmail", User.class)
+                .setParameter("email", email)
+                .getSingleResult();
     }
 
     private User update(EntityManager em, User user){
@@ -92,7 +107,7 @@ public class JPAUserRepository implements UserRepository {
 
     @Transactional
     byte[] getUserHash(String email) {
-        return jpaApi.em("em").createNamedQuery("getSalt", byte[].class)
+        return this.jpaApi.em("em").createNamedQuery("getSalt", byte[].class)
                 .setParameter("email", email)
                 .getSingleResult();
     }
