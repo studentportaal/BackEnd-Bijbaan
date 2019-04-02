@@ -2,6 +2,7 @@ package controllers;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import dal.repository.UserRepository;
+import models.converters.UserConverter;
 import models.domain.User;
 import models.api.ApiError;
 import models.dto.UserDto;
@@ -34,11 +35,13 @@ public class UserController extends Controller {
 
     private final FormFactory formFactory;
     private final UserRepository userRepository;
+    private final UserConverter userConverter;
 
     @Inject
-    public UserController(FormFactory formFactory, UserRepository userRepository) {
+    public UserController(FormFactory formFactory, UserRepository userRepository, UserConverter userConverter) {
         this.formFactory = formFactory;
         this.userRepository = userRepository;
+        this.userConverter = userConverter;
     }
 
     public Result index(final Http.Request request) {
@@ -61,23 +64,12 @@ public class UserController extends Controller {
         byte[] salt = PasswordHelper.generateSalt();
         byte[] password = PasswordHelper.generateHash(salt, userDto.getPassword());
 
-        User user = new User();
-        user.setFirstName(userDto.getFirstName());
-        user.setLastName(userDto.getLastName());
-
-        Date parsed;
+        User user;
         try {
-            SimpleDateFormat format =
-                    new SimpleDateFormat("yyyy-MM-dd");
-            parsed = format.parse(userDto.getDateOfBirth());
-        }
-        catch(ParseException pe) {
+            user = userConverter.convertDtoToUser(userDto);
+        } catch (ParseException e) {
             return badRequest(toJson(new ApiError<>("Invalid date, use: yyyy-MM-dd")));
         }
-
-        user.setDateOfBirth(parsed);
-        user.setEmail(userDto.getEmail());
-        user.setInstitute(userDto.getInstitute());
         user.setSalt(salt);
         user.setPassword(password);
 
@@ -91,6 +83,29 @@ public class UserController extends Controller {
 
     public Result getAllUsers() throws ExecutionException, InterruptedException {
         return ok(toJson(userRepository.list().toCompletableFuture().get().collect(Collectors.toList())));
+    }
+
+    public Result updateUser(Http.Request request){
+        JsonNode json = request.body().asJson();
+        Form<UserDto> validationForm = formFactory.form(UserDto.class)
+                .bindFromRequest(request);
+
+        if(validationForm.hasErrors()){
+            return badRequest(toJson(new ApiError<>("Invalid json format")));
+        }
+        UserDto dto = Json.fromJson(json, UserDto.class);
+
+        UserConverter converter = new UserConverter();
+
+        User user;
+        try {
+            user = converter.convertDtoToUser(dto);
+        } catch (ParseException e) {
+            return badRequest(toJson(new ApiError<>("Invalid date, use: yyyy-MM-dd")));
+        }
+
+        userRepository.edit(user);
+        return ok(toJson(user));
     }
 
 
