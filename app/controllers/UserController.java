@@ -93,4 +93,5 @@ public class UserController extends Controller {
         return ok(toJson(userRepository.list().toCompletableFuture().get().collect(Collectors.toList())));
     }
 
+
 }

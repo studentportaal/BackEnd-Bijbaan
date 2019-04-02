@@ -37,6 +37,11 @@ public class JPAUserRepository implements UserRepository {
     }
 
     @Override
+    public CompletionStage<User> edit(User user) {
+        return supplyAsync( () -> wrap(em -> update(em, user)), executionContext);
+    }
+
+    @Override
     public CompletionStage<Stream<User>> list() {
         return supplyAsync(() -> wrap(em -> list(em)), executionContext);
     }
@@ -48,7 +53,6 @@ public class JPAUserRepository implements UserRepository {
         byte[] userHashedPassword = PasswordHelper.generateHash(salt, password);
 
         return supplyAsync(() -> Arrays.equals(dBHashedPassword, userHashedPassword)) ;
-
     }
 
     private <T> T wrap(Function<EntityManager, T> function) {
@@ -57,6 +61,11 @@ public class JPAUserRepository implements UserRepository {
 
     private User insert(EntityManager em, User user) {
         em.persist(user);
+        return user;
+    }
+
+    private User update(EntityManager em, User user){
+        em.merge(user);
         return user;
     }
 
@@ -78,5 +87,4 @@ public class JPAUserRepository implements UserRepository {
                 .setParameter("email", email)
                 .getSingleResult();
     }
-
 }

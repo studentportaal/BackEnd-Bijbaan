@@ -15,6 +15,8 @@ public interface UserRepository {
 
     CompletionStage<User> add(User user);
 
+    CompletionStage<User> edit(User user);
+
     CompletionStage<Stream<User>> list();
 
     CompletionStage<Boolean> login(String email, String password);
