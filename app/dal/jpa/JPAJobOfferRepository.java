@@ -6,6 +6,7 @@ import models.domain.JobOffer;
 import play.db.jpa.JPAApi;
 
 import javax.inject.Inject;
+import javax.persistence.Entity;
 import javax.persistence.EntityManager;
 import javax.persistence.Query;
 import javax.persistence.TypedQuery;
@@ -56,6 +57,11 @@ public class JPAJobOfferRepository implements JobOfferRepository {
     }
 
     @Override
+    public CompletionStage<List<JobOffer>> getAllJobOffers(){
+        return supplyAsync(() -> wrap(this::allList), executionContext);
+    }
+
+    @Override
     public CompletionStage<String> getJobOfferCount() {
         return supplyAsync(() -> wrap(this::count), executionContext);
     }
@@ -79,6 +85,11 @@ public class JPAJobOfferRepository implements JobOfferRepository {
         TypedQuery<JobOffer> jobOffers = em.createQuery("FROM JobOffer j", JobOffer.class);
         jobOffers.setFirstResult(startNr);
         jobOffers.setMaxResults(amount);
+        return jobOffers.getResultList();
+    }
+
+    private List<JobOffer> allList(EntityManager em){
+        TypedQuery<JobOffer> jobOffers = em.createQuery("FROM JobOffer j", JobOffer.class);
         return jobOffers.getResultList();
     }
 }

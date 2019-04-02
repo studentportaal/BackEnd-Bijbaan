@@ -15,5 +15,6 @@ public interface JobOfferRepository {
     CompletionStage<JobOffer> updateJobOffer(JobOffer jobOffer);
     JobOffer getJobOfferById(String id);
     CompletionStage<List<JobOffer>> getAllJobOffers(int startNr, int amount);
+    CompletionStage<List<JobOffer>> getAllJobOffers();
     CompletionStage<String>getJobOfferCount();
 }
