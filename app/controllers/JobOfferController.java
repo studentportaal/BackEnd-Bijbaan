@@ -2,6 +2,7 @@ package controllers;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import dal.repository.JobOfferRepository;
+import models.api.ApiError;
 import models.domain.JobOffer;
 import play.data.Form;
 import play.data.FormFactory;
@@ -35,7 +36,7 @@ public class JobOfferController extends Controller {
         Form<JobOffer> jobOfferValidator = formFactory.form(JobOffer.class).bindFromRequest(request);
 
         if(jobOfferValidator.hasErrors()){
-            return badRequest();
+            return badRequest(toJson(new ApiError<>("Invalid json object")));
         }
         else{
             JsonNode json = request.body().asJson();
