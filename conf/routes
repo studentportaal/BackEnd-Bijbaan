@@ -4,7 +4,7 @@
 
 # Home page
 GET     /                         controllers.UserController.index(req: Request)
-POST    /user                     controllers.UserController.addUser(req: Request)
+POST    /users                    controllers.UserController.addUser(req: Request)
 GET     /users                    controllers.UserController.getAllUsers()
 
 # Map static resources from the /public folder to the /assets URL path
@@ -12,5 +12,6 @@ GET     /assets/*file               controllers.Assets.at(path="/public", file)
 
 
 #JobOffers
-POST    /joboffer                   controllers.JobOfferController.addJobOffer(request: Request)
-GET     /joboffers                  controllers.JobOfferController.getAllJobOffers()
+POST    /joboffer       controllers.JobOfferController.addJobOffer(request: Request)
+GET     /joboffer                   controllers.JobOfferController.getAllJobOffers(startNr: String, amount: String)
+GET     /joboffer/count             controllers.JobOfferController.getJobOfferCount()
