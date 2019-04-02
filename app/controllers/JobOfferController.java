@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import dal.repository.JobOfferRepository;
 import models.api.ApiError;
 import models.domain.JobOffer;
+import models.parser.Parser;
 import play.data.Form;
 import play.data.FormFactory;
 import play.libs.Json;
@@ -70,11 +71,11 @@ public class JobOfferController extends Controller {
 
         try {
             if (startNr != null && amount != null) {
-                try{
+                if (Parser.stringToInt(startNr) && Parser.stringToInt(amount)) {
                     return ok(toJson(jobOfferRepository.getAllJobOffers(Integer.parseInt(startNr), Integer.parseInt(amount))
                             .toCompletableFuture()
                             .get()));
-                } catch (NumberFormatException nfe ){
+                } else {
                     return badRequest(toJson(new ApiError<>("parameters need to be a number")));
                 }
             } else {
