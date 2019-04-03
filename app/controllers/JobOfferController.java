@@ -69,21 +69,28 @@ public class JobOfferController extends Controller {
 
     public Result getAllJobOffers(String startNr, String amount) {
 
-        try {
-            if (startNr != null && amount != null) {
-                if (Parser.stringToInt(startNr) && Parser.stringToInt(amount)) {
+        if (startNr != null && amount != null) {
+            if (Parser.stringToInt(startNr) && Parser.stringToInt(amount)) {
+                try {
                     return ok(toJson(jobOfferRepository.getAllJobOffers(Integer.parseInt(startNr), Integer.parseInt(amount))
                             .toCompletableFuture()
                             .get()));
-                } else {
-                    return badRequest(toJson(new ApiError<>("parameters need to be a number")));
+                } catch (InterruptedException | ExecutionException e) {
+                    e.printStackTrace();
+                    return badRequest(toJson(new ApiError<>("Oops, something went wrong")));
                 }
+
             } else {
-                return ok(toJson(jobOfferRepository.getAllJobOffers().toCompletableFuture().get()));
+                return badRequest(toJson(new ApiError<>("parameters need to be a number")));
             }
-        } catch (InterruptedException | ExecutionException e) {
-            e.printStackTrace();
-            return badRequest(toJson(new ApiError<>("Oops, something went wrong")));
+        } else {
+            try{
+                return ok(toJson(jobOfferRepository.getAllJobOffers().toCompletableFuture().get()));
+            } catch (InterruptedException | ExecutionException e){
+                e.printStackTrace();
+                return badRequest(toJson(new ApiError<>("Oops. something went wrong")));
+            }
+
         }
     }
 }
