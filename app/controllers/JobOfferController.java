@@ -77,9 +77,7 @@ public class JobOfferController extends Controller {
                             .get()));
                 } catch (InterruptedException | ExecutionException e) {
                     e.printStackTrace();
-                    return badRequest(toJson(new ApiError<>("Oops, something went wrong")));
                 }
-
             } else {
                 return badRequest(toJson(new ApiError<>("parameters need to be a number")));
             }
@@ -88,9 +86,8 @@ public class JobOfferController extends Controller {
                 return ok(toJson(jobOfferRepository.getAllJobOffers().toCompletableFuture().get()));
             } catch (InterruptedException | ExecutionException e){
                 e.printStackTrace();
-                return badRequest(toJson(new ApiError<>("Oops. something went wrong")));
             }
-
         }
+        return badRequest(toJson(new ApiError<>("Oops, something went wrong")));
     }
 }
