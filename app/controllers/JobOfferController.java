@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import dal.repository.JobOfferRepository;
 import models.api.ApiError;
 import models.domain.JobOffer;
+import models.parser.Parser;
 import play.data.Form;
 import play.data.FormFactory;
 import play.libs.Json;
@@ -11,6 +12,7 @@ import play.mvc.BodyParser;
 import play.mvc.Controller;
 import play.mvc.Http;
 import play.mvc.Result;
+import scala.Int;
 
 import javax.inject.Inject;
 import java.util.concurrent.CompletionStage;
@@ -25,19 +27,18 @@ public class JobOfferController extends Controller {
     private final JobOfferRepository jobOfferRepository;
 
     @Inject
-    public JobOfferController(FormFactory formFactory, JobOfferRepository jobOfferRepository){
+    public JobOfferController(FormFactory formFactory, JobOfferRepository jobOfferRepository) {
         this.formFactory = formFactory;
         this.jobOfferRepository = jobOfferRepository;
     }
 
     @BodyParser.Of(BodyParser.Json.class)
-    public Result addJobOffer(final Http.Request request){
+    public Result addJobOffer(final Http.Request request) {
         Form<JobOffer> jobOfferValidator = formFactory.form(JobOffer.class).bindFromRequest(request);
 
-        if(jobOfferValidator.hasErrors()){
+        if (jobOfferValidator.hasErrors()) {
             return badRequest(toJson(new ApiError<>("Invalid json object")));
-        }
-        else{
+        } else {
             JsonNode json = request.body().asJson();
             JobOffer jobOffer = Json.fromJson(json, JobOffer.class);
             jobOfferRepository.addJobOffer(jobOffer);
@@ -57,17 +58,36 @@ public class JobOfferController extends Controller {
         return null;
     }
 
-    public Result getAllJobOffers(){
+    public Result getJobOfferCount() {
         try {
-
-            return ok(toJson(jobOfferRepository.getAllJobOffers()
-                    .toCompletableFuture()
-                    .get()
-                    .collect(Collectors.toList())));
+            return ok(toJson(jobOfferRepository.getJobOfferCount().toCompletableFuture().get()));
         } catch (InterruptedException | ExecutionException e) {
             e.printStackTrace();
+            return badRequest(toJson(new ApiError<>("Oops something went wrong")));
         }
+    }
 
-        return ok();
+    public Result getAllJobOffers(String startNr, String amount) {
+
+        if (startNr != null && amount != null) {
+            if (Parser.stringToInt(startNr) && Parser.stringToInt(amount)) {
+                try {
+                    return ok(toJson(jobOfferRepository.getAllJobOffers(Integer.parseInt(startNr), Integer.parseInt(amount))
+                            .toCompletableFuture()
+                            .get()));
+                } catch (InterruptedException | ExecutionException e) {
+                    e.printStackTrace();
+                }
+            } else {
+                return badRequest(toJson(new ApiError<>("parameters need to be a number")));
+            }
+        } else {
+            try{
+                return ok(toJson(jobOfferRepository.getAllJobOffers().toCompletableFuture().get()));
+            } catch (InterruptedException | ExecutionException e){
+                e.printStackTrace();
+            }
+        }
+        return badRequest(toJson(new ApiError<>("Oops, something went wrong")));
     }
 }
