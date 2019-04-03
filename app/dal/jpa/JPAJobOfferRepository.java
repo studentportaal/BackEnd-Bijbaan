@@ -3,7 +3,9 @@ package dal.jpa;
 import dal.context.DatabaseExecutionContext;
 import dal.repository.JobOfferRepository;
 import models.domain.JobOffer;
+import models.domain.User;
 import play.db.jpa.JPAApi;
+import play.mvc.Result;
 
 import javax.inject.Inject;
 import javax.persistence.Entity;
@@ -64,6 +66,11 @@ public class JPAJobOfferRepository implements JobOfferRepository {
     @Override
     public CompletionStage<String> getJobOfferCount() {
         return supplyAsync(() -> wrap(this::count), executionContext);
+    }
+
+    @Override
+    public CompletionStage<Result> applyForJob(User user, String id) {
+        return null;
     }
 
     private JobOffer insert(EntityManager em, JobOffer jobOffer) {

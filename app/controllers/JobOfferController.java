@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import dal.repository.JobOfferRepository;
 import models.api.ApiError;
 import models.domain.JobOffer;
+import models.domain.User;
 import models.parser.Parser;
 import play.data.Form;
 import play.data.FormFactory;
@@ -56,6 +57,20 @@ public class JobOfferController extends Controller {
 
     public CompletionStage<Result> getJobOfferById() {
         return null;
+    }
+
+    @BodyParser.Of(BodyParser.Json.class)
+    public Result applyForJob(final Http.Request request, String id){
+        Form<User> userValidator = formFactory.form(User.class).bindFromRequest(request);
+
+        if(userValidator.hasErrors()){
+            return badRequest(toJson(new ApiError<>("Invalid json object")));
+        } else{
+            JsonNode json = request.body().asJson();
+            User user = Json.fromJson(json, User.class);
+            jobOfferRepository.applyForJob(user, id);
+            return ok();
+        }
     }
 
     public Result getJobOfferCount() {
