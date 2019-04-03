@@ -15,7 +15,7 @@ GET     /assets/*file               controllers.Assets.at(path="/public", file)
 POST    /joboffer                   controllers.JobOfferController.addJobOffer(request: Request)
 GET     /joboffer                   controllers.JobOfferController.getAllJobOffers(startNr: String ?= null, amount: String ?= null)
 GET     /joboffer/count             controllers.JobOfferController.getJobOfferCount()
-POST    /joboffer/:id               controllers.JobOfferController.applyForJob(request: Request, String id)
+POST    /joboffer/:id               controllers.JobOfferController.applyForJob(request: Request, id: String)
 
 #Company
 POST    /company                    controllers.CompanyController.addCompany(request: Request)
