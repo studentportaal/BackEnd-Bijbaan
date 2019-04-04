@@ -56,6 +56,17 @@ public class JobOfferController extends Controller {
         return null;
     }
 
+    public Result getJobOfferById(String id) {
+        try {
+            return ok(toJson(jobOfferRepository.getJobOfferById(id).toCompletableFuture().get()));
+        } catch (InterruptedException | ExecutionException e) {
+            e.printStackTrace();
+
+            return internalServerError(e.getLocalizedMessage());
+        }
+    }
+
+
     public Result getAllJobOffers(){
         //THIS IS TEMPORARY
         JobOffer offer = new JobOffer();

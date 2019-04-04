@@ -7,6 +7,7 @@ import play.db.jpa.JPAApi;
 
 import javax.inject.Inject;
 import javax.persistence.EntityManager;
+import javax.persistence.TypedQuery;
 import java.util.List;
 import java.util.concurrent.CompletionStage;
 import java.util.function.Function;
@@ -44,8 +45,12 @@ public class JPAJobOfferRepository implements JobOfferRepository {
     }
 
     @Override
-    public JobOffer getJobOfferById(String id) {
-        return null;
+    public CompletionStage<JobOffer> getJobOfferById(String id) {
+        return supplyAsync(() -> wrap((EntityManager em) -> {
+            TypedQuery<JobOffer> namedQuery = em.createNamedQuery("JobOffer.getJobOfferById", JobOffer.class);
+            namedQuery.setParameter("id", id);
+            return namedQuery.getSingleResult();
+        }));
     }
 
     @Override

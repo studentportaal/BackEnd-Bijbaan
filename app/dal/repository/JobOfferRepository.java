@@ -12,6 +12,7 @@ public interface JobOfferRepository {
     CompletionStage<JobOffer> addJobOffer(JobOffer jobOffer);
     CompletionStage<JobOffer> removeJobOffer(JobOffer jobOffer);
     CompletionStage<JobOffer> updateJobOffer(JobOffer jobOffer);
-    JobOffer getJobOfferById(String id);
+
+    CompletionStage<JobOffer> getJobOfferById(String id);
     CompletionStage<Stream<JobOffer>> getAllJobOffers();
 }
