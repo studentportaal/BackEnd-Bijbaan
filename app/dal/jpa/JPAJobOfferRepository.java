@@ -7,11 +7,11 @@ import play.db.jpa.JPAApi;
 
 import javax.inject.Inject;
 import javax.persistence.EntityManager;
+import javax.persistence.Query;
 import javax.persistence.TypedQuery;
 import java.util.List;
 import java.util.concurrent.CompletionStage;
 import java.util.function.Function;
-import java.util.stream.Stream;
 
 import static java.util.concurrent.CompletableFuture.supplyAsync;
 
@@ -54,8 +54,18 @@ public class JPAJobOfferRepository implements JobOfferRepository {
     }
 
     @Override
-    public CompletionStage<Stream<JobOffer>> getAllJobOffers() {
-        return supplyAsync(() -> wrap(this::list), executionContext);
+    public CompletionStage<List<JobOffer>> getAllJobOffers(int startNr, int amount) {
+        return supplyAsync(() -> wrap(em -> list(em, startNr, amount)), executionContext);
+    }
+
+    @Override
+    public CompletionStage<List<JobOffer>> getAllJobOffers() {
+        return supplyAsync(() -> wrap(this::allList), executionContext);
+    }
+
+    @Override
+    public CompletionStage<String> getJobOfferCount() {
+        return supplyAsync(() -> wrap(this::count), executionContext);
     }
 
     private JobOffer insert(EntityManager em, JobOffer jobOffer) {
@@ -67,8 +77,21 @@ public class JPAJobOfferRepository implements JobOfferRepository {
         return jpaApi.withTransaction(function);
     }
 
-    private Stream<JobOffer> list(EntityManager em) {
-        List<JobOffer> jobOffers = em.createNamedQuery("JobOffer.getAllJobOffers", JobOffer.class).getResultList();
-        return jobOffers.stream();
+    private String count(EntityManager em) {
+        Query q = em.createQuery("SELECT COUNT (j) FROM JobOffer j");
+        return q.getSingleResult().toString();
+
+    }
+
+    private List<JobOffer> list(EntityManager em, int startNr, int amount) {
+        TypedQuery<JobOffer> jobOffers = em.createQuery("FROM JobOffer j", JobOffer.class);
+        jobOffers.setFirstResult(startNr);
+        jobOffers.setMaxResults(amount);
+        return jobOffers.getResultList();
+    }
+
+    private List<JobOffer> allList(EntityManager em) {
+        TypedQuery<JobOffer> jobOffers = em.createQuery("FROM JobOffer j", JobOffer.class);
+        return jobOffers.getResultList();
     }
 }
