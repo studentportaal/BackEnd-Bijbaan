@@ -17,7 +17,7 @@ GET     /joboffer/:id               controllers.JobOfferController.getJobOfferBy
 POST    /joboffer                   controllers.JobOfferController.addJobOffer(request: Request)
 GET     /joboffer                   controllers.JobOfferController.getAllJobOffers(startNr: String ?= null, amount: String ?= null)
 GET     /joboffer/count             controllers.JobOfferController.getJobOfferCount()
-POST    /joboffer/:id               controllers.JobOfferController.applyForJob(request: Request, id: String)
+PUT     /joboffer/:id               controllers.JobOfferController.applyForJob(request: Request, id: String)
 
 #Company
 POST    /company                    controllers.CompanyController.addCompany(request: Request)

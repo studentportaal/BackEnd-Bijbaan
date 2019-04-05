@@ -29,7 +29,7 @@ public class JobOffer {
     private String function;
     @Constraints.Required
     private double salary;
-    @ManyToMany
+    @ManyToMany(fetch = FetchType.EAGER)
     private List<User> applicants;
 
     public String getId() {

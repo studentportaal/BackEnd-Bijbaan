@@ -13,6 +13,7 @@ import javax.persistence.Query;
 import javax.persistence.TypedQuery;
 import java.util.List;
 import java.util.concurrent.CompletionStage;
+import java.util.concurrent.ExecutionException;
 import java.util.function.Function;
 
 import static java.util.concurrent.CompletableFuture.supplyAsync;
@@ -24,7 +25,7 @@ public class JPAJobOfferRepository implements JobOfferRepository {
     private final DatabaseExecutionContext executionContext;
 
     @Inject
-    public JPAJobOfferRepository(JPAApi jpaApi, DatabaseExecutionContext executionContext){
+    public JPAJobOfferRepository(JPAApi jpaApi, DatabaseExecutionContext executionContext) {
         this.jpaApi = jpaApi;
         this.executionContext = executionContext;
     }
@@ -57,27 +58,47 @@ public class JPAJobOfferRepository implements JobOfferRepository {
 
     @Override
     public CompletionStage<List<JobOffer>> getAllJobOffers(int startNr, int amount) {
-        return supplyAsync(() -> wrap(em -> list(em, startNr, amount)), executionContext);
+        return supplyAsync(()
+                -> wrap(em -> list(em, startNr, amount)), executionContext);
     }
 
     @Override
     public CompletionStage<List<JobOffer>> getAllJobOffers() {
-        return supplyAsync(() -> wrap(this::allList), executionContext);
+        return supplyAsync(()
+                -> wrap(this::allList), executionContext);
     }
 
     @Override
     public CompletionStage<String> getJobOfferCount() {
-        return supplyAsync(() -> wrap(this::count), executionContext);
+        return supplyAsync(()
+                -> wrap(this::count), executionContext);
     }
 
     @Override
-    public CompletionStage<Result> applyForJob(User user, String id) {
-        return null;
+    public CompletionStage<JobOffer> applyForJob(User user, String id) {
+        try {
+            JobOffer offer = getJobOfferById(id).toCompletableFuture().get();
+            offer.getApplicants().add(user);
+
+            return supplyAsync(()
+                    -> wrap(em -> update(em, offer)));
+
+        } catch (InterruptedException | ExecutionException e) {
+            e.printStackTrace();
+            return null;
+        }
     }
 
     private JobOffer insert(EntityManager em, JobOffer jobOffer) {
         em.persist(jobOffer);
         return jobOffer;
+    }
+
+    //needs some work
+    private JobOffer update(EntityManager em, JobOffer offer) {
+        em.merge(offer);
+        return offer;
+
     }
 
     private <T> T wrap(Function<EntityManager, T> function) {

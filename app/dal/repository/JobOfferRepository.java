@@ -26,6 +26,6 @@ public interface JobOfferRepository {
 
     CompletionStage<String> getJobOfferCount();
 
-    CompletionStage<Result> applyForJob(User user, String id);
+    CompletionStage<JobOffer> applyForJob(User user, String id);
 
 }
