@@ -93,4 +93,12 @@ public class UserController extends Controller {
         return ok(toJson(userRepository.list().toCompletableFuture().get().collect(Collectors.toList())));
     }
 
+    public Result getUser(String id)  throws InterruptedException, ExecutionException {
+        try{
+            return ok(toJson(userRepository.getById(id).toCompletableFuture().get()));
+        } catch (NullPointerException e){
+            return badRequest(toJson(new ApiError<>("User not found")));
+        }
+    }
+
 }

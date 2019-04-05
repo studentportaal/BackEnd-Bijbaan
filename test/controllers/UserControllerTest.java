@@ -21,6 +21,7 @@ import play.test.Helpers;
 import javax.validation.Validation;
 import javax.validation.ValidatorFactory;
 import java.util.Date;
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ForkJoinPool;
 
 import static java.util.concurrent.CompletableFuture.supplyAsync;
@@ -82,7 +83,7 @@ public class UserControllerTest {
     }
 
     @Test
-    public void checkAddUSerInvalidObject() {
+    public void checkAddUserInvalidObject() {
         // Don't need to be this involved in setting up the mock, but for demo it works:
         UserRepository repository = mock(UserRepository.class);
 
@@ -118,7 +119,7 @@ public class UserControllerTest {
     }
 
     @Test
-    public void checkAddUSerInvalidDate() {
+    public void checkAddUserInvalidDate() {
         // Don't need to be this involved in setting up the mock, but for demo it works:
         UserRepository repository = mock(UserRepository.class);
 
@@ -159,4 +160,69 @@ public class UserControllerTest {
         assertEquals("Invalid date, use: yyyy-MM-dd", error.getMessage());
     }
 
+
+    @Test
+    public void getUser() throws ExecutionException, InterruptedException {
+        // Don't need to be this involved in setting up the mock, but for demo it works:
+        UserRepository repository = mock(UserRepository.class);
+        User user = new User();
+        user.setFirstName("Steve");
+
+        when(repository.getById(any())).thenReturn(supplyAsync(() -> user));
+
+        // Set up the request builder to reflect input
+        Http.Request request = Helpers.fakeRequest("GET","/users/4799bcf7-8766-426a-b238-cfc3c3b47264").build().withoutTransientLang();
+
+        // Easier to mock out the form factory inputs here
+        Messages messages = mock(Messages.class);
+        MessagesApi messagesApi = mock(MessagesApi.class);
+        when(messagesApi.preferred(request)).thenReturn(messages);
+
+        ValidatorFactory validatorFactory = Validation.byDefaultProvider().configure()
+                .messageInterpolator(new ParameterMessageInterpolator())
+                .buildValidatorFactory();
+
+        Config config = ConfigFactory.load();
+        FormFactory formFactory = new FormFactory(messagesApi, new Formatters(messagesApi), validatorFactory, config);
+
+        // Create controller and call method under test:
+        final UserController controller = new UserController(formFactory, repository);
+
+        Result stage = controller.getUser("4799bcf7-8766-426a-b238-cfc3c3b47264");
+        String result = contentAsString(stage);
+
+        User userResult = Json.fromJson(Json.parse(result), User.class);
+
+        assertEquals(200, stage.status());
+        assertEquals(user.getFirstName(), userResult.getFirstName());
+    }
+
+    @Test
+    public void checkGetUserInvalidId() throws ExecutionException, InterruptedException {
+        // Don't need to be this involved in setting up the mock, but for demo it works:
+        UserRepository repository = mock(UserRepository.class);
+
+        // Set up the request builder to reflect input
+        Http.Request request = Helpers.fakeRequest("GET","/users/4799bcf7-8766-426a-b238-cfc3c3b47264").build().withoutTransientLang();
+
+        // Easier to mock out the form factory inputs here
+        Messages messages = mock(Messages.class);
+        MessagesApi messagesApi = mock(MessagesApi.class);
+        when(messagesApi.preferred(request)).thenReturn(messages);
+
+        ValidatorFactory validatorFactory = Validation.byDefaultProvider().configure()
+                .messageInterpolator(new ParameterMessageInterpolator())
+                .buildValidatorFactory();
+
+        Config config = ConfigFactory.load();
+        FormFactory formFactory = new FormFactory(messagesApi, new Formatters(messagesApi), validatorFactory, config);
+
+        // Create controller and call method under test:
+        final UserController controller = new UserController(formFactory, repository);
+
+        Result stage = controller.getUser("01234");
+
+        assertEquals(400, stage.status());
+
+    }
 }
