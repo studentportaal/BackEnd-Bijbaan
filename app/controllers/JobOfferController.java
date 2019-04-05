@@ -16,6 +16,7 @@ import play.mvc.Http;
 import play.mvc.Result;
 
 import javax.inject.Inject;
+import javax.persistence.NoResultException;
 import java.util.concurrent.CompletionStage;
 import java.util.concurrent.ExecutionException;
 
@@ -64,7 +65,11 @@ public class JobOfferController extends Controller {
         } else {
             JsonNode json = request.body().asJson();
             User user = Json.fromJson(json, User.class);
-            jobOfferRepository.applyForJob(user, id);
+            try{
+                jobOfferRepository.applyForJob(user, id);
+            } catch (NoResultException e){
+                return badRequest(toJson(new ApiError<>("No result found with the given ID")));
+            }
             return ok();
         }
     }
