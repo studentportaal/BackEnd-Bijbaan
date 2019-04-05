@@ -9,10 +9,10 @@ import org.junit.Before;
 import org.junit.Test;
 import play.data.FormFactory;
 import play.data.format.Formatters;
-import play.libs.Json;
-import play.mvc.Http;
 import play.i18n.Messages;
 import play.i18n.MessagesApi;
+import play.libs.Json;
+import play.mvc.Http;
 import play.mvc.Result;
 import play.test.Helpers;
 
@@ -59,7 +59,7 @@ public class CompanyControllerTest {
 
     @Test
     public void addCompany() {
-        when(repository.add(any())).thenReturn(supplyAsync(() -> company ));
+        when(repository.add(any())).thenReturn(supplyAsync(() -> company));
 
         request = Helpers.fakeRequest("POST", "/")
                 .bodyJson(Json.toJson(company)).build().withTransientLang("es");
@@ -80,7 +80,7 @@ public class CompanyControllerTest {
     @Test
     public void updateCompany() {
         company.setName("newTest");
-        when(repository.add(any())).thenReturn(supplyAsync(() -> company ));
+        when(repository.add(any())).thenReturn(supplyAsync(() -> company));
 
         request = Helpers.fakeRequest("PUT", "/")
                 .bodyJson(Json.toJson(company)).build().withTransientLang("es");
@@ -88,7 +88,6 @@ public class CompanyControllerTest {
         when(messagesApi.preferred(request)).thenReturn(messages);
 
         final CompanyController controller = new CompanyController(formFactory, repository);
-
 
 
         Result stage = controller.updateCompany(request);

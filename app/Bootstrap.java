@@ -36,27 +36,27 @@ public class Bootstrap {
 
     private void addUsers() {
         LOGGER.log(Level.WARNING, "Adding mock user data");
-        for (int i =0; i < 9; i++) {
-          User user = new User();
-          user.setEmail("test" + i +"@test.nl");
-          user.setFirstName((Integer.toString(i)));
-          user.setLastName("Test");
-          user.setInstitute("Fontys");
-          user.setDateOfBirth(new Date());
+        for (int i = 0; i < 9; i++) {
+            User user = new User();
+            user.setEmail("test" + i + "@test.nl");
+            user.setFirstName((Integer.toString(i)));
+            user.setLastName("Test");
+            user.setInstitute("Fontys");
+            user.setDateOfBirth(new Date());
 
-          byte[] salt = PasswordHelper.generateSalt();
-          byte[] password = PasswordHelper.generateHash(salt, "password");
+            byte[] salt = PasswordHelper.generateSalt();
+            byte[] password = PasswordHelper.generateHash(salt, "password");
 
-          user.setSalt(salt);
-          user.setPassword(password);
+            user.setSalt(salt);
+            user.setPassword(password);
 
-          userRepository.add(user);
+            userRepository.add(user);
         }
     }
 
     private void addJobOffers() {
         LOGGER.log(Level.WARNING, "Adding mock joboffer data");
-        for(int i = 0; i < 9; i++) {
+        for (int i = 0; i < 9; i++) {
             JobOffer jobOffer = new JobOffer();
             jobOffer.setFunction("Senior Software Verneuker");
             jobOffer.setInformation("Software verneuken voor geld.");

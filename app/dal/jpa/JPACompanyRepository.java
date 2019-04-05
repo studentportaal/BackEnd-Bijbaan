@@ -18,14 +18,14 @@ public class JPACompanyRepository implements CompanyRepository {
     private final DatabaseExecutionContext executionContext;
 
     @Inject
-    public JPACompanyRepository(JPAApi jpaApi, DatabaseExecutionContext executionContext){
+    public JPACompanyRepository(JPAApi jpaApi, DatabaseExecutionContext executionContext) {
         this.jpaApi = jpaApi;
         this.executionContext = executionContext;
     }
 
     @Override
     public CompletionStage<Company> add(Company company) {
-        return supplyAsync (()
+        return supplyAsync(()
                 -> wrap(em -> insert(em, company)), executionContext);
     }
 
@@ -39,12 +39,12 @@ public class JPACompanyRepository implements CompanyRepository {
         return jpaApi.withTransaction(function);
     }
 
-    private Company insert(EntityManager em, Company company){
+    private Company insert(EntityManager em, Company company) {
         em.persist(company);
         return company;
     }
 
-    private Company update(EntityManager em, Company company){
+    private Company update(EntityManager em, Company company) {
         em.merge(company);
         return company;
     }
