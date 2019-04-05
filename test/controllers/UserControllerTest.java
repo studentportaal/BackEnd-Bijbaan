@@ -162,7 +162,7 @@ public class UserControllerTest {
 
 
     @Test
-    public void getUser() {
+    public void getUser() throws ExecutionException, InterruptedException {
         // Don't need to be this involved in setting up the mock, but for demo it works:
         UserRepository repository = mock(UserRepository.class);
         User user = new User();
@@ -198,7 +198,7 @@ public class UserControllerTest {
     }
 
     @Test
-    public void checkGetUserInvalidId() {
+    public void checkGetUserInvalidId() throws ExecutionException, InterruptedException {
         // Don't need to be this involved in setting up the mock, but for demo it works:
         UserRepository repository = mock(UserRepository.class);
 
