@@ -72,8 +72,6 @@ public class JobOfferController extends Controller {
 
         try{
                 User u = c.convertDtoToUser(userDto);
-                System.out.println(u);
-                System.out.println(id);
                 return ok(toJson(jobOfferRepository.applyForJob(u, id).toCompletableFuture().get()));
             } catch (NoResultException e ){
                 return badRequest(toJson(new ApiError<>("No result found with the given ID")));

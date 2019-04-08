@@ -286,6 +286,6 @@ public class JobOfferControllerTest {
 
         JobOffer jobOfferResult = Json.fromJson(Json.parse(result), JobOffer.class);
 
-        assertEquals(400, stage.status());  
+        assertEquals(400, stage.status());
     }
 }
