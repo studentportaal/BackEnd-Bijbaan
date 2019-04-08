@@ -20,7 +20,7 @@ public interface UserRepository {
 
     CompletionStage<Stream<User>> list();
 
-    CompletionStage<UserDto> login(String email, String password);
+    CompletionStage<User> login(String email, String password);
 
     CompletionStage<User> getById(String id);
 }

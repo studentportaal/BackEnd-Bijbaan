@@ -48,7 +48,7 @@ public class JPAUserRepository implements UserRepository {
     }
 
     @Override
-    public CompletionStage<UserDto> login(String email, String password) {
+    public CompletionStage<User> login(String email, String password) {
         byte[] salt = wrap(em -> getUserSalt(em, email));
 
         return supplyAsync(() -> wrap(em -> getUserAndPassword(em, email, PasswordHelper.generateHash(salt, password))));
@@ -87,10 +87,10 @@ public class JPAUserRepository implements UserRepository {
         return users.stream();
     }
 
-    private UserDto getUserAndPassword(EntityManager em, String email, byte[] hashedPassword){
-        TypedQuery<UserDto> query = em.createQuery(
-                "SELECT new models.dto.UserDto(u.id, u.email, u.firstName, u.lastName, u.dateOfBirth, u.institute) " +
-                        "FROM User u WHERE u.email = :email AND u.password = :password", UserDto.class)
+    private User getUserAndPassword(EntityManager em, String email, byte[] hashedPassword){
+        TypedQuery<User> query = em.createQuery(
+                "SELECT u " +
+                        "FROM User u WHERE u.email = :email AND u.password = :password", User.class)
                 .setParameter("email", email)
                 .setParameter("password", hashedPassword);
         return query.getSingleResult();

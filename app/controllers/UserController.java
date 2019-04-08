@@ -16,6 +16,7 @@ import play.mvc.Result;
 import security.PasswordHelper;
 
 import javax.inject.Inject;
+import javax.persistence.NoResultException;
 import javax.validation.ConstraintViolationException;
 import java.text.ParseException;
 import java.util.concurrent.ExecutionException;
@@ -134,13 +135,16 @@ public class UserController extends Controller {
         }
 
         try {
-            UserDto user = userRepository.login(userDto.getEmail(), userDto.getPassword()).toCompletableFuture().get();
+            User user = userRepository.login(userDto.getEmail(), userDto.getPassword()).toCompletableFuture().get();
+            UserDto dto = new UserDto(user.getUuid(), user.getEmail(), user.getFirstName(), user.getLastName(), user.getDateOfBirth(), user.getInstitute());
             if(user != null) {
-                return ok(toJson(user));
+                return ok(toJson(dto));
             }
         } catch (InterruptedException e) {
             return badRequest(toJson(new ApiError<>("Invalid username and/or password")));
         } catch (ExecutionException e) {
+            return badRequest(toJson(new ApiError<>("Invalid username and/or password")));
+        } catch (NoResultException e){
             return badRequest(toJson(new ApiError<>("Invalid username and/or password")));
         }
         return badRequest(toJson(new ApiError<>("Invalid username and/or password")));
