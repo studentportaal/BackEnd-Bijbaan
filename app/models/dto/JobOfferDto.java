@@ -116,9 +116,9 @@ public class JobOfferDto {
         jobOffer.setId(this.getId());
         try {
             if (this.getCompany() != null) {
-                Company company = repository.getCompanyById(this.getCompany()).toCompletableFuture().get();
-                if (company != null) {
-                    this.setCompany(company.getId());
+                Company fullCompany = repository.getCompanyById(this.getCompany()).toCompletableFuture().get();
+                if (fullCompany != null) {
+                    this.setCompany(fullCompany.getId());
                 }
             }
         } catch (InterruptedException | ExecutionException e) {
