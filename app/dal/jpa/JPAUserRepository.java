@@ -71,12 +71,6 @@ public class JPAUserRepository implements UserRepository {
         return em.createNamedQuery("getUser", User.class).setParameter("id",id).getSingleResult();
     }
 
-    private User getByEmail(EntityManager em, String email){
-        return em.createQuery("SELECT u.salt FROM User u WHERE email = :email", User.class)
-                .setParameter("email", email)
-                .getSingleResult();
-    }
-
     private User update(EntityManager em, User user){
         User u = getById(em, user.getUuid());
         user.setSalt(u.getSalt());
@@ -102,7 +96,6 @@ public class JPAUserRepository implements UserRepository {
     byte[] getUserSalt(EntityManager em, String email) {
         TypedQuery<byte[]> query = em.createQuery("SELECT u.salt FROM User u WHERE u.email = :email", byte[].class);
         query.setParameter("email", email);
-        System.out.println(query.getResultList());
         return query.getSingleResult();
     }
 }

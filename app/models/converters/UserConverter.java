@@ -37,8 +37,4 @@ public class UserConverter {
 
         return user;
     }
-
-    public UserDto convertFormToUser(FormFactory formFactory, Http.Request request){
-        return null;
-    }
 }

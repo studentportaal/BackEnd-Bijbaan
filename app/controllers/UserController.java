@@ -119,10 +119,6 @@ public class UserController extends Controller {
         JsonNode json = request.body().asJson();
         UserDto userDto = Json.fromJson(json, UserDto.class);
 
-        if(userRepository != null){
-            System.out.println("REPOSTIROY IS FINE");
-        }
-
         if(userDto.getEmail() == null || userDto.getPassword() == null || userDto.getEmail().isEmpty() || userDto.getPassword().isEmpty()){
             return badRequest(toJson(new ApiError<>("Invalid json format")));
         }
@@ -130,17 +126,11 @@ public class UserController extends Controller {
         try {
             User user = userRepository.login(userDto.getEmail(), userDto.getPassword()).toCompletableFuture().get();
             UserDto dto = new UserDto(user.getUuid(), user.getEmail(), user.getFirstName(), user.getLastName(), user.getDateOfBirth(), user.getInstitute());
-            if(user != null) {
-                return ok(toJson(dto));
-            }
-        } catch (InterruptedException e) {
-            return badRequest(toJson(new ApiError<>("Invalid username and/or password")));
-        } catch (ExecutionException e) {
-            return badRequest(toJson(new ApiError<>("Invalid username and/or password")));
-        } catch (NoResultException e){
+
+            return ok(toJson(dto));
+        } catch (InterruptedException | ExecutionException | NoResultException e) {
             return badRequest(toJson(new ApiError<>("Invalid username and/or password")));
         }
-        return badRequest(toJson(new ApiError<>("Invalid username and/or password")));
     }
 
 }
