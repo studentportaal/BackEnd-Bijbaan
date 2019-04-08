@@ -31,7 +31,7 @@ public class CompanyController extends Controller {
     public Result getCompanyById(String id) {
         try {
             Company company = companyRepository.getCompanyById(id).toCompletableFuture().get();
-            if (company == null) return notFound("No Joboffer");
+            if (company == null) return notFound("No Company");
             return ok(toJson(company));
         } catch (InterruptedException | ExecutionException e) {
             e.printStackTrace();
