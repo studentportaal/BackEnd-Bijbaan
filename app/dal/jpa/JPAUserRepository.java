@@ -100,14 +100,14 @@ public class JPAUserRepository implements UserRepository {
 
     @Transactional
     byte[] getPassword(String email) {
-        return jpaApi.em("em").createNamedQuery("getPassword", byte[].class)
+        return jpaApi.em("second").createNamedQuery("getPassword", byte[].class)
                 .setParameter("email", email)
                 .getSingleResult();
     }
 
     @Transactional
     byte[] getUserHash(String email) {
-        return this.jpaApi.em("em").createNamedQuery("getSalt", byte[].class)
+        return this.jpaApi.em("second").createNamedQuery("getSalt", byte[].class)
                 .setParameter("email", email)
                 .getSingleResult();
     }
