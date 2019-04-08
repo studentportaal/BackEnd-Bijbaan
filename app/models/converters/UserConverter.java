@@ -18,6 +18,7 @@ public class UserConverter {
     public User convertDtoToUser(UserDto userDto) throws ParseException {
 
         User user = new User();
+        user.setUuid(userDto.getUuid());
         user.setFirstName(userDto.getFirstName());
         user.setLastName(userDto.getLastName());
 

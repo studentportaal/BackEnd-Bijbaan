@@ -78,6 +78,9 @@ public class JPAUserRepository implements UserRepository {
     }
 
     private User update(EntityManager em, User user){
+        User u = getById(em, user.getUuid());
+        user.setSalt(u.getSalt());
+        user.setPassword(u.getPassword());
         em.merge(user);
         return user;
     }

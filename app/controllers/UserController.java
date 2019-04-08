@@ -86,14 +86,9 @@ public class UserController extends Controller {
     }
 
     @SuppressWarnings("Duplicates")
-    public Result updateUser(Http.Request request){
+    public Result updateUser(Http.Request request, String id){
         JsonNode json = request.body().asJson();
-        Form<UserDto> validationForm = formFactory.form(UserDto.class)
-                .bindFromRequest(request);
 
-        if(validationForm.hasErrors()){
-            return badRequest(toJson(new ApiError<>("Invalid json format")));
-        }
         UserDto dto = Json.fromJson(json, UserDto.class);
 
         UserConverter converter = new UserConverter();
