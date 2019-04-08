@@ -1,7 +1,6 @@
 package models.domain;
 
 import org.hibernate.annotations.GenericGenerator;
-import org.hibernate.annotations.ManyToAny;
 import play.data.validation.Constraints;
 
 import javax.persistence.*;
@@ -31,6 +30,9 @@ public class JobOffer {
     private double salary;
     @ManyToMany(fetch = FetchType.EAGER)
     private List<User> applicants;
+    @ManyToOne
+    private Company company;
+
 
     public String getId() {
         return id;
@@ -86,5 +88,13 @@ public class JobOffer {
 
     public void setApplicants(List<User> applicants) {
         this.applicants = applicants;
+    }
+
+    public Company getCompany() {
+        return company;
+    }
+
+    public void setCompany(Company company) {
+        this.company = company;
     }
 }
