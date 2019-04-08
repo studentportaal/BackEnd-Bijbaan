@@ -58,6 +58,20 @@ public class CompanyControllerTest {
     }
 
     @Test
+    public void getCompanyById() {
+        Company company = new Company();
+        company.setName("testinfo");
+
+        when(repository.getCompanyById("abc")).thenReturn(supplyAsync(() -> company));
+
+
+        final CompanyController controller = new CompanyController(formFactory, repository);
+
+        Company sameCompany = Json.fromJson(Json.parse(contentAsString(controller.getCompanyById("abc"))), Company.class);
+        assertEquals("testinfo", sameCompany.getName());
+    }
+
+    @Test
     public void addCompany() {
         when(repository.add(any())).thenReturn(supplyAsync(() -> company));
 

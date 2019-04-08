@@ -2,8 +2,9 @@ package controllers;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import dal.repository.UserRepository;
-import models.domain.User;
 import models.api.ApiError;
+import models.converters.UserConverter;
+import models.domain.User;
 import models.dto.UserDto;
 import play.data.Form;
 import play.data.FormFactory;
@@ -15,13 +16,13 @@ import play.mvc.Result;
 import security.PasswordHelper;
 
 import javax.inject.Inject;
+import javax.persistence.NoResultException;
 import javax.validation.ConstraintViolationException;
 import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import java.util.Date;
 import java.util.concurrent.ExecutionException;
 import java.util.stream.Collectors;
 
+import static play.libs.Json.fromJson;
 import static play.libs.Json.toJson;
 
 
@@ -34,11 +35,13 @@ public class UserController extends Controller {
 
     private final FormFactory formFactory;
     private final UserRepository userRepository;
+    private final UserConverter userConverter;
 
     @Inject
     public UserController(FormFactory formFactory, UserRepository userRepository) {
         this.formFactory = formFactory;
         this.userRepository = userRepository;
+        this.userConverter = new UserConverter();
     }
 
     public Result index(final Http.Request request) {
@@ -61,23 +64,12 @@ public class UserController extends Controller {
         byte[] salt = PasswordHelper.generateSalt();
         byte[] password = PasswordHelper.generateHash(salt, userDto.getPassword());
 
-        User user = new User();
-        user.setFirstName(userDto.getFirstName());
-        user.setLastName(userDto.getLastName());
-
-        Date parsed;
+        User user;
         try {
-            SimpleDateFormat format =
-                    new SimpleDateFormat("yyyy-MM-dd");
-            parsed = format.parse(userDto.getDateOfBirth());
-        }
-        catch(ParseException pe) {
+            user = userConverter.convertDtoToUser(userDto);
+        } catch (ParseException e) {
             return badRequest(toJson(new ApiError<>("Invalid date, use: yyyy-MM-dd")));
         }
-
-        user.setDateOfBirth(parsed);
-        user.setEmail(userDto.getEmail());
-        user.setInstitute(userDto.getInstitute());
         user.setSalt(salt);
         user.setPassword(password);
 
@@ -93,11 +85,51 @@ public class UserController extends Controller {
         return ok(toJson(userRepository.list().toCompletableFuture().get().collect(Collectors.toList())));
     }
 
+    @SuppressWarnings("Duplicates")
+    public Result updateUser(Http.Request request, String id){
+        JsonNode json = request.body().asJson();
+
+        UserDto dto = Json.fromJson(json, UserDto.class);
+
+        UserConverter converter = new UserConverter();
+
+        User user;
+        try {
+            user = converter.convertDtoToUser(dto);
+        } catch (ParseException e) {
+            return badRequest(toJson(new ApiError<>("Invalid date, use: yyyy-MM-dd")));
+        }
+
+        userRepository.edit(user);
+        return ok(toJson(user));
+    }
+
+
     public Result getUser(String id)  throws InterruptedException, ExecutionException {
         try{
             return ok(toJson(userRepository.getById(id).toCompletableFuture().get()));
         } catch (NullPointerException e){
             return badRequest(toJson(new ApiError<>("User not found")));
+        }
+    }
+
+    @SuppressWarnings("Duplicates")
+    public Result login(Http.Request request){
+
+        JsonNode json = request.body().asJson();
+        UserDto userDto = Json.fromJson(json, UserDto.class);
+
+        if(userDto.getEmail() == null || userDto.getPassword() == null || userDto.getEmail().isEmpty() || userDto.getPassword().isEmpty()){
+            return badRequest(toJson(new ApiError<>("Invalid json format")));
+        }
+
+        try {
+            User user = userRepository.login(userDto.getEmail(), userDto.getPassword()).toCompletableFuture().get();
+            UserDto dto = new UserDto(user.getUuid(), user.getEmail(), user.getFirstName(), user.getLastName(), user.getDateOfBirth(), user.getInstitute());
+
+            return ok(toJson(dto));
+        } catch (InterruptedException | ExecutionException | NoResultException e) {
+            return badRequest(toJson(new ApiError<>("Invalid username and/or password")));
         }
     }
 

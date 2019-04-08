@@ -3,13 +3,14 @@ package dal.jpa;
 import dal.context.DatabaseExecutionContext;
 import dal.repository.UserRepository;
 import models.domain.User;
+import models.dto.UserDto;
 import play.db.jpa.JPAApi;
 import security.PasswordHelper;
 
 import javax.inject.Inject;
 import javax.persistence.EntityManager;
+import javax.persistence.TypedQuery;
 import javax.transaction.Transactional;
-import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.CompletionStage;
 import java.util.function.Function;
@@ -37,18 +38,20 @@ public class JPAUserRepository implements UserRepository {
     }
 
     @Override
+    public CompletionStage<User> edit(User user) {
+        return supplyAsync( () -> wrap(em -> update(em, user)), executionContext);
+    }
+
+    @Override
     public CompletionStage<Stream<User>> list() {
         return supplyAsync(() -> wrap(em -> list(em)), executionContext);
     }
 
     @Override
-    public CompletionStage<Boolean> login(String email, String password) {
-        byte[] salt = getUserHash(email);
-        byte[] dBHashedPassword = getPassword(email);
-        byte[] userHashedPassword = PasswordHelper.generateHash(salt, password);
+    public CompletionStage<User> login(String email, String password) {
+        byte[] salt = wrap(em -> getUserSalt(em, email));
 
-        return supplyAsync(() -> Arrays.equals(dBHashedPassword, userHashedPassword)) ;
-
+        return supplyAsync(() -> wrap(em -> getUserAndPassword(em, email, PasswordHelper.generateHash(salt, password))));
     }
 
     @Override
@@ -66,7 +69,14 @@ public class JPAUserRepository implements UserRepository {
     }
     private User getById(EntityManager em, String id){
         return em.createNamedQuery("getUser", User.class).setParameter("id",id).getSingleResult();
+    }
 
+    private User update(EntityManager em, User user){
+        User u = getById(em, user.getUuid());
+        user.setSalt(u.getSalt());
+        user.setPassword(u.getPassword());
+        em.merge(user);
+        return user;
     }
 
     private Stream<User> list(EntityManager em) {
@@ -74,18 +84,18 @@ public class JPAUserRepository implements UserRepository {
         return users.stream();
     }
 
-    @Transactional
-    byte[] getPassword(String email) {
-        return jpaApi.em("em").createNamedQuery("getPassword", byte[].class)
+    private User getUserAndPassword(EntityManager em, String email, byte[] hashedPassword){
+        TypedQuery<User> query = em.createQuery(
+                "SELECT u " +
+                        "FROM User u WHERE u.email = :email AND u.password = :password", User.class)
                 .setParameter("email", email)
-                .getSingleResult();
+                .setParameter("password", hashedPassword);
+        return query.getSingleResult();
     }
-
     @Transactional
-    byte[] getUserHash(String email) {
-        return jpaApi.em("em").createNamedQuery("getSalt", byte[].class)
-                .setParameter("email", email)
-                .getSingleResult();
+    byte[] getUserSalt(EntityManager em, String email) {
+        TypedQuery<byte[]> query = em.createQuery("SELECT u.salt FROM User u WHERE u.email = :email", byte[].class);
+        query.setParameter("email", email);
+        return query.getSingleResult();
     }
-
 }

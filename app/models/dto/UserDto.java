@@ -2,6 +2,8 @@ package models.dto;
 
 import play.data.validation.Constraints;
 
+import java.util.Date;
+
 /**
  * @author Max Meijer
  * Created on 26/03/2019
@@ -22,6 +24,15 @@ public class UserDto {
 
     public UserDto() {
         // Empty constructor for Json parsing.
+    }
+
+    public UserDto(String uuid, String email, String firstName, String lastName, Date dateOfBirth, String institute){
+        this.uuid = uuid;
+        this.email = email;
+        this.firstName = firstName;
+        this.lastName = lastName;
+        this.dateOfBirth = dateOfBirth.toString();
+        this.institute = institute;
     }
 
     public String getUuid() {

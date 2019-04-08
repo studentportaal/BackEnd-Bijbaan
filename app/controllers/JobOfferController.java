@@ -1,10 +1,12 @@
 package controllers;
 
 import com.fasterxml.jackson.databind.JsonNode;
+import dal.repository.CompanyRepository;
 import dal.repository.JobOfferRepository;
 import models.api.ApiError;
 import models.domain.JobOffer;
 import models.domain.User;
+import models.dto.JobOfferDto;
 import models.dto.UserDto;
 import models.parser.Parser;
 import play.data.Form;
@@ -19,6 +21,7 @@ import javax.inject.Inject;
 import javax.persistence.NoResultException;
 import java.util.concurrent.CompletionStage;
 import java.util.concurrent.ExecutionException;
+import java.util.stream.Collectors;
 
 import static play.libs.Json.toJson;
 
@@ -26,22 +29,24 @@ public class JobOfferController extends Controller {
 
     private final FormFactory formFactory;
     private final JobOfferRepository jobOfferRepository;
+    private final CompanyRepository companyRepository;
 
     @Inject
-    public JobOfferController(FormFactory formFactory, JobOfferRepository jobOfferRepository) {
+    public JobOfferController(FormFactory formFactory, JobOfferRepository jobOfferRepository, CompanyRepository companyRepository) {
         this.formFactory = formFactory;
         this.jobOfferRepository = jobOfferRepository;
+        this.companyRepository = companyRepository;
     }
 
     @BodyParser.Of(BodyParser.Json.class)
     public Result addJobOffer(final Http.Request request) {
-        Form<JobOffer> jobOfferValidator = formFactory.form(JobOffer.class).bindFromRequest(request);
+        Form<JobOfferDto> jobOfferValidator = formFactory.form(JobOfferDto.class).bindFromRequest(request);
 
         if (jobOfferValidator.hasErrors()) {
             return badRequest(toJson(new ApiError<>("Invalid json object")));
         } else {
             JsonNode json = request.body().asJson();
-            JobOffer jobOffer = Json.fromJson(json, JobOffer.class);
+            JobOffer jobOffer = Json.fromJson(json, JobOfferDto.class).toModel(companyRepository);
             jobOfferRepository.addJobOffer(jobOffer);
             return created(json);
         }
@@ -75,8 +80,17 @@ public class JobOfferController extends Controller {
         }
     }
 
-    public CompletionStage<Result> getJobOfferById() {
-        return null;
+
+    public Result getJobOfferById(String id) {
+        try {
+            JobOffer jobOffer = jobOfferRepository.getJobOfferById(id).toCompletableFuture().get();
+            if (jobOffer == null) return notFound("No Joboffer");
+            return ok(toJson(new JobOfferDto(jobOffer)));
+        } catch (InterruptedException | ExecutionException e) {
+            e.printStackTrace();
+
+            return internalServerError(e.getLocalizedMessage());
+        }
     }
 
     public Result getJobOfferCount() {
@@ -88,16 +102,6 @@ public class JobOfferController extends Controller {
         }
     }
 
-    public Result getJobOfferById(String id) {
-        try {
-            return ok(toJson(jobOfferRepository.getJobOfferById(id).toCompletableFuture().get()));
-        } catch (InterruptedException | ExecutionException e) {
-            e.printStackTrace();
-
-            return internalServerError(e.getLocalizedMessage());
-        }
-    }
-
 
     public Result getAllJobOffers(String startNr, String amount) {
 
@@ -106,7 +110,7 @@ public class JobOfferController extends Controller {
                 try {
                     return ok(toJson(jobOfferRepository.getAllJobOffers(Integer.parseInt(startNr), Integer.parseInt(amount))
                             .toCompletableFuture()
-                            .get()));
+                            .get().stream().map(JobOfferDto::new).collect(Collectors.toList())));
                 } catch (InterruptedException | ExecutionException e) {
                     e.printStackTrace();
                 }

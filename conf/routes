@@ -3,16 +3,19 @@
 # ~~~~
 
 # Home page
-GET     /                         controllers.UserController.index(req: Request)
-POST    /users                    controllers.UserController.addUser(req: Request)
-GET     /users                    controllers.UserController.getAllUsers()
-GET     /users/:id                 controllers.UserController.getUser(id: String)
+GET     /                           controllers.UserController.index(req: Request)
+POST    /users                      controllers.UserController.addUser(req: Request)
+POST    /users/login                controllers.UserController.login(req: Request)
+GET     /users                      controllers.UserController.getAllUsers()
+GET     /users/:id                  controllers.UserController.getUser(id: String)
+PUT     /users/:id                  controllers.UserController.updateUser(req: Request, id: String)
 
 # Map static resources from the /public folder to the /assets URL path
 GET     /assets/*file               controllers.Assets.at(path="/public", file)
 
 
 #JobOffers
+
 GET     /joboffer/:id               controllers.JobOfferController.getJobOfferById(id: String)
 POST    /joboffer                   controllers.JobOfferController.addJobOffer(request: Request)
 GET     /joboffer                   controllers.JobOfferController.getAllJobOffers(startNr: String ?= null, amount: String ?= null)
@@ -22,3 +25,4 @@ PUT     /joboffer/:id               controllers.JobOfferController.applyForJob(r
 #Company
 POST    /company                    controllers.CompanyController.addCompany(request: Request)
 PUT     /company                    controllers.CompanyController.updateCompany(request: Request)
+GET     /company/:id                controllers.CompanyController.getCompanyById(id: String)
