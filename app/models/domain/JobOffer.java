@@ -4,6 +4,7 @@ import org.hibernate.annotations.GenericGenerator;
 import play.data.validation.Constraints;
 
 import javax.persistence.*;
+import java.util.List;
 
 @Entity
 @NamedQueries({
@@ -27,6 +28,11 @@ public class JobOffer {
     private String function;
     @Constraints.Required
     private double salary;
+    @ManyToMany(fetch = FetchType.EAGER)
+    private List<User> applicants;
+    @ManyToOne
+    private Company company;
+
 
     public String getId() {
         return id;
@@ -74,5 +80,21 @@ public class JobOffer {
 
     public void setSalary(double salary) {
         this.salary = salary;
+    }
+
+    public List<User> getApplicants() {
+        return applicants;
+    }
+
+    public void setApplicants(List<User> applicants) {
+        this.applicants = applicants;
+    }
+
+    public Company getCompany() {
+        return company;
+    }
+
+    public void setCompany(Company company) {
+        this.company = company;
     }
 }

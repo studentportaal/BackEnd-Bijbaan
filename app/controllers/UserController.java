@@ -84,7 +84,7 @@ public class UserController extends Controller {
     public Result getAllUsers() throws ExecutionException, InterruptedException {
         return ok(toJson(userRepository.list().toCompletableFuture().get().collect(Collectors.toList())));
     }
-
+    
     @SuppressWarnings("Duplicates")
     public Result updateUser(Http.Request request, String id){
         JsonNode json = request.body().asJson();
@@ -105,12 +105,10 @@ public class UserController extends Controller {
     }
 
 
-    public Result getUser(String id) {
+    public Result getUser(String id)  throws InterruptedException, ExecutionException {
         try{
             return ok(toJson(userRepository.getById(id).toCompletableFuture().get()));
-        } catch (InterruptedException e) {
-            return badRequest(toJson(new ApiError<>("User not found")));
-        } catch (ExecutionException e) {
+        } catch (NullPointerException e){
             return badRequest(toJson(new ApiError<>("User not found")));
         }
     }
