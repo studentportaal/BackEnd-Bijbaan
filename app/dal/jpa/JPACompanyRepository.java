@@ -7,6 +7,9 @@ import play.db.jpa.JPAApi;
 
 import javax.inject.Inject;
 import javax.persistence.EntityManager;
+import javax.persistence.EntityNotFoundException;
+import javax.persistence.NoResultException;
+import javax.persistence.TypedQuery;
 import java.util.concurrent.CompletionStage;
 import java.util.function.Function;
 
@@ -18,14 +21,14 @@ public class JPACompanyRepository implements CompanyRepository {
     private final DatabaseExecutionContext executionContext;
 
     @Inject
-    public JPACompanyRepository(JPAApi jpaApi, DatabaseExecutionContext executionContext){
+    public JPACompanyRepository(JPAApi jpaApi, DatabaseExecutionContext executionContext) {
         this.jpaApi = jpaApi;
         this.executionContext = executionContext;
     }
 
     @Override
     public CompletionStage<Company> add(Company company) {
-        return supplyAsync (()
+        return supplyAsync(()
                 -> wrap(em -> insert(em, company)), executionContext);
     }
 
@@ -39,15 +42,27 @@ public class JPACompanyRepository implements CompanyRepository {
         return jpaApi.withTransaction(function);
     }
 
-    private Company insert(EntityManager em, Company company){
+    private Company insert(EntityManager em, Company company) {
         em.persist(company);
         return company;
     }
 
-    private Company update(EntityManager em, Company company){
+    private Company update(EntityManager em, Company company) {
         em.merge(company);
         return company;
     }
 
+    @Override
+    public CompletionStage<Company> getCompanyById(String id) {
+        return supplyAsync(() -> wrap((EntityManager em) -> {
+            try {
+                TypedQuery<Company> namedQuery = em.createNamedQuery("Company.getCompanyById", Company.class);
+                namedQuery.setParameter("id", id);
+                return namedQuery.getSingleResult();
+            } catch (EntityNotFoundException | NoResultException e) {
+                return null;
+            }
+        }));
+    }
 
 }

@@ -11,7 +11,6 @@ import org.hibernate.validator.messageinterpolation.ParameterMessageInterpolator
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
-import org.mockito.Mock;
 import play.data.FormFactory;
 import play.data.format.Formatters;
 import play.i18n.Messages;
@@ -23,7 +22,6 @@ import play.test.Helpers;
 
 import javax.validation.Validation;
 import javax.validation.ValidatorFactory;
-
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
@@ -65,7 +63,7 @@ public class JobOfferControllerTest {
     }
 
     @Test
-    public void checkAddJobOffer(){
+    public void checkAddJobOffer() {
 
         jobOffer.setTitle("test joboffer");
         jobOffer.setLocation("Eindhoven");
@@ -93,7 +91,7 @@ public class JobOfferControllerTest {
     }
 
     @Test
-    public void checkAddJobOfferInvalidJson(){
+    public void checkAddJobOfferInvalidJson() {
         jobOffer = new JobOffer();
 
         when(repository.addJobOffer(any())).thenReturn(supplyAsync(() -> jobOffer));
@@ -123,13 +121,24 @@ public class JobOfferControllerTest {
 
     @Test
     public void getJobOfferById() {
+        JobOffer jobOffer = new JobOffer();
+        jobOffer.setInformation("testinfo");
+
+        when(repository.getJobOfferById("abc")).thenReturn(supplyAsync(() -> jobOffer));
+
+
+        final JobOfferController controller = new JobOfferController(formFactory, repository);
+
+        JobOffer sameJobOffer = Json.fromJson(Json.parse(contentAsString(controller.getJobOfferById("abc"))), JobOffer.class);
+
+        assertEquals(sameJobOffer.getInformation(), "testinfo");
     }
 
     @Test
     public void getAllJobOffers() {
         List<JobOffer> jobOfferList = new ArrayList<>();
 
-        for(int x = 0; x < 10; x ++){
+        for (int x = 0; x < 10; x++) {
             jobOfferList.add(jobOffer);
         }
 
@@ -142,9 +151,9 @@ public class JobOfferControllerTest {
         String result = contentAsString(stage);
 
         List<JobOffer> jobOffers = new ArrayList<>();
-        try{
+        try {
             jobOffers = new ObjectMapper().readValue(result, TypeFactory.defaultInstance().constructCollectionType(List.class, JobOffer.class));
-        } catch (IOException e){
+        } catch (IOException e) {
             e.printStackTrace();
         }
 
@@ -153,10 +162,10 @@ public class JobOfferControllerTest {
     }
 
     @Test
-    public void getJobOfferCount(){
+    public void getJobOfferCount() {
         List<JobOffer> jobOfferList = new ArrayList<>();
         jobOfferList.add(jobOffer);
-        for(int x = 0; x < 10; x ++){
+        for (int x = 0; x < 10; x++) {
             jobOfferList.add(jobOffer);
         }
 
@@ -172,16 +181,16 @@ public class JobOfferControllerTest {
     }
 
     @Test
-    public void getAllJobOffersPaginated(){
+    public void getAllJobOffersPaginated() {
 
         List<JobOffer> jobOfferList = new ArrayList<>();
-        for(int x = 0; x < 300; x++){
+        for (int x = 0; x < 300; x++) {
             jobOfferList.add(jobOffer);
         }
 
         when(repository.getAllJobOffers(0, 100)).thenReturn(supplyAsync(() -> {
             List<JobOffer> paginatedList = new ArrayList<>();
-            for(int x = 0; x < 100; x++){
+            for (int x = 0; x < 100; x++) {
                 paginatedList.add(jobOfferList.get(x));
             }
             return paginatedList;
@@ -191,13 +200,13 @@ public class JobOfferControllerTest {
         when(messagesApi.preferred(request)).thenReturn(messages);
 
         final JobOfferController controller = new JobOfferController(formFactory, repository);
-        Result stage = controller.getAllJobOffers("0","100");
+        Result stage = controller.getAllJobOffers("0", "100");
         String result = contentAsString(stage);
 
         List<JobOffer> jobOffers = new ArrayList<>();
-        try{
+        try {
             jobOffers = new ObjectMapper().readValue(result, TypeFactory.defaultInstance().constructCollectionType(List.class, JobOffer.class));
-        } catch (IOException e){
+        } catch (IOException e) {
             e.printStackTrace();
         }
 
@@ -206,10 +215,10 @@ public class JobOfferControllerTest {
     }
 
     @Test
-    public void getAllJobOffersPaginatedInvalidParameters(){
+    public void getAllJobOffersPaginatedInvalidParameters() {
         List<JobOffer> jobOfferList = new ArrayList<>();
 
-        when(repository.getAllJobOffers(0,5)).thenReturn(supplyAsync(() -> jobOfferList));
+        when(repository.getAllJobOffers(0, 5)).thenReturn(supplyAsync(() -> jobOfferList));
         request = Helpers.fakeRequest("GET", "/").build().withTransientLang("es");
 
         final JobOfferController controller = new JobOfferController(formFactory, repository);
@@ -236,7 +245,6 @@ public class JobOfferControllerTest {
 
         assertEquals(400, stage3.status());
         assertEquals("parameters need to be a number", error3.getMessage());
-
 
 
     }

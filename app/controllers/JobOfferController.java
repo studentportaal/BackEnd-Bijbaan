@@ -12,12 +12,10 @@ import play.mvc.BodyParser;
 import play.mvc.Controller;
 import play.mvc.Http;
 import play.mvc.Result;
-import scala.Int;
 
 import javax.inject.Inject;
 import java.util.concurrent.CompletionStage;
 import java.util.concurrent.ExecutionException;
-import java.util.stream.Collectors;
 
 import static play.libs.Json.toJson;
 
@@ -58,6 +56,18 @@ public class JobOfferController extends Controller {
         return null;
     }
 
+    public Result getJobOfferById(String id) {
+        try {
+            JobOffer jobOffer = jobOfferRepository.getJobOfferById(id).toCompletableFuture().get();
+            if (jobOffer == null) return notFound("No Joboffer");
+            return ok(toJson(jobOffer));
+        } catch (InterruptedException | ExecutionException e) {
+            e.printStackTrace();
+
+            return internalServerError(e.getLocalizedMessage());
+        }
+    }
+
     public Result getJobOfferCount() {
         try {
             return ok(toJson(jobOfferRepository.getJobOfferCount().toCompletableFuture().get()));
@@ -66,6 +76,7 @@ public class JobOfferController extends Controller {
             return badRequest(toJson(new ApiError<>("Oops something went wrong")));
         }
     }
+
 
     public Result getAllJobOffers(String startNr, String amount) {
 
@@ -82,9 +93,9 @@ public class JobOfferController extends Controller {
                 return badRequest(toJson(new ApiError<>("parameters need to be a number")));
             }
         } else {
-            try{
+            try {
                 return ok(toJson(jobOfferRepository.getAllJobOffers().toCompletableFuture().get()));
-            } catch (InterruptedException | ExecutionException e){
+            } catch (InterruptedException | ExecutionException e) {
                 e.printStackTrace();
             }
         }
