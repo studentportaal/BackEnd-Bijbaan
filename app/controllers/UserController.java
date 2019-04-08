@@ -84,7 +84,7 @@ public class UserController extends Controller {
     public Result getAllUsers() throws ExecutionException, InterruptedException {
         return ok(toJson(userRepository.list().toCompletableFuture().get().collect(Collectors.toList())));
     }
-    
+
     @SuppressWarnings("Duplicates")
     public Result updateUser(Http.Request request, String id){
         JsonNode json = request.body().asJson();
