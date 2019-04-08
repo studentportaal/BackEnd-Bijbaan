@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import dal.repository.CompanyRepository;
 import dal.repository.JobOfferRepository;
 import models.api.ApiError;
+import models.converters.UserConverter;
 import models.domain.JobOffer;
 import models.domain.User;
 import models.dto.JobOfferDto;
@@ -19,6 +20,7 @@ import play.mvc.Result;
 
 import javax.inject.Inject;
 import javax.persistence.NoResultException;
+import java.text.ParseException;
 import java.util.concurrent.CompletionStage;
 import java.util.concurrent.ExecutionException;
 import java.util.stream.Collectors;
@@ -63,21 +65,20 @@ public class JobOfferController extends Controller {
     @BodyParser.Of(BodyParser.Json.class)
     public Result applyForJob(final Http.Request request, String id){
 
-        Form<UserDto> userValidationForm = formFactory.form(UserDto.class)
-                .bindFromRequest(request);
-        if(userValidationForm.hasErrors()){
-            return badRequest(toJson(new ApiError<>("Invalid json object")));
-        } else {
             JsonNode json = request.body().asJson();
-            User user = Json.fromJson(json, User.class);
-            try{
-                jobOfferRepository.applyForJob(user, id);
-            } catch (NoResultException e){
+            UserDto userDto = Json.fromJson(json, UserDto.class);
+            UserConverter c = new UserConverter();
+
+
+        try{
+                User u = c.convertDtoToUser(userDto);
+                return ok(toJson(jobOfferRepository.applyForJob(u, id).toCompletableFuture().get()));
+            } catch (NoResultException e ){
                 return badRequest(toJson(new ApiError<>("No result found with the given ID")));
+            } catch (InterruptedException | ParseException | ExecutionException e){
+                return badRequest(toJson(new ApiError<>("Oops something went wrong")));
             }
-            return ok();
         }
-    }
 
 
     public Result getJobOfferById(String id) {

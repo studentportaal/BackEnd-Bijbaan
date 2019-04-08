@@ -46,15 +46,7 @@ public class JPAJobOfferRepository implements JobOfferRepository {
 
     @Override
     public CompletionStage<JobOffer> getJobOfferById(String id) {
-        return supplyAsync(() -> wrap((EntityManager em) -> {
-            try {
-                TypedQuery<JobOffer> namedQuery = em.createNamedQuery("JobOffer.getJobOfferById", JobOffer.class);
-                namedQuery.setParameter("id", id);
-                return namedQuery.getSingleResult();
-            } catch (EntityNotFoundException | NoResultException e) {
-                return null;
-            }
-        }));
+        return supplyAsync(() -> wrap((EntityManager em) -> getJobOfferById(em, id)));
     }
 
     @Override
@@ -69,6 +61,16 @@ public class JPAJobOfferRepository implements JobOfferRepository {
                 -> wrap(this::allList), executionContext);
     }
 
+    public JobOffer getJobOfferById(EntityManager em, String id ){
+        try {
+            TypedQuery<JobOffer> namedQuery = em.createNamedQuery("JobOffer.getJobOfferById", JobOffer.class);
+            namedQuery.setParameter("id", id);
+            return namedQuery.getSingleResult();
+        } catch (EntityNotFoundException | NoResultException e) {
+            return null;
+        }
+    }
+
     @Override
     public CompletionStage<String> getJobOfferCount() {
         return supplyAsync(()
@@ -77,17 +79,12 @@ public class JPAJobOfferRepository implements JobOfferRepository {
 
     @Override
     public CompletionStage<JobOffer> applyForJob(User user, String id) {
-        try {
-            JobOffer offer = getJobOfferById(id).toCompletableFuture().get();
+
+            JobOffer offer = wrap(em -> getJobOfferById(em, id));
             offer.getApplicants().add(user);
 
             return supplyAsync(()
                     -> wrap(em -> update(em, offer)));
-
-        } catch (InterruptedException | ExecutionException e) {
-            e.printStackTrace();
-            return null;
-        }
     }
 
     private JobOffer insert(EntityManager em, JobOffer jobOffer) {
