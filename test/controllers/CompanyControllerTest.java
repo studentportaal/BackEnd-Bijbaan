@@ -18,12 +18,9 @@ import play.test.Helpers;
 
 import javax.validation.Validation;
 import javax.validation.ValidatorFactory;
-import java.util.concurrent.CompletionStage;
-import java.util.concurrent.ExecutionException;
 
 import static java.util.concurrent.CompletableFuture.supplyAsync;
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.fail;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -64,16 +61,14 @@ public class CompanyControllerTest {
     public void getCompanyById() {
         Company company = new Company();
         company.setName("testinfo");
-        repository.add(company);
 
-        CompletionStage<Company> sameCompany = repository.getCompanyById(company.getId());
+        when(repository.getCompanyById("abc")).thenReturn(supplyAsync(() -> company));
 
-        try {
-            assertEquals(sameCompany.toCompletableFuture().get().getName(), "testinfo");
-        } catch (InterruptedException | ExecutionException e) {
-            e.printStackTrace();
-            fail();
-        }
+
+        final CompanyController controller = new CompanyController(formFactory, repository);
+
+        Company sameCompany = Json.fromJson(Json.parse(contentAsString(controller.getCompanyById("abc"))), Company.class);
+        assertEquals("testinfo", sameCompany.getName());
     }
 
     @Test
