@@ -7,6 +7,9 @@ import play.db.jpa.JPAApi;
 
 import javax.inject.Inject;
 import javax.persistence.EntityManager;
+import javax.persistence.EntityNotFoundException;
+import javax.persistence.NoResultException;
+import javax.persistence.TypedQuery;
 import java.util.concurrent.CompletionStage;
 import java.util.function.Function;
 
@@ -49,5 +52,17 @@ public class JPACompanyRepository implements CompanyRepository {
         return company;
     }
 
+    @Override
+    public CompletionStage<Company> getCompanyById(String id) {
+        return supplyAsync(() -> wrap((EntityManager em) -> {
+            try {
+                TypedQuery<Company> namedQuery = em.createNamedQuery("Company.getCompanyById", Company.class);
+                namedQuery.setParameter("id", id);
+                return namedQuery.getSingleResult();
+            } catch (EntityNotFoundException | NoResultException e) {
+                return null;
+            }
+        }));
+    }
 
 }

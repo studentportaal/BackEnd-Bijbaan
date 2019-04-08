@@ -6,9 +6,7 @@ import models.domain.JobOffer;
 import play.db.jpa.JPAApi;
 
 import javax.inject.Inject;
-import javax.persistence.EntityManager;
-import javax.persistence.Query;
-import javax.persistence.TypedQuery;
+import javax.persistence.*;
 import java.util.List;
 import java.util.concurrent.CompletionStage;
 import java.util.function.Function;
@@ -47,9 +45,13 @@ public class JPAJobOfferRepository implements JobOfferRepository {
     @Override
     public CompletionStage<JobOffer> getJobOfferById(String id) {
         return supplyAsync(() -> wrap((EntityManager em) -> {
-            TypedQuery<JobOffer> namedQuery = em.createNamedQuery("JobOffer.getJobOfferById", JobOffer.class);
-            namedQuery.setParameter("id", id);
-            return namedQuery.getSingleResult();
+            try {
+                TypedQuery<JobOffer> namedQuery = em.createNamedQuery("JobOffer.getJobOfferById", JobOffer.class);
+                namedQuery.setParameter("id", id);
+                return namedQuery.getSingleResult();
+            } catch (EntityNotFoundException | NoResultException e) {
+                return null;
+            }
         }));
     }
 

@@ -58,11 +58,22 @@ public class JobOfferController extends Controller {
 
     public Result getJobOfferById(String id) {
         try {
-            return ok(toJson(jobOfferRepository.getJobOfferById(id).toCompletableFuture().get()));
+            JobOffer jobOffer = jobOfferRepository.getJobOfferById(id).toCompletableFuture().get();
+            if (jobOffer == null) return notFound("No Joboffer");
+            return ok(toJson(jobOffer));
         } catch (InterruptedException | ExecutionException e) {
             e.printStackTrace();
 
             return internalServerError(e.getLocalizedMessage());
+        }
+    }
+
+    public Result getJobOfferCount() {
+        try {
+            return ok(toJson(jobOfferRepository.getJobOfferCount().toCompletableFuture().get()));
+        } catch (InterruptedException | ExecutionException e) {
+            e.printStackTrace();
+            return badRequest(toJson(new ApiError<>("Oops something went wrong")));
         }
     }
 

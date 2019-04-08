@@ -13,6 +13,7 @@ import play.mvc.Http;
 import play.mvc.Result;
 
 import javax.inject.Inject;
+import java.util.concurrent.ExecutionException;
 
 import static play.libs.Json.toJson;
 
@@ -25,6 +26,18 @@ public class CompanyController extends Controller {
     public CompanyController(FormFactory formFactory, CompanyRepository companyRepository) {
         this.formFactory = formFactory;
         this.companyRepository = companyRepository;
+    }
+
+    public Result getCompanyById(String id) {
+        try {
+            Company company = companyRepository.getCompanyById(id).toCompletableFuture().get();
+            if (company == null) return notFound("No Joboffer");
+            return ok(toJson(company));
+        } catch (InterruptedException | ExecutionException e) {
+            e.printStackTrace();
+
+            return internalServerError(e.getLocalizedMessage());
+        }
     }
 
     @SuppressWarnings("Duplicates")

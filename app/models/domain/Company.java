@@ -3,11 +3,12 @@ package models.domain;
 import org.hibernate.annotations.GenericGenerator;
 import play.data.validation.Constraints;
 
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.Id;
+import javax.persistence.*;
 
 @Entity
+@NamedQueries({
+        @NamedQuery(name = "Company.getCompanyById", query = "SELECT c FROM Company c WHERE c.id = :id"),
+})
 public class Company {
 
     @Id

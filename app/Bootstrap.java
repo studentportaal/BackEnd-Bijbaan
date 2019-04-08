@@ -1,5 +1,7 @@
+import dal.repository.CompanyRepository;
 import dal.repository.JobOfferRepository;
 import dal.repository.UserRepository;
+import models.domain.Company;
 import models.domain.JobOffer;
 import models.domain.User;
 import play.Environment;
@@ -21,17 +23,21 @@ public class Bootstrap {
     private final Logger LOGGER = Logger.getLogger(Bootstrap.class.getName());
     private final UserRepository userRepository;
     private final JobOfferRepository jobRepository;
+    private final CompanyRepository companyRepository;
 
     @Inject
     public Bootstrap(ApplicationLifecycle lifecycle,
                      Environment environment,
                      UserRepository userRepository,
-                     JobOfferRepository jobRepository) {
+                     JobOfferRepository jobRepository,
+                     CompanyRepository companyRepository) {
         this.userRepository = userRepository;
         this.jobRepository = jobRepository;
+        this.companyRepository = companyRepository;
 
         addJobOffers();
         addUsers();
+        addCompanies();
     }
 
     private void addUsers() {
@@ -65,6 +71,16 @@ public class Bootstrap {
             jobOffer.setSalary(83286487648648164.3);
 
             jobRepository.addJobOffer(jobOffer);
+        }
+    }
+
+    private void addCompanies() {
+        LOGGER.log(Level.WARNING, "Adding mock joboffer data");
+        for (int i = 0; i < 9; i++) {
+            Company company = new Company();
+
+            company.setName("Company " + i);
+            companyRepository.add(company);
         }
     }
 }

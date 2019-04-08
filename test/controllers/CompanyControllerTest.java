@@ -18,9 +18,12 @@ import play.test.Helpers;
 
 import javax.validation.Validation;
 import javax.validation.ValidatorFactory;
+import java.util.concurrent.CompletionStage;
+import java.util.concurrent.ExecutionException;
 
 import static java.util.concurrent.CompletableFuture.supplyAsync;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.fail;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -55,6 +58,22 @@ public class CompanyControllerTest {
         company.setHousenumber(1);
         company.setPostalcode("5612 MA");
         company.setDescription("This is a test company");
+    }
+
+    @Test
+    public void getCompanyById() {
+        Company company = new Company();
+        company.setName("testinfo");
+        repository.add(company);
+
+        CompletionStage<Company> sameCompany = repository.getCompanyById(company.getId());
+
+        try {
+            assertEquals(sameCompany.toCompletableFuture().get().getName(), "testinfo");
+        } catch (InterruptedException | ExecutionException e) {
+            e.printStackTrace();
+            fail();
+        }
     }
 
     @Test

@@ -25,10 +25,11 @@ import javax.validation.ValidatorFactory;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.CompletionStage;
+import java.util.concurrent.ExecutionException;
 
 import static java.util.concurrent.CompletableFuture.supplyAsync;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -121,6 +122,18 @@ public class JobOfferControllerTest {
 
     @Test
     public void getJobOfferById() {
+        JobOffer jobOffer = new JobOffer();
+        jobOffer.setInformation("testinfo");
+        repository.addJobOffer(jobOffer);
+
+        CompletionStage<JobOffer> newJobOffer = repository.getJobOfferById(jobOffer.getId());
+
+        try {
+            assertEquals(newJobOffer.toCompletableFuture().get().getInformation(), "testinfo");
+        } catch (InterruptedException | ExecutionException e) {
+            e.printStackTrace();
+            fail();
+        }
     }
 
     @Test
