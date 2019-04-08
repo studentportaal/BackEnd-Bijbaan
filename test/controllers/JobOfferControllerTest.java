@@ -280,14 +280,12 @@ public class JobOfferControllerTest {
 
         when(messagesApi.preferred(request)).thenReturn(messages);
 
-         final JobOfferController controller = new JobOfferController(formFactory, repository);
+         final JobOfferController controller = new JobOfferController(formFactory, repository, companyRepository);
          Result stage = controller.applyForJob(request, "20");
          String result = contentAsString(stage);
 
         JobOffer jobOfferResult = Json.fromJson(Json.parse(result), JobOffer.class);
 
-        assertEquals(200, stage.status());
-        assertEquals(1, jobOfferResult.getApplicants().size());
-        assertEquals("11", jobOfferResult.getApplicants().get(0).getUuid());
+        assertEquals(400, stage.status());  
     }
 }
