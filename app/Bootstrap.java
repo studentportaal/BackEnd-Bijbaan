@@ -78,10 +78,10 @@ public class Bootstrap {
 
         for (int i = 0; i < 9; i++) {
             JobOffer jobOffer = new JobOffer();
-            jobOffer.setFunction("Senior Software Verneuker");
-            jobOffer.setInformation("Software verneuken voor geld.");
-            jobOffer.setLocation("Fontys kelder");
-            jobOffer.setTitle("Software verneuken voor geld!");
+            jobOffer.setFunction("Senior Software Developer");
+            jobOffer.setInformation("Software maken voor geld");
+            jobOffer.setLocation("Google");
+            jobOffer.setTitle("Software maken voor geld!");
             jobOffer.setSalary(83286487648648164.3);
             jobOffer.setCompany(company);
             jobRepository.addJobOffer(jobOffer);
