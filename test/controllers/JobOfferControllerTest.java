@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.type.TypeFactory;
 import com.typesafe.config.Config;
 import com.typesafe.config.ConfigFactory;
+import dal.repository.CompanyRepository;
 import dal.repository.JobOfferRepository;
 import models.api.ApiError;
 import models.domain.JobOffer;
@@ -37,6 +38,8 @@ import static play.test.Helpers.contentAsString;
 public class JobOfferControllerTest {
 
     private JobOfferRepository repository;
+    private CompanyRepository companyRepository;
+
     private JobOffer jobOffer;
     private Http.Request request;
     private Messages messages;
@@ -48,6 +51,7 @@ public class JobOfferControllerTest {
     @Before
     public void setUp() throws Exception {
         repository = mock(JobOfferRepository.class);
+        companyRepository = mock(CompanyRepository.class);
         jobOffer = new JobOffer();
         messages = mock(Messages.class);
         messagesApi = mock(MessagesApi.class);
@@ -78,7 +82,7 @@ public class JobOfferControllerTest {
 
         when(messagesApi.preferred(request)).thenReturn(messages);
 
-        final JobOfferController controller = new JobOfferController(formFactory, repository);
+        final JobOfferController controller = new JobOfferController(formFactory, repository, companyRepository);
 
         Result stage = controller.addJobOffer(request);
         String result = contentAsString(stage);
@@ -100,7 +104,7 @@ public class JobOfferControllerTest {
 
         when(messagesApi.preferred(request)).thenReturn(messages);
 
-        final JobOfferController controller = new JobOfferController(formFactory, repository);
+        final JobOfferController controller = new JobOfferController(formFactory, repository, companyRepository);
 
         Result stage = controller.addJobOffer(request);
         String result = contentAsString(stage);
@@ -127,7 +131,7 @@ public class JobOfferControllerTest {
         when(repository.getJobOfferById("abc")).thenReturn(supplyAsync(() -> jobOffer));
 
 
-        final JobOfferController controller = new JobOfferController(formFactory, repository);
+        final JobOfferController controller = new JobOfferController(formFactory, repository, companyRepository);
 
         JobOffer sameJobOffer = Json.fromJson(Json.parse(contentAsString(controller.getJobOfferById("abc"))), JobOffer.class);
 
@@ -146,7 +150,7 @@ public class JobOfferControllerTest {
         request = Helpers.fakeRequest("GET", "/").build().withTransientLang("es");
         when(messagesApi.preferred(request)).thenReturn(messages);
 
-        final JobOfferController controller = new JobOfferController(formFactory, repository);
+        final JobOfferController controller = new JobOfferController(formFactory, repository, companyRepository);
         Result stage = controller.getAllJobOffers(null, null);
         String result = contentAsString(stage);
 
@@ -173,7 +177,7 @@ public class JobOfferControllerTest {
         request = Helpers.fakeRequest("GET", "/").build().withTransientLang("es");
         when(messagesApi.preferred(request)).thenReturn(messages);
 
-        final JobOfferController controller = new JobOfferController(formFactory, repository);
+        final JobOfferController controller = new JobOfferController(formFactory, repository, companyRepository);
         Result stage = controller.getJobOfferCount();
         String result = contentAsString(stage);
 
@@ -199,7 +203,7 @@ public class JobOfferControllerTest {
         request = Helpers.fakeRequest("GET", "/").build().withTransientLang("es");
         when(messagesApi.preferred(request)).thenReturn(messages);
 
-        final JobOfferController controller = new JobOfferController(formFactory, repository);
+        final JobOfferController controller = new JobOfferController(formFactory, repository, companyRepository);
         Result stage = controller.getAllJobOffers("0", "100");
         String result = contentAsString(stage);
 
@@ -221,7 +225,7 @@ public class JobOfferControllerTest {
         when(repository.getAllJobOffers(0, 5)).thenReturn(supplyAsync(() -> jobOfferList));
         request = Helpers.fakeRequest("GET", "/").build().withTransientLang("es");
 
-        final JobOfferController controller = new JobOfferController(formFactory, repository);
+        final JobOfferController controller = new JobOfferController(formFactory, repository, companyRepository);
         Result stage = controller.getAllJobOffers("test", "henk");
         String result = contentAsString(stage);
 

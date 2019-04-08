@@ -11,6 +11,7 @@ import security.PasswordHelper;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 import java.util.Date;
+import java.util.concurrent.ExecutionException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -62,6 +63,19 @@ public class Bootstrap {
 
     private void addJobOffers() {
         LOGGER.log(Level.WARNING, "Adding mock joboffer data");
+        Company company = new Company();
+        company.setName("MegaHard");
+        company.setDescription("Embrace, extend, extinguish.");
+        company.setCity("Bluemont");
+        company.setHousenumber(10000);
+        company.setPostalcode("4242XL");
+        company.setStreetname("One MegaHard Way");
+        try {
+            companyRepository.add(company).toCompletableFuture().get();
+        } catch (InterruptedException | ExecutionException e) {
+            e.printStackTrace();
+        }
+
         for (int i = 0; i < 9; i++) {
             JobOffer jobOffer = new JobOffer();
             jobOffer.setFunction("Senior Software Verneuker");
@@ -69,7 +83,7 @@ public class Bootstrap {
             jobOffer.setLocation("Fontys kelder");
             jobOffer.setTitle("Software verneuken voor geld!");
             jobOffer.setSalary(83286487648648164.3);
-
+            jobOffer.setCompany(company);
             jobRepository.addJobOffer(jobOffer);
         }
     }
