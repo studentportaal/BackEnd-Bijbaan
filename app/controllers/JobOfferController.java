@@ -66,11 +66,12 @@ public class JobOfferController extends Controller {
             JsonNode json = request.body().asJson();
             User user = Json.fromJson(json, User.class);
             try{
-                jobOfferRepository.applyForJob(user, id);
-            } catch (NoResultException e){
+                return ok(toJson(jobOfferRepository.applyForJob(user, id).toCompletableFuture().get()));
+            } catch (NoResultException e ){
                 return badRequest(toJson(new ApiError<>("No result found with the given ID")));
+            } catch (InterruptedException | ExecutionException e){
+                return badRequest(toJson(new ApiError<>("Oops something went wrong")));
             }
-            return ok();
         }
     }
 
