@@ -10,9 +10,9 @@ import java.util.Date;
 @NamedQueries({
         @NamedQuery(name = "getUser", query = "SELECT u FROM User u WHERE u.uuid = :id" ),
         @NamedQuery(name = "getUsers", query = "select u from User u"),
-        @NamedQuery(name = "getSalt", query = "select u.salt from User u WHERE u.email =:email"),
-        @NamedQuery(name = "getPassword", query = "select u.password from User u WHERE u.email =:email"),
-        @NamedQuery(name = "getUserByEmail", query = "select u from User u WHERE u.email =:email")
+        @NamedQuery(name = "getSalt", query = "select u.salt from User u WHERE u.email = :email"),
+        @NamedQuery(name = "getPassword", query = "select u.password from User u WHERE u.email = :email"),
+        @NamedQuery(name = "getUserByEmail", query = "select u from User u WHERE u.email = :email")
 })
 public class User {
 

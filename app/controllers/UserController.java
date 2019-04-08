@@ -21,6 +21,7 @@ import java.text.ParseException;
 import java.util.concurrent.ExecutionException;
 import java.util.stream.Collectors;
 
+import static play.libs.Json.fromJson;
 import static play.libs.Json.toJson;
 
 
@@ -122,19 +123,18 @@ public class UserController extends Controller {
     public Result login(Http.Request request){
 
         JsonNode json = request.body().asJson();
-        String email = json.get("email").toString();
-        String password = json.get("password").toString();
+        UserDto userDto = Json.fromJson(json, UserDto.class);
 
         if(userRepository != null){
             System.out.println("REPOSTIROY IS FINE");
         }
 
-        if(email == null || password == null || email.isEmpty() || password.isEmpty()){
+        if(userDto.getEmail() == null || userDto.getPassword() == null || userDto.getEmail().isEmpty() || userDto.getPassword().isEmpty()){
             return badRequest(toJson(new ApiError<>("Invalid json format")));
         }
 
         try {
-            User user = userRepository.login(email, password).toCompletableFuture().get();
+            UserDto user = userRepository.login(userDto.getEmail(), userDto.getPassword()).toCompletableFuture().get();
             if(user != null) {
                 return ok(toJson(user));
             }
