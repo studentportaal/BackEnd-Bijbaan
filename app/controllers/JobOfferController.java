@@ -79,9 +79,6 @@ public class JobOfferController extends Controller {
         }
     }
 
-    public CompletionStage<Result> getJobOfferById() {
-        return null;
-    }
 
     public Result getJobOfferById(String id) {
         try {
