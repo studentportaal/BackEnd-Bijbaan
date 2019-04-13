@@ -17,4 +17,7 @@ deploy:
   keyfile: service-account.json
   project: pts6-bijbaan
   skip_cleanup: true
+notifications:
+  slack: git-gud-workspace:ENPyEfwTZtAjfFDdgmJeTWe1
+
 

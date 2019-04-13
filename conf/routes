@@ -3,17 +3,26 @@
 # ~~~~
 
 # Home page
-GET     /                         controllers.UserController.index(req: Request)
-POST    /users                    controllers.UserController.addUser(req: Request)
-GET     /users                    controllers.UserController.getAllUsers()
+GET     /                           controllers.UserController.index(req: Request)
+POST    /users                      controllers.UserController.addUser(req: Request)
+POST    /users/login                controllers.UserController.login(req: Request)
+GET     /users                      controllers.UserController.getAllUsers()
+GET     /users/:id                  controllers.UserController.getUser(id: String)
+PUT     /users/:id                  controllers.UserController.updateUser(req: Request, id: String)
 
 # Map static resources from the /public folder to the /assets URL path
 GET     /assets/*file               controllers.Assets.at(path="/public", file)
 
 
 #JobOffers
-POST    /joboffer                   controllers.JobOfferController.addJobOffer(req: Request)
-GET     /joboffer/getjobofferbyid   controllers.JobOfferController.getJobOfferById()
-DELETE  /joboffer/removejoboffer    controllers.JobOfferController.removeJobOffer()
-PUT     /joboffer/updatejoboffer    controllers.JobOfferController.updateJobOffer()
-GET     /joboffer                   controllers.JobOfferController.getAllJobOffers()
+
+GET     /joboffer/:id               controllers.JobOfferController.getJobOfferById(id: String)
+POST    /joboffer                   controllers.JobOfferController.addJobOffer(request: Request)
+GET     /joboffer                   controllers.JobOfferController.getAllJobOffers(startNr: String ?= null, amount: String ?= null)
+GET     /joboffer/all/count         controllers.JobOfferController.getJobOfferCount()
+PUT     /joboffer/:id               controllers.JobOfferController.applyForJob(request: Request, id: String)
+
+#Company
+POST    /company                    controllers.CompanyController.addCompany(request: Request)
+PUT     /company                    controllers.CompanyController.updateCompany(request: Request)
+GET     /company/:id                controllers.CompanyController.getCompanyById(id: String)
