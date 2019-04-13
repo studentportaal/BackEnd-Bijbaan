@@ -3,9 +3,17 @@
 # ~~~~
 
 # Home page
-GET     /                           controllers.PersonController.index(req: Request)
-POST    /person                     controllers.PersonController.addPerson(req: Request)
-GET     /persons                    controllers.PersonController.getPersons()
+GET     /                         controllers.UserController.index(req: Request)
+POST    /users                    controllers.UserController.addUser(req: Request)
+GET     /users                    controllers.UserController.getAllUsers()
 
 # Map static resources from the /public folder to the /assets URL path
 GET     /assets/*file               controllers.Assets.at(path="/public", file)
+
+
+#JobOffers
+POST    /joboffer                   controllers.JobOfferController.addJobOffer(req: Request)
+GET     /joboffer/getjobofferbyid   controllers.JobOfferController.getJobOfferById()
+DELETE  /joboffer/removejoboffer    controllers.JobOfferController.removeJobOffer()
+PUT     /joboffer/updatejoboffer    controllers.JobOfferController.updateJobOffer()
+GET     /joboffer                   controllers.JobOfferController.getAllJobOffers()
