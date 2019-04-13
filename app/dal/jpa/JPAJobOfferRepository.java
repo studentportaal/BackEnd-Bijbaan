@@ -41,7 +41,8 @@ public class JPAJobOfferRepository implements JobOfferRepository {
 
     @Override
     public CompletionStage<JobOffer> updateJobOffer(JobOffer jobOffer) {
-        return null;
+        return supplyAsync(()
+                -> wrap(em ->update(em, jobOffer)), executionContext);
     }
 
     @Override
@@ -92,11 +93,17 @@ public class JPAJobOfferRepository implements JobOfferRepository {
         return jobOffer;
     }
 
-    //needs some work
+    private JobOffer getById(EntityManager em, String id){
+        return em.createNamedQuery("",JobOffer.class)
+                .getSingleResult();
+    }
+
+    //TODO find a more efficient way to get the company
     private JobOffer update(EntityManager em, JobOffer offer) {
+        JobOffer j = getById(em, offer.getId());
+        offer.setCompany(j.getCompany());
         em.merge(offer);
         return offer;
-
     }
 
     private <T> T wrap(Function<EntityManager, T> function) {

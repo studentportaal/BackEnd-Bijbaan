@@ -68,7 +68,9 @@ public class JPAUserRepository implements UserRepository {
         return user;
     }
     private User getById(EntityManager em, String id){
-        return em.createNamedQuery("getUser", User.class).setParameter("id",id).getSingleResult();
+        return em.createNamedQuery("getUser", User.class)
+                .setParameter("id",id)
+                .getSingleResult();
     }
 
     private User update(EntityManager em, User user){

@@ -46,7 +46,8 @@ public class JobOfferController extends Controller {
 
         if (jobOfferValidator.hasErrors()) {
             return badRequest(toJson(new ApiError<>("Invalid json object")));
-        } else {
+        }
+        else {
             JsonNode json = request.body().asJson();
             JobOffer jobOffer = Json.fromJson(json, JobOfferDto.class).toModel(companyRepository);
             jobOfferRepository.addJobOffer(jobOffer);
@@ -58,17 +59,31 @@ public class JobOfferController extends Controller {
         return null;
     }
 
-    public CompletionStage<Result> updateJobOffer() {
-        return null;
+    public Result updateJobOffer(final Http.Request request, String id) {
+        Form<JobOfferDto> jobOfferValidator = formFactory.form(JobOfferDto.class).bindFromRequest(request);
+        if(jobOfferValidator.hasErrors()){
+            return badRequest(toJson(new ApiError<>("Invalid json object")));
+        }
+        else{
+            JsonNode json = request.body().asJson();
+            JobOffer jobOffer = Json.fromJson(json, JobOfferDto.class).toModel(companyRepository);
+            try {
+                jobOfferRepository.updateJobOffer(jobOffer);
+                jobOffer = jobOfferRepository.getJobOfferById(jobOffer.getId()).toCompletableFuture().get();
+                return ok(toJson(jobOffer));
+            } catch (InterruptedException e) {
+                return badRequest(toJson(new ApiError<>("No result found")));
+            } catch (ExecutionException e) {
+                return badRequest(toJson(new ApiError<>("Oops something went wrong")));
+            }
+        }
     }
 
     @BodyParser.Of(BodyParser.Json.class)
     public Result applyForJob(final Http.Request request, String id){
-
             JsonNode json = request.body().asJson();
             UserDto userDto = Json.fromJson(json, UserDto.class);
             UserConverter c = new UserConverter();
-
 
         try{
                 User u = c.convertDtoToUser(userDto);
