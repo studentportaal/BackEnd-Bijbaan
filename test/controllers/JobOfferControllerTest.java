@@ -10,7 +10,7 @@ import dal.repository.JobOfferRepository;
 import models.api.ApiError;
 import models.domain.JobOffer;
 import models.domain.User;
-import models.dto.UserDto;
+import models.dto.StudentDto;
 import org.hibernate.validator.messageinterpolation.ParameterMessageInterpolator;
 import org.junit.After;
 import org.junit.Before;
@@ -28,7 +28,6 @@ import javax.validation.Validation;
 import javax.validation.ValidatorFactory;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 
 import static java.util.concurrent.CompletableFuture.supplyAsync;
@@ -257,7 +256,7 @@ public class JobOfferControllerTest {
 
     @Test
     public void applyForJob(){
-        UserDto uDto = new UserDto();
+        StudentDto uDto = new StudentDto();
         uDto.setUuid("11");
         uDto.setPassword("test");
         uDto.setLastName("test");

@@ -1,11 +1,12 @@
 package controllers;
 
 import com.fasterxml.jackson.databind.JsonNode;
-import dal.repository.UserRepository;
+import dal.repository.StudentRepository;
 import models.api.ApiError;
-import models.converters.UserConverter;
+import models.converters.StudentConverter;
+import models.domain.Student;
 import models.domain.User;
-import models.dto.UserDto;
+import models.dto.StudentDto;
 import play.data.Form;
 import play.data.FormFactory;
 import play.libs.Json;
@@ -22,7 +23,6 @@ import java.text.ParseException;
 import java.util.concurrent.ExecutionException;
 import java.util.stream.Collectors;
 
-import static play.libs.Json.fromJson;
 import static play.libs.Json.toJson;
 
 
@@ -31,17 +31,17 @@ import static play.libs.Json.toJson;
  * {@link play.libs.concurrent.HttpExecutionContext} to provide access to the
  * {@link play.mvc.Http.Context} methods like {@code request()} and {@code flash()}.
  */
-public class UserController extends Controller {
+public class StudentController extends Controller {
 
     private final FormFactory formFactory;
-    private final UserRepository userRepository;
-    private final UserConverter userConverter;
+    private final StudentRepository studentRepository;
+    private final StudentConverter studentConverter;
 
     @Inject
-    public UserController(FormFactory formFactory, UserRepository userRepository) {
+    public StudentController(FormFactory formFactory, StudentRepository studentRepository) {
         this.formFactory = formFactory;
-        this.userRepository = userRepository;
-        this.userConverter = new UserConverter();
+        this.studentRepository = studentRepository;
+        this.studentConverter = new StudentConverter();
     }
 
     public Result index(final Http.Request request) {
@@ -49,24 +49,24 @@ public class UserController extends Controller {
     }
 
     @BodyParser.Of(BodyParser.Json.class)
-    public Result addUser(final Http.Request request) {
+    public Result addStudent(final Http.Request request) {
         JsonNode json = request.body().asJson();
 
-        Form<UserDto> userValidationForm = formFactory.form(UserDto.class)
+        Form<StudentDto> userValidationForm = formFactory.form(StudentDto.class)
                 .bindFromRequest(request);
 
         if (userValidationForm.hasErrors()) {
             return badRequest(toJson(new ApiError<>("Invalid json object")));
         }
 
-        UserDto userDto = Json.fromJson(json, UserDto.class);
+        StudentDto studentDto = Json.fromJson(json, StudentDto.class);
 
         byte[] salt = PasswordHelper.generateSalt();
-        byte[] password = PasswordHelper.generateHash(salt, userDto.getPassword());
+        byte[] password = PasswordHelper.generateHash(salt, studentDto.getPassword());
 
-        User user;
+        Student user;
         try {
-            user = userConverter.convertDtoToUser(userDto);
+            user = studentConverter.convertDtoToStudent(studentDto);
         } catch (ParseException e) {
             return badRequest(toJson(new ApiError<>("Invalid date, use: yyyy-MM-dd")));
         }
@@ -74,40 +74,40 @@ public class UserController extends Controller {
         user.setPassword(password);
 
         try {
-            User addedUser = userRepository.add(user).toCompletableFuture().get();
+            User addedUser = studentRepository.add(user).toCompletableFuture().get();
             return ok(toJson(addedUser));
         } catch (ConstraintViolationException | InterruptedException | ExecutionException e) {
             return badRequest(toJson(new ApiError<>("A user with this email already exists")));
         }
     }
 
-    public Result getAllUsers() throws ExecutionException, InterruptedException {
-        return ok(toJson(userRepository.list().toCompletableFuture().get().collect(Collectors.toList())));
+    public Result getAllStudents() throws ExecutionException, InterruptedException {
+        return ok(toJson(studentRepository.list().toCompletableFuture().get().collect(Collectors.toList())));
     }
 
     @SuppressWarnings("Duplicates")
-    public Result updateUser(Http.Request request, String id){
+    public Result updateStudents(Http.Request request, String id){
         JsonNode json = request.body().asJson();
 
-        UserDto dto = Json.fromJson(json, UserDto.class);
+        StudentDto dto = Json.fromJson(json, StudentDto.class);
 
-        UserConverter converter = new UserConverter();
+        StudentConverter converter = new StudentConverter();
 
-        User user;
+        Student user;
         try {
-            user = converter.convertDtoToUser(dto);
+            user = converter.convertDtoToStudent(dto);
         } catch (ParseException e) {
             return badRequest(toJson(new ApiError<>("Invalid date, use: yyyy-MM-dd")));
         }
 
-        userRepository.edit(user);
+        studentRepository.edit(user);
         return ok(toJson(user));
     }
 
 
-    public Result getUser(String id)  throws InterruptedException, ExecutionException {
+    public Result getStudent(String id)  throws InterruptedException, ExecutionException {
         try{
-            return ok(toJson(userRepository.getById(id).toCompletableFuture().get()));
+            return ok(toJson(studentRepository.getById(id).toCompletableFuture().get()));
         } catch (NullPointerException e){
             return badRequest(toJson(new ApiError<>("User not found")));
         }
@@ -117,15 +117,15 @@ public class UserController extends Controller {
     public Result login(Http.Request request){
 
         JsonNode json = request.body().asJson();
-        UserDto userDto = Json.fromJson(json, UserDto.class);
+        StudentDto studentDto = Json.fromJson(json, StudentDto.class);
 
-        if(userDto.getEmail() == null || userDto.getPassword() == null || userDto.getEmail().isEmpty() || userDto.getPassword().isEmpty()){
+        if(studentDto.getEmail() == null || studentDto.getPassword() == null || studentDto.getEmail().isEmpty() || studentDto.getPassword().isEmpty()){
             return badRequest(toJson(new ApiError<>("Invalid json format")));
         }
 
         try {
-            User user = userRepository.login(userDto.getEmail(), userDto.getPassword()).toCompletableFuture().get();
-            UserDto dto = new UserDto(user.getUuid(), user.getEmail(), user.getFirstName(), user.getLastName(), user.getDateOfBirth(), user.getInstitute());
+            Student student = studentRepository.login(studentDto.getEmail(), studentDto.getPassword()).toCompletableFuture().get();
+            StudentDto dto = new StudentDto(student.getUuid(), student.getEmail(), student.getFirstName(), student.getLastName(), student.getDateOfBirth(), student.getInstitute());
 
             return ok(toJson(dto));
         } catch (InterruptedException | ExecutionException | NoResultException e) {
