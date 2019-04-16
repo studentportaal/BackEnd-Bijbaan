@@ -1,8 +1,9 @@
 import dal.repository.CompanyRepository;
 import dal.repository.JobOfferRepository;
-import dal.repository.UserRepository;
+import dal.repository.StudentRepository;
 import models.domain.Company;
 import models.domain.JobOffer;
+import models.domain.Student;
 import models.domain.User;
 import play.Environment;
 import play.inject.ApplicationLifecycle;
@@ -22,17 +23,17 @@ import java.util.logging.Logger;
 @Singleton
 public class Bootstrap {
     private final Logger LOGGER = Logger.getLogger(Bootstrap.class.getName());
-    private final UserRepository userRepository;
+    private final StudentRepository studentRepository;
     private final JobOfferRepository jobRepository;
     private final CompanyRepository companyRepository;
 
     @Inject
     public Bootstrap(ApplicationLifecycle lifecycle,
                      Environment environment,
-                     UserRepository userRepository,
+                     StudentRepository studentRepository,
                      JobOfferRepository jobRepository,
                      CompanyRepository companyRepository) {
-        this.userRepository = userRepository;
+        this.studentRepository = studentRepository;
         this.jobRepository = jobRepository;
         this.companyRepository = companyRepository;
 
@@ -44,20 +45,20 @@ public class Bootstrap {
     private void addUsers() {
         LOGGER.log(Level.WARNING, "Adding mock user data");
         for (int i = 0; i < 9; i++) {
-            User user = new User();
-            user.setEmail("test" + i + "@test.nl");
-            user.setFirstName((Integer.toString(i)));
-            user.setLastName("Test");
-            user.setInstitute("Fontys");
-            user.setDateOfBirth(new Date());
+            Student s = new Student();
+            s.setEmail("test" + i + "@test.nl");
+            s.setFirstName((Integer.toString(i)));
+            s.setLastName("Test");
+            s.setInstitute("Fontys");
+            s.setDateOfBirth(new Date());
 
             byte[] salt = PasswordHelper.generateSalt();
             byte[] password = PasswordHelper.generateHash(salt, "password");
 
-            user.setSalt(salt);
-            user.setPassword(password);
+            s.setSalt(salt);
+            s.setPassword(password);
 
-            userRepository.add(user);
+            studentRepository.add(s);
         }
     }
 
