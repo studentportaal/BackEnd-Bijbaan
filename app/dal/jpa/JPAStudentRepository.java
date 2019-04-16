@@ -84,7 +84,7 @@ public class JPAStudentRepository implements StudentRepository {
         return students.stream();
     }
 
-    private Student getUserAndPassword(EntityManager em, String email, byte[] hashedPassword){
+    private Student getStudentAndPassword(EntityManager em, String email, byte[] hashedPassword){
         TypedQuery<Student> query = em.createQuery(
                 "SELECT s " +
                         "FROM Student s WHERE s.email = :email AND s.password = :password", Student.class)
