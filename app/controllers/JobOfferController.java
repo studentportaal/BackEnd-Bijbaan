@@ -71,10 +71,8 @@ public class JobOfferController extends Controller {
                 jobOfferRepository.updateJobOffer(jobOffer);
                 jobOffer = jobOfferRepository.getJobOfferById(jobOffer.getId()).toCompletableFuture().get();
                 return ok(toJson(jobOffer));
-            } catch (InterruptedException e) {
+            } catch (InterruptedException | ExecutionException e) {
                 return badRequest(toJson(new ApiError<>("No result found")));
-            } catch (ExecutionException e) {
-                return badRequest(toJson(new ApiError<>("Oops something went wrong")));
             }
         }
     }
@@ -91,7 +89,7 @@ public class JobOfferController extends Controller {
             } catch (NoResultException e ){
                 return badRequest(toJson(new ApiError<>("No result found with the given ID")));
             } catch (InterruptedException | ParseException | ExecutionException e){
-                return badRequest(toJson(new ApiError<>("Oops something went wrong")));
+                return badRequest(toJson(new ApiError<>("Oops something went wrong ")));
             }
         }
 

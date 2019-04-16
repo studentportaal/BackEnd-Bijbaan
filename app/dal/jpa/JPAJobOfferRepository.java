@@ -41,6 +41,9 @@ public class JPAJobOfferRepository implements JobOfferRepository {
 
     @Override
     public CompletionStage<JobOffer> updateJobOffer(JobOffer jobOffer) {
+        JobOffer j = wrap( em -> getJobOfferById(em, jobOffer.getId()));
+        jobOffer.setApplicants(j.getApplicants());
+        jobOffer.setCompany(j.getCompany());
         return supplyAsync(()
                 -> wrap(em ->update(em, jobOffer)), executionContext);
     }
@@ -93,15 +96,7 @@ public class JPAJobOfferRepository implements JobOfferRepository {
         return jobOffer;
     }
 
-    private JobOffer getById(EntityManager em, String id){
-        return em.createNamedQuery("",JobOffer.class)
-                .getSingleResult();
-    }
-
-    //TODO find a more efficient way to get the company
     private JobOffer update(EntityManager em, JobOffer offer) {
-        JobOffer j = getById(em, offer.getId());
-        offer.setCompany(j.getCompany());
         em.merge(offer);
         return offer;
     }
