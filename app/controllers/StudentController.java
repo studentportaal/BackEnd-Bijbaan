@@ -86,7 +86,7 @@ public class StudentController extends Controller {
     }
 
     @SuppressWarnings("Duplicates")
-    public Result updateStudents(Http.Request request, String id){
+    public Result updateStudent(Http.Request request, String id){
         JsonNode json = request.body().asJson();
 
         StudentDto dto = Json.fromJson(json, StudentDto.class);

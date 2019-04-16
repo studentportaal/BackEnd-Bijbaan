@@ -8,11 +8,10 @@ POST    /users                      controllers.StudentController.addStudent(req
 POST    /users/login                controllers.StudentController.login(req: Request)
 GET     /users                      controllers.StudentController.getAllStudents()
 GET     /users/:id                  controllers.StudentController.getStudent(id: String)
-PUT     /users/:id                  controllers.StudentController.updateStudents(req: Request, id: String)
+PUT     /users/:id                  controllers.StudentController.updateStudent(req: Request, id: String)
 
 # Map static resources from the /public folder to the /assets URL path
 GET     /assets/*file               controllers.Assets.at(path="/public", file)
-
 
 #JobOffers
 

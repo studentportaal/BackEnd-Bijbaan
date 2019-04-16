@@ -3,7 +3,6 @@ package dal.jpa;
 import dal.context.DatabaseExecutionContext;
 import dal.repository.StudentRepository;
 import models.domain.Student;
-import models.domain.User;
 import play.db.jpa.JPAApi;
 import security.PasswordHelper;
 
@@ -49,9 +48,9 @@ public class JPAStudentRepository implements StudentRepository {
 
     @Override
     public CompletionStage<Student> login(String email, String password) {
-        byte[] salt = wrap(em -> getUserSalt(em, email));
+        byte[] salt = wrap(em -> getStudentSalt(em, email));
 
-        return supplyAsync(() -> wrap(em -> getUserAndPassword(em, email, PasswordHelper.generateHash(salt, password))));
+        return supplyAsync(() -> wrap(em -> getStudentAndPassword(em, email, PasswordHelper.generateHash(salt, password))));
     }
 
     @Override
@@ -94,7 +93,7 @@ public class JPAStudentRepository implements StudentRepository {
     }
 
     @Transactional
-    byte[] getUserSalt(EntityManager em, String email) {
+    byte[] getStudentSalt(EntityManager em, String email) {
         TypedQuery<byte[]> query = em.createQuery("SELECT S.salt FROM Student s WHERE s.email = :email", byte[].class);
         query.setParameter("email", email);
         return query.getSingleResult();
