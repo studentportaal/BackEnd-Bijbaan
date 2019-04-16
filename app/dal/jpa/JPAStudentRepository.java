@@ -94,7 +94,7 @@ public class JPAStudentRepository implements StudentRepository {
 
     @Transactional
     byte[] getStudentSalt(EntityManager em, String email) {
-        TypedQuery<byte[]> query = em.createQuery("SELECT S.salt FROM Student s WHERE s.email = :email", byte[].class);
+        TypedQuery<byte[]> query = em.createQuery("SELECT s.salt FROM Student s WHERE s.email = :email", byte[].class);
         query.setParameter("email", email);
         return query.getSingleResult();
     }
