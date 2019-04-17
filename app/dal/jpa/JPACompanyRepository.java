@@ -3,13 +3,16 @@ package dal.jpa;
 import dal.context.DatabaseExecutionContext;
 import dal.repository.CompanyRepository;
 import models.domain.Company;
+import models.domain.Student;
 import play.db.jpa.JPAApi;
+import security.PasswordHelper;
 
 import javax.inject.Inject;
 import javax.persistence.EntityManager;
 import javax.persistence.EntityNotFoundException;
 import javax.persistence.NoResultException;
 import javax.persistence.TypedQuery;
+import javax.transaction.Transactional;
 import java.util.concurrent.CompletionStage;
 import java.util.function.Function;
 
@@ -57,12 +60,36 @@ public class JPACompanyRepository implements CompanyRepository {
         return supplyAsync(() -> wrap((EntityManager em) -> {
             try {
                 TypedQuery<Company> namedQuery = em.createNamedQuery("Company.getCompanyById", Company.class);
-                namedQuery.setParameter("id", id);
+                namedQuery.setParameter("uuid", id);
                 return namedQuery.getSingleResult();
             } catch (EntityNotFoundException | NoResultException e) {
                 return null;
             }
         }));
     }
+
+    @Override
+    public CompletionStage<Company> login(String email, String password) {
+        byte[] salt = wrap(em -> getCompanySalt(em, email));
+
+        return supplyAsync(() -> wrap(em -> getCompanyAndPassword(em, email, PasswordHelper.generateHash(salt, password))));
+    }
+
+    private Company getCompanyAndPassword(EntityManager em, String email, byte[] hashedPassword){
+        TypedQuery<Company> query = em.createQuery(
+                "SELECT c " +
+                        "FROM Company c WHERE c.email = :email AND c.password = :password", Company.class)
+                .setParameter("email", email)
+                .setParameter("password", hashedPassword);
+        return query.getSingleResult();
+    }
+
+    @Transactional
+    byte[] getCompanySalt(EntityManager em, String email) {
+        TypedQuery<byte[]> query = em.createQuery("SELECT c.salt FROM Company c WHERE c.email = :email", byte[].class);
+        query.setParameter("email", email);
+        return query.getSingleResult();
+    }
+
 
 }

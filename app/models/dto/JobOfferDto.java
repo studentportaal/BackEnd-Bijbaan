@@ -33,7 +33,7 @@ public class JobOfferDto {
         this.salary = jobOffer.getSalary();
         this.applicants = jobOffer.getApplicants();
         if (jobOffer.getCompany() != null) {
-            this.company = jobOffer.getCompany().getId();
+            this.company = jobOffer.getCompany().getUuid();
         }
     }
 
@@ -118,7 +118,7 @@ public class JobOfferDto {
             if (this.getCompany() != null) {
                 Company fullCompany = repository.getCompanyById(this.getCompany()).toCompletableFuture().get();
                 if (fullCompany != null) {
-                    this.setCompany(fullCompany.getId());
+                    this.setCompany(fullCompany.getUuid());
                 }
             }
         } catch (InterruptedException | ExecutionException e) {
