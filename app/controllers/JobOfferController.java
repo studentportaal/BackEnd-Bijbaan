@@ -67,13 +67,9 @@ public class JobOfferController extends Controller {
         else{
             JsonNode json = request.body().asJson();
             JobOffer jobOffer = Json.fromJson(json, JobOfferDto.class).toModel(companyRepository);
-            try {
-                jobOfferRepository.updateJobOffer(jobOffer);
-                jobOffer = jobOfferRepository.getJobOfferById(jobOffer.getId()).toCompletableFuture().get();
-                return ok(toJson(jobOffer));
-            } catch (InterruptedException | ExecutionException e) {
-                return badRequest(toJson(new ApiError<>("No result found")));
-            }
+            jobOfferRepository.updateJobOffer(jobOffer);
+            return ok(toJson(jobOffer));
+
         }
     }
 
