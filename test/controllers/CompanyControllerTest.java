@@ -151,7 +151,7 @@ public class CompanyControllerTest {
     @Test
     public void updateCompany() {
         company.setName("newTest");
-        when(repository.add(any())).thenReturn(supplyAsync(() -> company));
+        when(repository.update(any())).thenReturn(supplyAsync(() -> company));
 
         request = Helpers.fakeRequest("PUT", "/")
                 .bodyJson(Json.toJson(company)).build().withTransientLang("es");
