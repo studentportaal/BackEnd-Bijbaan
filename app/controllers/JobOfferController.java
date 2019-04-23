@@ -85,7 +85,6 @@ public class JobOfferController extends Controller {
         try {
             JobOffer jobOffer = jobOfferRepository.getJobOfferById(id).toCompletableFuture().get();
             if (jobOffer == null) return notFound("No Joboffer");
-            System.out.println(jobOffer.toString());
             return ok(toJson(new JobOfferDto(jobOffer)));
         } catch (InterruptedException | ExecutionException e) {
             e.printStackTrace();

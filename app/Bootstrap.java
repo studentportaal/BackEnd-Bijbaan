@@ -63,7 +63,6 @@ public class Bootstrap {
             s.setPassword(password);
 
             studentRepository.add(s);
-
         }
     }
 
@@ -82,7 +81,6 @@ public class Bootstrap {
         List<Student> students = new ArrayList<>();
         try {
             students = studentRepository.list().toCompletableFuture().get().collect(Collectors.toList());
-            System.out.println(students);
         } catch (InterruptedException | ExecutionException e) {
             e.printStackTrace();
         }
