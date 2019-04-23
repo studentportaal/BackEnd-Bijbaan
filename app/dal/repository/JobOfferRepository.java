@@ -2,6 +2,7 @@ package dal.repository;
 
 import com.google.inject.ImplementedBy;
 import dal.jpa.JPAJobOfferRepository;
+import models.domain.Company;
 import models.domain.JobOffer;
 import models.domain.User;
 
@@ -20,7 +21,7 @@ public interface JobOfferRepository {
 
     CompletionStage<JobOffer> getJobOfferById(String id);
 
-    CompletionStage<List<JobOffer>> getAllJobOffers(int startNr, int amount);
+    CompletionStage<List<JobOffer>> getAllJobOffers(int startNr, int amount, String companies);
 
     CompletionStage<List<JobOffer>> getAllJobOffers();
 
