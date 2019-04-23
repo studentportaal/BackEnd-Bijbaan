@@ -3,15 +3,13 @@ package dal.jpa;
 import dal.context.DatabaseExecutionContext;
 import dal.repository.JobOfferRepository;
 import models.domain.JobOffer;
-import models.domain.User;
+import models.domain.Student;
 import play.db.jpa.JPAApi;
-import play.mvc.Result;
 
 import javax.inject.Inject;
 import javax.persistence.*;
 import java.util.List;
 import java.util.concurrent.CompletionStage;
-import java.util.concurrent.ExecutionException;
 import java.util.function.Function;
 
 import static java.util.concurrent.CompletableFuture.supplyAsync;
@@ -78,7 +76,7 @@ public class JPAJobOfferRepository implements JobOfferRepository {
     }
 
     @Override
-    public CompletionStage<JobOffer> applyForJob(User user, String id) {
+    public CompletionStage<JobOffer> applyForJob(Student user, String id) {
 
             JobOffer offer = wrap(em -> getJobOfferById(em, id));
             offer.getApplicants().add(user);
