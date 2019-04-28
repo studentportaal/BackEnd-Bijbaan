@@ -118,6 +118,7 @@ public class JobOfferDto {
             if (this.getCompany() != null) {
                 Company fullCompany = repository.getCompanyById(this.getCompany()).toCompletableFuture().get();
                 if (fullCompany != null) {
+                    jobOffer.setCompany(fullCompany);
                     this.setCompany(fullCompany.getUuid());
                 }
             }
