@@ -116,7 +116,6 @@ public class JPAJobOfferRepository implements JobOfferRepository {
             List<String>companyList = Arrays.asList(companies.split(","));
             jobOffers = em.createQuery("FROM JobOffer j  WHERE company_uuid IN :companies", JobOffer.class);
             jobOffers.setParameter("companies", companyList);
-
         }else{
              jobOffers = em.createQuery("FROM JobOffer j", JobOffer.class);
         }
