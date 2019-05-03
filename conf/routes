@@ -26,4 +26,4 @@ POST    /company                    controllers.CompanyController.addCompany(req
 PUT     /company                    controllers.CompanyController.updateCompany(request: Request)
 GET     /company/:id                controllers.CompanyController.getCompanyById(id: String)
 POST    /company/login              controllers.CompanyController.login(request: Request)
-GET     /company                  controllers.CompanyController.getAllCompanies()
+GET     /company                    controllers.CompanyController.getAllCompanies()
