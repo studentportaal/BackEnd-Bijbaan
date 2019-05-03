@@ -46,7 +46,8 @@ public class JobOfferController extends Controller {
 
         if (jobOfferValidator.hasErrors()) {
             return badRequest(toJson(new ApiError<>("Invalid json object")));
-        } else {
+        }
+        else {
             JsonNode json = request.body().asJson();
             JobOffer jobOffer = Json.fromJson(json, JobOfferDto.class).toModel(companyRepository);
             jobOfferRepository.addJobOffer(jobOffer);
@@ -58,8 +59,18 @@ public class JobOfferController extends Controller {
         return null;
     }
 
-    public CompletionStage<Result> updateJobOffer() {
-        return null;
+    public Result updateJobOffer(final Http.Request request, String id) {
+        Form<JobOfferDto> jobOfferValidator = formFactory.form(JobOfferDto.class).bindFromRequest(request);
+        if(jobOfferValidator.hasErrors()){
+            return badRequest(toJson(new ApiError<>("Invalid json object")));
+        }
+        else{
+            JsonNode json = request.body().asJson();
+            JobOffer jobOffer = Json.fromJson(json, JobOfferDto.class).toModel(companyRepository);
+            jobOfferRepository.updateJobOffer(jobOffer);
+            return ok(toJson(jobOffer));
+
+        }
     }
 
     @BodyParser.Of(BodyParser.Json.class)
@@ -68,8 +79,7 @@ public class JobOfferController extends Controller {
         JsonNode json = request.body().asJson();
         StudentDto studentDto = Json.fromJson(json, StudentDto.class);
         StudentConverter c = new StudentConverter();
-
-
+      
         try {
             Student u = c.convertDtoToStudent(studentDto);
             return ok(toJson(jobOfferRepository.applyForJob(u, id).toCompletableFuture().get()));

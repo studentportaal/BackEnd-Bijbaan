@@ -39,7 +39,11 @@ public class JPAJobOfferRepository implements JobOfferRepository {
 
     @Override
     public CompletionStage<JobOffer> updateJobOffer(JobOffer jobOffer) {
-        return null;
+        JobOffer j = wrap( em -> getJobOfferById(em, jobOffer.getId()));
+        jobOffer.setApplicants(j.getApplicants());
+        jobOffer.setCompany(j.getCompany());
+        return supplyAsync(()
+                -> wrap(em ->update(em, jobOffer)), executionContext);
     }
 
     @Override
@@ -90,11 +94,9 @@ public class JPAJobOfferRepository implements JobOfferRepository {
         return jobOffer;
     }
 
-    //needs some work
     private JobOffer update(EntityManager em, JobOffer offer) {
         em.merge(offer);
         return offer;
-
     }
 
     private <T> T wrap(Function<EntityManager, T> function) {

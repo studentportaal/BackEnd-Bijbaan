@@ -124,6 +124,30 @@ public class JobOfferControllerTest {
 
     @Test
     public void updateJobOffer() {
+        jobOffer = new JobOffer();
+
+        jobOffer.setTitle("test joboffer");
+        jobOffer.setLocation("Eindhoven");
+        jobOffer.setFunction("testing");
+        jobOffer.setInformation("you have to test");
+        jobOffer.setSalary(500.50);
+
+        when(repository.updateJobOffer(any())).thenReturn(supplyAsync(() -> jobOffer));
+
+        request = Helpers.fakeRequest("PUT", "/")
+                .bodyJson(Json.toJson(jobOffer)).build().withTransientLang("es");
+
+        when(messagesApi.preferred(request)).thenReturn(messages);
+
+        final JobOfferController controller = new JobOfferController(formFactory, repository, companyRepository);
+
+        Result stage = controller.updateJobOffer(request, jobOffer.getId());
+        String result = contentAsString(stage);
+
+        JobOffer jobOfferResult = Json.fromJson(Json.parse(result), JobOffer.class);
+
+        assertEquals(200, stage.status());
+        assertEquals(jobOffer.getTitle(), jobOfferResult.getTitle());
     }
 
     @Test
