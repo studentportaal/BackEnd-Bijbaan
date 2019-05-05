@@ -6,7 +6,7 @@ import dal.repository.JobOfferRepository;
 import models.api.ApiError;
 import models.converters.StudentConverter;
 import models.domain.JobOffer;
-import models.domain.User;
+import models.domain.Student;
 import models.dto.JobOfferDto;
 import models.dto.StudentDto;
 import models.parser.Parser;
@@ -74,20 +74,21 @@ public class JobOfferController extends Controller {
     }
 
     @BodyParser.Of(BodyParser.Json.class)
-    public Result applyForJob(final Http.Request request, String id){
-            JsonNode json = request.body().asJson();
-            StudentDto studentDto = Json.fromJson(json, StudentDto.class);
-            StudentConverter c = new StudentConverter();
+    public Result applyForJob(final Http.Request request, String id) {
 
-        try{
-                User u = c.convertDtoToStudent(studentDto);
-                return ok(toJson(jobOfferRepository.applyForJob(u, id).toCompletableFuture().get()));
-            } catch (NoResultException e ){
-                return badRequest(toJson(new ApiError<>("No result found with the given ID")));
-            } catch (InterruptedException | ParseException | ExecutionException e){
-                return badRequest(toJson(new ApiError<>("Oops something went wrong ")));
-            }
+        JsonNode json = request.body().asJson();
+        StudentDto studentDto = Json.fromJson(json, StudentDto.class);
+        StudentConverter c = new StudentConverter();
+      
+        try {
+            Student u = c.convertDtoToStudent(studentDto);
+            return ok(toJson(jobOfferRepository.applyForJob(u, id).toCompletableFuture().get()));
+        } catch (NoResultException e) {
+            return badRequest(toJson(new ApiError<>("No result found with the given ID")));
+        } catch (InterruptedException | ParseException | ExecutionException e) {
+            return badRequest(toJson(new ApiError<>("Oops something went wrong")));
         }
+    }
 
 
     public Result getJobOfferById(String id) {
