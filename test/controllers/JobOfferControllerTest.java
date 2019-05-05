@@ -8,8 +8,10 @@ import com.typesafe.config.ConfigFactory;
 import dal.repository.CompanyRepository;
 import dal.repository.JobOfferRepository;
 import models.api.ApiError;
+import models.domain.Company;
 import models.domain.JobOffer;
 import models.domain.User;
+import models.dto.JobOfferDto;
 import models.dto.StudentDto;
 import org.hibernate.validator.messageinterpolation.ParameterMessageInterpolator;
 import org.junit.After;
@@ -44,6 +46,8 @@ public class JobOfferControllerTest {
     private CompanyRepository companyRepository;
 
     private JobOffer jobOffer;
+    private JobOfferDto jobOfferDto;
+    private Company company;
     private Http.Request request;
     private Messages messages;
     private MessagesApi messagesApi;
@@ -56,6 +60,8 @@ public class JobOfferControllerTest {
         repository = mock(JobOfferRepository.class);
         companyRepository = mock(CompanyRepository.class);
         jobOffer = new JobOffer();
+        jobOfferDto = new JobOfferDto();
+        company = new Company();
         messages = mock(Messages.class);
         messagesApi = mock(MessagesApi.class);
         validatorFactory = Validation.byDefaultProvider().configure()
@@ -94,6 +100,45 @@ public class JobOfferControllerTest {
 
         assertEquals(201, stage.status());
         assertEquals(jobOffer.getTitle(), jobOfferResult.getTitle());
+
+    }
+
+    @Test
+    public void checkAddJobOfferWithCompany() {
+
+        company.setUuid("2eab97be-c607-4289-aeed-598450cd357c");
+        company.setName("test company");
+        company.setCity("Eindhoven");
+        company.setDescription("A company that tests software");
+        company.setStreetname("TestStreet");
+        company.setPostalcode("5000TT");
+        company.setHousenumber(1);
+
+        companyRepository.add(company);
+        when(companyRepository.getCompanyById(any())).thenReturn(supplyAsync(()-> company));
+        jobOfferDto.setTitle("test joboffer");
+        jobOfferDto.setLocation("Eindhoven");
+        jobOfferDto.setFunction("testing");
+        jobOfferDto.setInformation("you have to test with company");
+        jobOfferDto.setSalary(500.50);
+        jobOfferDto.setCompany(company.getUuid());
+
+        when(repository.addJobOffer(any())).thenReturn(supplyAsync(() -> jobOffer));
+
+        request = Helpers.fakeRequest("POST", "/")
+                .bodyJson(Json.toJson(jobOfferDto)).build().withTransientLang("en");
+
+        when(messagesApi.preferred(request)).thenReturn(messages);
+
+        final JobOfferController controller = new JobOfferController(formFactory, repository, companyRepository);
+
+        Result stage = controller.addJobOffer(request);
+        String result = contentAsString(stage);
+
+        JobOffer jobOfferResult = Json.fromJson(Json.parse(result), JobOfferDto.class).toModel(companyRepository);
+
+        assertEquals(201, stage.status());
+        assertEquals(jobOfferDto.getCompany(), jobOfferResult.getCompany().getUuid());
 
     }
 
