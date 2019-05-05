@@ -65,7 +65,7 @@ public class CompanyController extends Controller {
 
         try {
             company = converter.convert(dto);
-        } catch(NumberFormatException e) {
+        } catch (NumberFormatException e) {
             return badRequest(toJson(new ApiError<>("House number must be an integer")));
         }
 
@@ -93,12 +93,12 @@ public class CompanyController extends Controller {
     }
 
     @SuppressWarnings("Duplicates")
-    public Result login(Http.Request request){
+    public Result login(Http.Request request) {
 
         JsonNode json = request.body().asJson();
         CompanyDto companyDto = Json.fromJson(json, CompanyDto.class);
 
-        if(companyDto.getEmail() == null || companyDto.getPassword() == null || companyDto.getEmail().isEmpty() || companyDto.getPassword().isEmpty()){
+        if (companyDto.getEmail() == null || companyDto.getPassword() == null || companyDto.getEmail().isEmpty() || companyDto.getPassword().isEmpty()) {
             return badRequest(toJson(new ApiError<>("Invalid json format")));
         }
 

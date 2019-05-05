@@ -58,6 +58,11 @@ public class JPAStudentRepository implements StudentRepository {
         return supplyAsync(()->wrap(em -> getById(em,id) ),executionContext);
     }
 
+    @Override
+    public CompletionStage<Student> getByEmail(String email){
+        return supplyAsync(() -> wrap(em -> getByEmail(em, email)), executionContext);
+    }
+
     private <T> T wrap(Function<EntityManager, T> function) {
         return jpaApi.withTransaction(function);
     }
@@ -68,6 +73,10 @@ public class JPAStudentRepository implements StudentRepository {
     }
     private Student getById(EntityManager em, String id){
         return em.createNamedQuery("getStudent", Student.class).setParameter("id",id).getSingleResult();
+    }
+
+    private Student getByEmail(EntityManager em, String email){
+        return em.createNamedQuery("getStudentByEmail", Student.class).setParameter("email", email).getSingleResult();
     }
 
     private Student update(EntityManager em, Student student){

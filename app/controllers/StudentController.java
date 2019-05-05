@@ -20,6 +20,7 @@ import javax.inject.Inject;
 import javax.persistence.NoResultException;
 import javax.validation.ConstraintViolationException;
 import java.text.ParseException;
+import java.util.Date;
 import java.util.concurrent.ExecutionException;
 import java.util.stream.Collectors;
 
@@ -86,7 +87,7 @@ public class StudentController extends Controller {
     }
 
     @SuppressWarnings("Duplicates")
-    public Result updateStudent(Http.Request request, String id){
+    public Result updateStudent(Http.Request request, String id) {
         JsonNode json = request.body().asJson();
 
         StudentDto dto = Json.fromJson(json, StudentDto.class);
@@ -105,21 +106,21 @@ public class StudentController extends Controller {
     }
 
 
-    public Result getStudent(String id)  throws InterruptedException, ExecutionException {
-        try{
+    public Result getStudent(String id) throws InterruptedException, ExecutionException {
+        try {
             return ok(toJson(studentRepository.getById(id).toCompletableFuture().get()));
-        } catch (NullPointerException e){
+        } catch (NullPointerException e) {
             return badRequest(toJson(new ApiError<>("User not found")));
         }
     }
 
     @SuppressWarnings("Duplicates")
-    public Result login(Http.Request request){
+    public Result login(Http.Request request) {
 
         JsonNode json = request.body().asJson();
         StudentDto studentDto = Json.fromJson(json, StudentDto.class);
 
-        if(studentDto.getEmail() == null || studentDto.getPassword() == null || studentDto.getEmail().isEmpty() || studentDto.getPassword().isEmpty()){
+        if (studentDto.getEmail() == null || studentDto.getPassword() == null || studentDto.getEmail().isEmpty() || studentDto.getPassword().isEmpty()) {
             return badRequest(toJson(new ApiError<>("Invalid json format")));
         }
 
@@ -133,4 +134,37 @@ public class StudentController extends Controller {
         }
     }
 
+    public Result profile(Http.Request request, String email) {
+
+        JsonNode json = request.body().asJson();
+        System.out.println(request.body().asJson());
+
+        try {
+            Student student = studentRepository.getByEmail(email).toCompletableFuture().get();
+            return ok(toJson(student));
+        } catch (InterruptedException e) {
+            return badRequest();
+        } catch (ExecutionException e) {
+            if (e.getCause() instanceof NoResultException) {
+                System.out.println(json);
+                Student student = new Student();
+                student.setLastName(json.get("surName").asText());
+                student.setFirstName(json.get("givenName").asText());
+                student.setInstitute("Fontys");
+                student.setDateOfBirth(new Date());
+                student.setEmail(email);
+
+
+                try {
+                    Student addedUser = studentRepository.add(student).toCompletableFuture().get();
+                    return ok(toJson(addedUser));
+                } catch (InterruptedException ex) {
+                    return badRequest();
+                } catch (ExecutionException ex) {
+                    return badRequest();
+                }
+            }
+        }
+        return badRequest();
+    }
 }
