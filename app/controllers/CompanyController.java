@@ -111,4 +111,11 @@ public class CompanyController extends Controller {
         }
     }
 
+    public Result getAllCompanies(){
+        try {
+            return ok(toJson(companyRepository.getAllCompanies().toCompletableFuture().get()));
+        } catch (InterruptedException | ExecutionException e) {
+            return internalServerError(toJson(new ApiError<>("Something went wrong")));
+        }
+    }
 }

@@ -16,7 +16,7 @@ GET     /assets/*file               controllers.Assets.at(path="/public", file)
 #JobOffers
 GET     /joboffer/:id               controllers.JobOfferController.getJobOfferById(id: String)
 POST    /joboffer                   controllers.JobOfferController.addJobOffer(request: Request)
-GET     /joboffer                   controllers.JobOfferController.getAllJobOffers(startNr: String ?= null, amount: String ?= null)
+GET     /joboffer                   controllers.JobOfferController.getAllJobOffers(startNr: String ?= null, amount: String ?= null, companies: String ?= null)
 GET     /joboffer/all/count         controllers.JobOfferController.getJobOfferCount()
 PATCH   /joboffer/:id               controllers.JobOfferController.applyForJob(request: Request, id: String)
 PUT     /joboffer/:id               controllers.JobOfferController.updateJobOffer(req: Request, id: String)
@@ -26,3 +26,4 @@ POST    /company                    controllers.CompanyController.addCompany(req
 PUT     /company                    controllers.CompanyController.updateCompany(request: Request)
 GET     /company/:id                controllers.CompanyController.getCompanyById(id: String)
 POST    /company/login              controllers.CompanyController.login(request: Request)
+GET     /company                    controllers.CompanyController.getAllCompanies()

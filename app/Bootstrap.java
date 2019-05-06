@@ -71,6 +71,8 @@ public class Bootstrap {
 
         Company company = createCompany("test@bedrijf.nl");
         Company company2 = createCompany("test2@bedrijf.nl");
+        company2.setName("Testcompany");
+
         try {
             companyRepository.add(company).toCompletableFuture().get();
             companyRepository.add(company2).toCompletableFuture().get();
@@ -109,7 +111,6 @@ public class Bootstrap {
 
     private Company createCompany(String email) {
         Company company = new Company();
-
         company.setEmail(email);
 
         byte[] salt = PasswordHelper.generateSalt();

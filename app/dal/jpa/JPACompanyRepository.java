@@ -13,6 +13,8 @@ import javax.persistence.EntityNotFoundException;
 import javax.persistence.NoResultException;
 import javax.persistence.TypedQuery;
 import javax.transaction.Transactional;
+import java.util.Collections;
+import java.util.List;
 import java.util.concurrent.CompletionStage;
 import java.util.function.Function;
 
@@ -75,6 +77,12 @@ public class JPACompanyRepository implements CompanyRepository {
         return supplyAsync(() -> wrap(em -> getCompanyAndPassword(em, email, PasswordHelper.generateHash(salt, password))));
     }
 
+    @Override
+    public CompletionStage<List<Company>> getAllCompanies() {
+        return supplyAsync(()
+        -> wrap(em -> list(em)), executionContext);
+    }
+
     private Company getCompanyAndPassword(EntityManager em, String email, byte[] hashedPassword){
         TypedQuery<Company> query = em.createQuery(
                 "SELECT c " +
@@ -91,5 +99,9 @@ public class JPACompanyRepository implements CompanyRepository {
         return query.getSingleResult();
     }
 
-
+    public List<Company> list(EntityManager em){
+        TypedQuery<Company> query = em.createNamedQuery("Company.getAllCompanies", Company.class);
+        List<Company> allCompanies= query.getResultList();
+        return allCompanies;
+    }
 }
