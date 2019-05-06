@@ -2,10 +2,9 @@ package dal.repository;
 
 import com.google.inject.ImplementedBy;
 import dal.jpa.JPAJobOfferRepository;
+import models.domain.Company;
 import models.domain.JobOffer;
-import models.domain.User;
-
-import play.mvc.Result;
+import models.domain.Student;
 
 import java.util.List;
 import java.util.concurrent.CompletionStage;
@@ -20,11 +19,11 @@ public interface JobOfferRepository {
 
     CompletionStage<JobOffer> getJobOfferById(String id);
 
-    CompletionStage<List<JobOffer>> getAllJobOffers(int startNr, int amount);
+    CompletionStage<List<JobOffer>> getAllJobOffers(int startNr, int amount, String companies);
 
     CompletionStage<List<JobOffer>> getAllJobOffers();
 
     CompletionStage<String> getJobOfferCount();
 
-    CompletionStage<JobOffer> applyForJob(User user, String id);
+    CompletionStage<JobOffer> applyForJob(Student user, String id);
 }

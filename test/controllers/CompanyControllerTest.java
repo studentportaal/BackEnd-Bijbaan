@@ -3,7 +3,9 @@ package controllers;
 import com.typesafe.config.Config;
 import com.typesafe.config.ConfigFactory;
 import dal.repository.CompanyRepository;
+import models.api.ApiError;
 import models.domain.Company;
+import models.dto.CompanyDto;
 import org.hibernate.validator.messageinterpolation.ParameterMessageInterpolator;
 import org.junit.Before;
 import org.junit.Test;
@@ -16,6 +18,7 @@ import play.mvc.Http;
 import play.mvc.Result;
 import play.test.Helpers;
 
+import javax.persistence.NoResultException;
 import javax.validation.Validation;
 import javax.validation.ValidatorFactory;
 
@@ -30,6 +33,7 @@ public class CompanyControllerTest {
 
     private CompanyRepository repository;
     private Company company;
+    private CompanyDto companyDto;
     private Http.Request request;
     private Messages messages;
     private MessagesApi messagesApi;
@@ -41,6 +45,7 @@ public class CompanyControllerTest {
     public void setUp() throws Exception {
         repository = mock(CompanyRepository.class);
         company = new Company();
+        companyDto = new CompanyDto();
         messages = mock(Messages.class);
         messagesApi = mock(MessagesApi.class);
         validatorFactory = Validation.byDefaultProvider().configure()
@@ -49,12 +54,23 @@ public class CompanyControllerTest {
         config = ConfigFactory.load();
         formFactory = new FormFactory(messagesApi, new Formatters(messagesApi), validatorFactory, config);
 
+        company.setEmail("test@company.nl");
         company.setName("Test Company");
         company.setCity("Eindhoven");
         company.setStreetname("Rachelsmolen");
         company.setHousenumber(1);
         company.setPostalcode("5612 MA");
         company.setDescription("This is a test company");
+
+        companyDto.setEmail("test@company.nl");
+        companyDto.setName("Test Company");
+        companyDto.setCity("Eindhoven");
+        companyDto.setStreetName("Rachelsmolen");
+        companyDto.setHouseNumber("1");
+        companyDto.setPostalCode("5612 MA");
+        companyDto.setDescription("This is a test company");
+        companyDto.setPassword("password");
+
     }
 
     @Test
@@ -63,7 +79,6 @@ public class CompanyControllerTest {
         company.setName("testinfo");
 
         when(repository.getCompanyById("abc")).thenReturn(supplyAsync(() -> company));
-
 
         final CompanyController controller = new CompanyController(formFactory, repository);
 
@@ -76,7 +91,7 @@ public class CompanyControllerTest {
         when(repository.add(any())).thenReturn(supplyAsync(() -> company));
 
         request = Helpers.fakeRequest("POST", "/")
-                .bodyJson(Json.toJson(company)).build().withTransientLang("es");
+                .bodyJson(Json.toJson(companyDto)).build().withTransientLang("es");
 
         when(messagesApi.preferred(request)).thenReturn(messages);
 
@@ -92,9 +107,51 @@ public class CompanyControllerTest {
     }
 
     @Test
+    public void addCompanyInvalidObject() {
+        companyDto.setStreetName(null);
+        when(repository.add(any())).thenReturn(supplyAsync(() -> company));
+
+        request = Helpers.fakeRequest("POST", "/")
+                .bodyJson(Json.toJson(companyDto)).build().withTransientLang("es");
+
+        when(messagesApi.preferred(request)).thenReturn(messages);
+
+        final CompanyController controller = new CompanyController(formFactory, repository);
+
+        Result stage = controller.addCompany(request);
+        String result = contentAsString(stage);
+
+        ApiError error = Json.fromJson(Json.parse(result), ApiError.class);
+
+        assertEquals(400, stage.status());
+        assertEquals("Invalid json format", error.getMessage());
+    }
+
+    @Test
+    public void addCompanyInvalidHouseNumber() {
+        companyDto.setHouseNumber("5a");
+        when(repository.add(any())).thenReturn(supplyAsync(() -> company));
+
+        request = Helpers.fakeRequest("POST", "/")
+                .bodyJson(Json.toJson(companyDto)).build().withTransientLang("es");
+
+        when(messagesApi.preferred(request)).thenReturn(messages);
+
+        final CompanyController controller = new CompanyController(formFactory, repository);
+
+        Result stage = controller.addCompany(request);
+        String result = contentAsString(stage);
+
+        ApiError error = Json.fromJson(Json.parse(result), ApiError.class);
+
+        assertEquals(400, stage.status());
+        assertEquals("House number must be an integer", error.getMessage());
+    }
+
+    @Test
     public void updateCompany() {
         company.setName("newTest");
-        when(repository.add(any())).thenReturn(supplyAsync(() -> company));
+        when(repository.update(any())).thenReturn(supplyAsync(() -> company));
 
         request = Helpers.fakeRequest("PUT", "/")
                 .bodyJson(Json.toJson(company)).build().withTransientLang("es");
@@ -110,7 +167,47 @@ public class CompanyControllerTest {
         Company companyResult = Json.fromJson(Json.parse(result), Company.class);
 
         assertEquals(200, stage.status());
-        assertEquals(company.getName(), "newTest");
+        assertEquals(companyResult.getName(), "newTest");
 
+    }
+
+    @Test
+    public void login() {
+        when(repository.login(any(), any())).thenReturn(supplyAsync(() -> company));
+
+        request = Helpers.fakeRequest("POST", "/")
+                .bodyJson(Json.toJson(companyDto)).build();
+
+        when(messagesApi.preferred(request)).thenReturn(messages);
+
+        final CompanyController controller = new CompanyController(formFactory, repository);
+
+        Result stage = controller.login(request);
+        String result = contentAsString(stage);
+
+        Company companyResult = Json.fromJson(Json.parse(result), Company.class);
+
+        assertEquals(200, stage.status());
+        assertEquals(company.getName(), companyResult.getName());
+    }
+
+    @Test
+    public void loginNonExist() {
+        when(repository.login(any(), any())).thenThrow(NoResultException.class);
+
+        request = Helpers.fakeRequest("POST", "/")
+                .bodyJson(Json.toJson(companyDto)).build();
+
+        when(messagesApi.preferred(request)).thenReturn(messages);
+
+        final CompanyController controller = new CompanyController(formFactory, repository);
+
+        Result stage = controller.login(request);
+        String result = contentAsString(stage);
+
+        ApiError error = Json.fromJson(Json.parse(result), ApiError.class);
+
+        assertEquals(400, stage.status());
+        assertEquals("Invalid username and/or password", error.getMessage());
     }
 }

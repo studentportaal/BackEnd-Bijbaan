@@ -3,7 +3,7 @@ package models.dto;
 import dal.repository.CompanyRepository;
 import models.domain.Company;
 import models.domain.JobOffer;
-import models.domain.User;
+import models.domain.Student;
 import play.data.validation.Constraints;
 
 import java.util.List;
@@ -21,7 +21,7 @@ public class JobOfferDto {
     private String function;
     @Constraints.Required
     private double salary;
-    private List<User> applicants;
+    private List<Student> applicants;
     private String company;
 
     public JobOfferDto(JobOffer jobOffer) {
@@ -33,7 +33,7 @@ public class JobOfferDto {
         this.salary = jobOffer.getSalary();
         this.applicants = jobOffer.getApplicants();
         if (jobOffer.getCompany() != null) {
-            this.company = jobOffer.getCompany().getId();
+            this.company = jobOffer.getCompany().getUuid();
         }
     }
 
@@ -89,11 +89,11 @@ public class JobOfferDto {
         this.salary = salary;
     }
 
-    public List<User> getApplicants() {
+    public List<Student> getApplicants() {
         return applicants;
     }
 
-    public void setApplicants(List<User> applicants) {
+    public void setApplicants(List<Student> applicants) {
         this.applicants = applicants;
     }
 
@@ -118,7 +118,8 @@ public class JobOfferDto {
             if (this.getCompany() != null) {
                 Company fullCompany = repository.getCompanyById(this.getCompany()).toCompletableFuture().get();
                 if (fullCompany != null) {
-                    this.setCompany(fullCompany.getId());
+                    jobOffer.setCompany(fullCompany);
+                    this.setCompany(fullCompany.getUuid());
                 }
             }
         } catch (InterruptedException | ExecutionException e) {

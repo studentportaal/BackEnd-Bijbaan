@@ -4,11 +4,11 @@ import com.fasterxml.jackson.databind.JsonNode;
 import dal.repository.CompanyRepository;
 import dal.repository.JobOfferRepository;
 import models.api.ApiError;
-import models.converters.UserConverter;
+import models.converters.StudentConverter;
 import models.domain.JobOffer;
-import models.domain.User;
+import models.domain.Student;
 import models.dto.JobOfferDto;
-import models.dto.UserDto;
+import models.dto.StudentDto;
 import models.parser.Parser;
 import play.data.Form;
 import play.data.FormFactory;
@@ -46,7 +46,8 @@ public class JobOfferController extends Controller {
 
         if (jobOfferValidator.hasErrors()) {
             return badRequest(toJson(new ApiError<>("Invalid json object")));
-        } else {
+        }
+        else {
             JsonNode json = request.body().asJson();
             JobOffer jobOffer = Json.fromJson(json, JobOfferDto.class).toModel(companyRepository);
             jobOfferRepository.addJobOffer(jobOffer);
@@ -58,27 +59,36 @@ public class JobOfferController extends Controller {
         return null;
     }
 
-    public CompletionStage<Result> updateJobOffer() {
-        return null;
+    public Result updateJobOffer(final Http.Request request, String id) {
+        Form<JobOfferDto> jobOfferValidator = formFactory.form(JobOfferDto.class).bindFromRequest(request);
+        if(jobOfferValidator.hasErrors()){
+            return badRequest(toJson(new ApiError<>("Invalid json object")));
+        }
+        else{
+            JsonNode json = request.body().asJson();
+            JobOffer jobOffer = Json.fromJson(json, JobOfferDto.class).toModel(companyRepository);
+            jobOfferRepository.updateJobOffer(jobOffer);
+            return ok(toJson(jobOffer));
+
+        }
     }
 
     @BodyParser.Of(BodyParser.Json.class)
-    public Result applyForJob(final Http.Request request, String id){
+    public Result applyForJob(final Http.Request request, String id) {
 
-            JsonNode json = request.body().asJson();
-            UserDto userDto = Json.fromJson(json, UserDto.class);
-            UserConverter c = new UserConverter();
-
-
-        try{
-                User u = c.convertDtoToUser(userDto);
-                return ok(toJson(jobOfferRepository.applyForJob(u, id).toCompletableFuture().get()));
-            } catch (NoResultException e ){
-                return badRequest(toJson(new ApiError<>("No result found with the given ID")));
-            } catch (InterruptedException | ParseException | ExecutionException e){
-                return badRequest(toJson(new ApiError<>("Oops something went wrong")));
-            }
+        JsonNode json = request.body().asJson();
+        StudentDto studentDto = Json.fromJson(json, StudentDto.class);
+        StudentConverter c = new StudentConverter();
+      
+        try {
+            Student u = c.convertDtoToStudent(studentDto);
+            return ok(toJson(jobOfferRepository.applyForJob(u, id).toCompletableFuture().get()));
+        } catch (NoResultException e) {
+            return badRequest(toJson(new ApiError<>("No result found with the given ID")));
+        } catch (InterruptedException | ParseException | ExecutionException e) {
+            return badRequest(toJson(new ApiError<>("Oops something went wrong")));
         }
+    }
 
 
     public Result getJobOfferById(String id) {
@@ -102,13 +112,12 @@ public class JobOfferController extends Controller {
         }
     }
 
-
-    public Result getAllJobOffers(String startNr, String amount) {
+    public Result getAllJobOffers(String startNr, String amount, String companies) {
 
         if (startNr != null && amount != null) {
             if (Parser.stringToInt(startNr) && Parser.stringToInt(amount)) {
                 try {
-                    return ok(toJson(jobOfferRepository.getAllJobOffers(Integer.parseInt(startNr), Integer.parseInt(amount))
+                    return ok(toJson(jobOfferRepository.getAllJobOffers(Integer.parseInt(startNr), Integer.parseInt(amount), companies)
                             .toCompletableFuture()
                             .get().stream().map(JobOfferDto::new).collect(Collectors.toList())));
                 } catch (InterruptedException | ExecutionException e) {

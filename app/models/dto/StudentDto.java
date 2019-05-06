@@ -8,7 +8,7 @@ import java.util.Date;
  * @author Max Meijer
  * Created on 26/03/2019
  */
-public class UserDto {
+public class StudentDto {
     private String uuid;
     @Constraints.Required
     private String firstName;
@@ -22,11 +22,11 @@ public class UserDto {
     @Constraints.Required
     private String institute;
 
-    public UserDto() {
+    public StudentDto() {
         // Empty constructor for Json parsing.
     }
 
-    public UserDto(String uuid, String email, String firstName, String lastName, Date dateOfBirth, String institute){
+    public StudentDto(String uuid, String email, String firstName, String lastName, Date dateOfBirth, String institute){
         this.uuid = uuid;
         this.email = email;
         this.firstName = firstName;
@@ -93,7 +93,7 @@ public class UserDto {
 
     @Override
     public String toString() {
-        return "UserDto{" +
+        return "StudentDto{" +
                 "uuid='" + uuid + '\'' +
                 ", firstName='" + firstName + '\'' +
                 ", lastName='" + lastName + '\'' +
