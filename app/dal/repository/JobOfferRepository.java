@@ -4,9 +4,7 @@ import com.google.inject.ImplementedBy;
 import dal.jpa.JPAJobOfferRepository;
 import models.domain.Company;
 import models.domain.JobOffer;
-import models.domain.User;
-
-import play.mvc.Result;
+import models.domain.Student;
 
 import java.util.List;
 import java.util.concurrent.CompletionStage;
@@ -27,5 +25,5 @@ public interface JobOfferRepository {
 
     CompletionStage<String> getJobOfferCount();
 
-    CompletionStage<JobOffer> applyForJob(User user, String id);
+    CompletionStage<JobOffer> applyForJob(Student user, String id);
 }
