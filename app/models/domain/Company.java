@@ -7,7 +7,7 @@ import javax.persistence.*;
 @Entity
 @NamedQueries({
         @NamedQuery(name = "Company.getCompanyById", query = "SELECT c FROM Company c WHERE c.uuid = :uuid"),
-        @NamedQuery(name = "Company.getAllCompanies", query = "SELECT c FROM Company c"),
+        @NamedQuery(name = "Company.getAllCompanies", query = "SELECT c FROM Company c ORDER BY c.name ASC"),
 })
 public class Company extends User implements Comparable<Company> {
 

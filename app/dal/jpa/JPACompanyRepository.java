@@ -102,7 +102,6 @@ public class JPACompanyRepository implements CompanyRepository {
     public List<Company> list(EntityManager em){
         TypedQuery<Company> query = em.createNamedQuery("Company.getAllCompanies", Company.class);
         List<Company> allCompanies= query.getResultList();
-        Collections.sort(allCompanies);
         return allCompanies;
     }
 }
