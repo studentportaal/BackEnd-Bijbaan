@@ -26,3 +26,5 @@ PUT     /joboffer/:id               controllers.JobOfferController.applyForJob(r
 POST    /company                    controllers.CompanyController.addCompany(request: Request)
 PUT     /company                    controllers.CompanyController.updateCompany(request: Request)
 GET     /company/:id                controllers.CompanyController.getCompanyById(id: String)
+
+GET     /auth/token/refresh         controllers.auth.TokenController.refreshToken()

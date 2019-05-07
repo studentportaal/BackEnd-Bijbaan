@@ -1,8 +1,11 @@
 package controllers;
 
 import com.fasterxml.jackson.databind.JsonNode;
+import dal.jpa.JPATokenRepository;
 import dal.repository.UserRepository;
 import models.api.ApiError;
+import models.authentication.AuthenticationToken;
+import models.authentication.JwtEncoder;
 import models.converters.UserConverter;
 import models.domain.User;
 import models.dto.UserDto;
@@ -19,10 +22,10 @@ import javax.inject.Inject;
 import javax.persistence.NoResultException;
 import javax.validation.ConstraintViolationException;
 import java.text.ParseException;
+import java.util.concurrent.CompletionStage;
 import java.util.concurrent.ExecutionException;
 import java.util.stream.Collectors;
 
-import static play.libs.Json.fromJson;
 import static play.libs.Json.toJson;
 
 
@@ -35,12 +38,14 @@ public class UserController extends Controller {
 
     private final FormFactory formFactory;
     private final UserRepository userRepository;
+    private JPATokenRepository tokenRepository;
     private final UserConverter userConverter;
 
     @Inject
-    public UserController(FormFactory formFactory, UserRepository userRepository) {
+    public UserController(FormFactory formFactory, UserRepository userRepository, JPATokenRepository tokenRepository) {
         this.formFactory = formFactory;
         this.userRepository = userRepository;
+        this.tokenRepository = tokenRepository;
         this.userConverter = new UserConverter();
     }
 
@@ -125,9 +130,11 @@ public class UserController extends Controller {
 
         try {
             User user = userRepository.login(userDto.getEmail(), userDto.getPassword()).toCompletableFuture().get();
-            UserDto dto = new UserDto(user.getUuid(), user.getEmail(), user.getFirstName(), user.getLastName(), user.getDateOfBirth(), user.getInstitute());
+            CompletionStage<AuthenticationToken> token = tokenRepository.createToken(user);
 
-            return ok(toJson(dto));
+            String jwt = JwtEncoder.toJWT(token.toCompletableFuture().get());
+
+            return ok(toJson(jwt));
         } catch (InterruptedException | ExecutionException | NoResultException e) {
             return badRequest(toJson(new ApiError<>("Invalid username and/or password")));
         }

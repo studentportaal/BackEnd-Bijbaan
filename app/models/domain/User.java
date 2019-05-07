@@ -1,10 +1,10 @@
 package models.domain;
 
-import org.hibernate.annotations.DynamicUpdate;
 import org.hibernate.annotations.GenericGenerator;
 
 import javax.persistence.*;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Date;
 
 @Entity
@@ -29,6 +29,9 @@ public class User {
     private String institute;
     private byte[] salt;
     private byte[] password;
+    @ElementCollection(targetClass = Role.class)
+    @Enumerated(EnumType.STRING)
+    private Collection<Role> roles = Arrays.asList(Role.User);
 
     public String getUuid() {
         return uuid;
@@ -107,4 +110,7 @@ public class User {
                 '}';
     }
 
+    public Collection<Role> getRoles() {
+        return roles;
+    }
 }
