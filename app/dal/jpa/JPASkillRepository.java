@@ -87,7 +87,7 @@ public class JPASkillRepository implements SkillRepository {
 
     private List<Skill> search(EntityManager em, String q) {
         TypedQuery<Skill> query = em.createNamedQuery("skill.search", Skill.class);
-        query.setParameter("name", "%" + q + "%");
+        query.setParameter("name", "%" + q.toUpperCase() + "%");
 
         return query.getResultList();
     }
