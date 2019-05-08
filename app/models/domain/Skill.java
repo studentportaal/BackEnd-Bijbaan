@@ -8,7 +8,7 @@ import javax.persistence.*;
 
 @Entity
 @NamedQueries({
-        @NamedQuery(name = "skill.getById", query = "FROM Skill s WHERE s.uuid = :id"),
+        @NamedQuery(name = "skill.getById", query = "FROM Skill s WHERE s.id = :id"),
         @NamedQuery(name = "skill.getAll", query = "FROM Skill"),
         @NamedQuery(name = "skill.search", query = "FROM Skill s WHERE s.name LIKE :name")
 })
@@ -16,7 +16,7 @@ public class Skill {
     @Id
     @GeneratedValue(generator = "uuid")
     @GenericGenerator(name = "uuid", strategy = "uuid2")
-    private String uuid;
+    private String id;
     @Column(unique = true)
     private String name;
 
@@ -30,7 +30,7 @@ public class Skill {
 
     public Skill(SkillDto dto) {
         if(dto.getId() != null) {
-            this.uuid = dto.getId();
+            this.id = dto.getId();
         }
 
         if(dto.getName()!= null) {
@@ -38,12 +38,12 @@ public class Skill {
         }
     }
 
-    public String getUuid() {
-        return uuid;
+    public String getId() {
+        return id;
     }
 
-    public void setUuid(String uuid) {
-        this.uuid = uuid;
+    public void setId(String uuid) {
+        this.id = uuid;
     }
 
     public String getName() {

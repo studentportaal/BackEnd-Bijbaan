@@ -29,6 +29,7 @@ import javax.persistence.NoResultException;
 import java.io.IOException;
 import java.text.ParseException;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 import java.util.concurrent.CompletionStage;
 import java.util.concurrent.ExecutionException;
@@ -99,7 +100,7 @@ public class JobOfferController extends Controller {
 
     @BodyParser.Of(BodyParser.Json.class)
     public Result setSkills(final Http.Request request, String id) {
-        Set<Skill> skills = skillFromRequest(request);
+        List<Skill> skills = skillFromRequest(request);
 
         try {
             return ok(toJson(jobOfferRepository.setSkills(skills, id).toCompletableFuture().get()));
@@ -153,11 +154,11 @@ public class JobOfferController extends Controller {
         return badRequest(toJson(new ApiError<>("Oops, something went wrong")));
     }
 
-    private Set<Skill> skillFromRequest(Http.Request req) {
+    private List<Skill> skillFromRequest(Http.Request req) {
         JsonNode json = req.body().asJson();
         JsonNode skills =  json.get("skills");
 
-        Set<SkillDto> skillSet = null;
+        List<SkillDto> skillSet = null;
         try {
             skillSet = Json.mapper().readValue(skills.traverse(), new TypeReference<Set<SkillDto>>(){});
         } catch (IOException e) {
@@ -166,6 +167,6 @@ public class JobOfferController extends Controller {
 
         return skillSet.stream()
                 .map(Skill::new)
-                .collect(Collectors.toSet());
+                .collect(Collectors.toList());
     }
 }

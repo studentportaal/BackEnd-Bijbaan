@@ -29,5 +29,5 @@ public interface JobOfferRepository {
 
     CompletionStage<JobOffer> applyForJob(Student user, String id);
 
-    CompletionStage<JobOffer> setSkills(Set<Skill> skills, String id);
+    CompletionStage<JobOffer> setSkills(List<Skill> skills, String id);
 }

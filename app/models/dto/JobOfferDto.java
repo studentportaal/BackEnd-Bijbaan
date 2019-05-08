@@ -24,7 +24,7 @@ public class JobOfferDto {
     @Constraints.Required
     private double salary;
     private List<Student> applicants;
-    private Set<Skill> skills;
+    private List<Skill> skills;
     private String company;
 
     public JobOfferDto(JobOffer jobOffer) {
@@ -35,6 +35,7 @@ public class JobOfferDto {
         this.function = jobOffer.getFunction();
         this.salary = jobOffer.getSalary();
         this.applicants = jobOffer.getApplicants();
+        this.skills = jobOffer.getSkills();
         if (jobOffer.getCompany() != null) {
             this.company = jobOffer.getCompany().getUuid();
         }
@@ -108,11 +109,11 @@ public class JobOfferDto {
         this.company = company;
     }
 
-    public Set<Skill> getSkills() {
+    public List<Skill> getSkills() {
         return skills;
     }
 
-    public void setSkills(Set<Skill> skills) {
+    public void setSkills(List<Skill> skills) {
         this.skills = skills;
     }
 
@@ -124,6 +125,7 @@ public class JobOfferDto {
         jobOffer.setSalary(this.getSalary());
         jobOffer.setTitle(this.getTitle());
         jobOffer.setApplicants(this.getApplicants());
+        jobOffer.setSkills(skills);
         jobOffer.setId(this.getId());
         try {
             if (this.getCompany() != null) {

@@ -93,7 +93,7 @@ public class JPAJobOfferRepository implements JobOfferRepository {
     }
 
     @Override
-    public CompletionStage<JobOffer> setSkills(Set<Skill> skills, String id) {
+    public CompletionStage<JobOffer> setSkills(List<Skill> skills, String id) {
         JobOffer offer = wrap(em -> getJobOfferById(em, id));
         offer.setSkills(skills);
 

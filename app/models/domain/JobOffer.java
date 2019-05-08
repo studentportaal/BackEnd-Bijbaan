@@ -1,5 +1,7 @@
 package models.domain;
 
+import org.hibernate.annotations.Fetch;
+import org.hibernate.annotations.FetchMode;
 import org.hibernate.annotations.GenericGenerator;
 import play.data.validation.Constraints;
 
@@ -32,7 +34,8 @@ public class JobOffer {
     @ManyToMany(fetch = FetchType.EAGER)
     private List<Student> applicants;
     @ManyToMany(fetch = FetchType.EAGER)
-    private Set<Skill> skills;
+    @Fetch(value = FetchMode.SUBSELECT)
+    private List<Skill> skills;
     @ManyToOne
     private Company company;
 
@@ -101,11 +104,11 @@ public class JobOffer {
         this.company = company;
     }
 
-    public Set<Skill> getSkills() {
+    public List<Skill> getSkills() {
         return skills;
     }
 
-    public void setSkills(Set<Skill> skills) {
+    public void setSkills(List<Skill> skills) {
         this.skills = skills;
     }
 }
