@@ -1,10 +1,13 @@
 package models.domain;
 
+import org.hibernate.annotations.Fetch;
+import org.hibernate.annotations.FetchMode;
 import org.hibernate.annotations.GenericGenerator;
 import play.data.validation.Constraints;
 
 import javax.persistence.*;
 import java.util.List;
+import java.util.Set;
 
 @Entity
 @NamedQueries({
@@ -30,6 +33,9 @@ public class JobOffer {
     private double salary;
     @ManyToMany(fetch = FetchType.EAGER)
     private List<Student> applicants;
+    @ManyToMany(fetch = FetchType.EAGER)
+    @Fetch(value = FetchMode.SUBSELECT)
+    private List<Skill> skills;
     @ManyToOne
     private Company company;
 
@@ -96,5 +102,13 @@ public class JobOffer {
 
     public void setCompany(Company company) {
         this.company = company;
+    }
+
+    public List<Skill> getSkills() {
+        return skills;
+    }
+
+    public void setSkills(List<Skill> skills) {
+        this.skills = skills;
     }
 }

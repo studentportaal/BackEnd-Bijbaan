@@ -3,10 +3,12 @@ package models.dto;
 import dal.repository.CompanyRepository;
 import models.domain.Company;
 import models.domain.JobOffer;
+import models.domain.Skill;
 import models.domain.Student;
 import play.data.validation.Constraints;
 
 import java.util.List;
+import java.util.Set;
 import java.util.concurrent.ExecutionException;
 
 public class JobOfferDto {
@@ -22,6 +24,7 @@ public class JobOfferDto {
     @Constraints.Required
     private double salary;
     private List<Student> applicants;
+    private List<Skill> skills;
     private String company;
 
     public JobOfferDto(JobOffer jobOffer) {
@@ -32,6 +35,7 @@ public class JobOfferDto {
         this.function = jobOffer.getFunction();
         this.salary = jobOffer.getSalary();
         this.applicants = jobOffer.getApplicants();
+        this.skills = jobOffer.getSkills();
         if (jobOffer.getCompany() != null) {
             this.company = jobOffer.getCompany().getUuid();
         }
@@ -105,6 +109,14 @@ public class JobOfferDto {
         this.company = company;
     }
 
+    public List<Skill> getSkills() {
+        return skills;
+    }
+
+    public void setSkills(List<Skill> skills) {
+        this.skills = skills;
+    }
+
     public JobOffer toModel(CompanyRepository repository) {
         JobOffer jobOffer = new JobOffer();
         jobOffer.setInformation(this.getInformation());
@@ -113,6 +125,7 @@ public class JobOfferDto {
         jobOffer.setSalary(this.getSalary());
         jobOffer.setTitle(this.getTitle());
         jobOffer.setApplicants(this.getApplicants());
+        jobOffer.setSkills(skills);
         jobOffer.setId(this.getId());
         try {
             if (this.getCompany() != null) {

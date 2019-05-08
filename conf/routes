@@ -2,16 +2,16 @@
 # This file defines all application routes (Higher priority routes first)
 # ~~~~
 
-# Home page
+# Map static resources from the /public folder to the /assets URL path
+GET     /assets/*file               controllers.Assets.at(path="/public", file)
+
+# Users
 GET     /                           controllers.StudentController.index(req: Request)
 POST    /users                      controllers.StudentController.addStudent(req: Request)
 POST    /users/login                controllers.StudentController.login(req: Request)
 GET     /users                      controllers.StudentController.getAllStudents()
 GET     /users/:id                  controllers.StudentController.getStudent(id: String)
 PUT     /users/:id                  controllers.StudentController.updateStudent(req: Request, id: String)
-
-# Map static resources from the /public folder to the /assets URL path
-GET     /assets/*file               controllers.Assets.at(path="/public", file)
 
 #JobOffers
 GET     /joboffer/:id               controllers.JobOfferController.getJobOfferById(id: String)
@@ -20,6 +20,7 @@ GET     /joboffer                   controllers.JobOfferController.getAllJobOffe
 GET     /joboffer/all/count         controllers.JobOfferController.getJobOfferCount()
 PATCH   /joboffer/:id               controllers.JobOfferController.applyForJob(request: Request, id: String)
 PUT     /joboffer/:id               controllers.JobOfferController.updateJobOffer(req: Request, id: String)
+PATCH   /joboffer/:id/skills        controllers.JobOfferController.setSkills(req: Request, id: String)
 
 #Company
 POST    /company                    controllers.CompanyController.addCompany(request: Request)
@@ -27,3 +28,8 @@ PUT     /company                    controllers.CompanyController.updateCompany(
 GET     /company/:id                controllers.CompanyController.getCompanyById(id: String)
 POST    /company/login              controllers.CompanyController.login(request: Request)
 GET     /company                    controllers.CompanyController.getAllCompanies()
+
+#Skills
+POST    /skills                     controllers.SkillController.addSkill(request: Request)
+PUT     /skills                     controllers.SkillController.updateSkill(request: Request)
+GET     /skills                     controllers.SkillController.getAll(query: String ?= null)
