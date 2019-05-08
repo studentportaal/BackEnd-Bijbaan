@@ -3,6 +3,7 @@ package dal.jpa;
 import dal.context.DatabaseExecutionContext;
 import dal.repository.JobOfferRepository;
 import models.domain.JobOffer;
+import models.domain.Skill;
 import models.domain.Student;
 import play.db.jpa.JPAApi;
 
@@ -10,6 +11,7 @@ import javax.inject.Inject;
 import javax.persistence.*;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Set;
 import java.util.concurrent.CompletionStage;
 import java.util.function.Function;
 
@@ -90,6 +92,15 @@ public class JPAJobOfferRepository implements JobOfferRepository {
                     -> wrap(em -> update(em, offer)));
     }
 
+    @Override
+    public CompletionStage<JobOffer> setSkills(Set<Skill> skills, String id) {
+        JobOffer offer = wrap(em -> getJobOfferById(em, id));
+        offer.setSkills(skills);
+
+        return supplyAsync(()
+                -> wrap(em -> update(em, offer)));
+    }
+
     private JobOffer insert(EntityManager em, JobOffer jobOffer) {
         em.persist(jobOffer);
         return jobOffer;
@@ -128,4 +139,5 @@ public class JPAJobOfferRepository implements JobOfferRepository {
         TypedQuery<JobOffer> jobOffers = em.createQuery("FROM JobOffer j", JobOffer.class);
         return jobOffers.getResultList();
     }
+
 }

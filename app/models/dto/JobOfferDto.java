@@ -3,10 +3,12 @@ package models.dto;
 import dal.repository.CompanyRepository;
 import models.domain.Company;
 import models.domain.JobOffer;
+import models.domain.Skill;
 import models.domain.Student;
 import play.data.validation.Constraints;
 
 import java.util.List;
+import java.util.Set;
 import java.util.concurrent.ExecutionException;
 
 public class JobOfferDto {
@@ -22,6 +24,7 @@ public class JobOfferDto {
     @Constraints.Required
     private double salary;
     private List<Student> applicants;
+    private Set<Skill> skills;
     private String company;
 
     public JobOfferDto(JobOffer jobOffer) {
@@ -103,6 +106,14 @@ public class JobOfferDto {
 
     public void setCompany(String company) {
         this.company = company;
+    }
+
+    public Set<Skill> getSkills() {
+        return skills;
+    }
+
+    public void setSkills(Set<Skill> skills) {
+        this.skills = skills;
     }
 
     public JobOffer toModel(CompanyRepository repository) {

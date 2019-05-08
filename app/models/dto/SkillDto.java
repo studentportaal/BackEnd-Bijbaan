@@ -1,9 +1,12 @@
 package models.dto;
 
 import models.domain.Skill;
+import models.form.JobOfferSkills;
 import models.form.SkillAddCheck;
 import models.form.SkillUpdateCheck;
 import play.data.validation.Constraints;
+
+import java.util.Set;
 
 public class SkillDto {
     @Constraints.Required(groups = SkillUpdateCheck.class)

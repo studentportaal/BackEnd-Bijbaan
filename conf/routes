@@ -20,6 +20,7 @@ GET     /joboffer                   controllers.JobOfferController.getAllJobOffe
 GET     /joboffer/all/count         controllers.JobOfferController.getJobOfferCount()
 PATCH   /joboffer/:id               controllers.JobOfferController.applyForJob(request: Request, id: String)
 PUT     /joboffer/:id               controllers.JobOfferController.updateJobOffer(req: Request, id: String)
+PATCH   /joboffer/:id/skills        controllers.JobOfferController.setSkills(req: Request, id: String)
 
 #Company
 POST    /company                    controllers.CompanyController.addCompany(request: Request)

@@ -5,6 +5,7 @@ import play.data.validation.Constraints;
 
 import javax.persistence.*;
 import java.util.List;
+import java.util.Set;
 
 @Entity
 @NamedQueries({
@@ -30,6 +31,8 @@ public class JobOffer {
     private double salary;
     @ManyToMany(fetch = FetchType.EAGER)
     private List<Student> applicants;
+    @ManyToMany(fetch = FetchType.EAGER)
+    private Set<Skill> skills;
     @ManyToOne
     private Company company;
 
@@ -96,5 +99,13 @@ public class JobOffer {
 
     public void setCompany(Company company) {
         this.company = company;
+    }
+
+    public Set<Skill> getSkills() {
+        return skills;
+    }
+
+    public void setSkills(Set<Skill> skills) {
+        this.skills = skills;
     }
 }
