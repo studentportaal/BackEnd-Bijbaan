@@ -69,7 +69,6 @@ public class SkillController extends Controller {
     public Result getAll(String query) {
         if(query != null && !query.equals("")) {
             try {
-                System.out.println(query);
                 return ok(toJson(skillRepository.search(query).toCompletableFuture().get()));
             } catch (InterruptedException | ExecutionException e) {
                 return badRequest(toJson(new ApiError<>("No results found")));

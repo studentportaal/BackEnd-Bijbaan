@@ -18,12 +18,10 @@ import static java.util.concurrent.CompletableFuture.supplyAsync;
 public class JPASkillRepository implements SkillRepository {
 
     private final JPAApi jpaApi;
-    private final DatabaseExecutionContext executionContext;
 
     @Inject
-    public JPASkillRepository(JPAApi jpaApi, DatabaseExecutionContext executionContext) {
+    public JPASkillRepository(JPAApi jpaApi) {
         this.jpaApi = jpaApi;
-        this.executionContext = executionContext;
     }
 
     private <T> T wrap(Function<EntityManager, T> function) {
