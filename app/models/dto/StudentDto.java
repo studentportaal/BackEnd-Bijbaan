@@ -31,7 +31,7 @@ public class StudentDto {
         // Empty constructor for Json parsing.
     }
 
-    public StudentDto(String uuid, @Constraints.Required String firstName, @Constraints.Required String lastName, @Constraints.Required String email, String dateOfBirth, @Constraints.Required String password, @Constraints.Required String institute) {
+    public StudentDto(String uuid, String firstName, String lastName, String email, String dateOfBirth, String password, String institute) {
         this.uuid = uuid;
         this.firstName = firstName;
         this.lastName = lastName;
