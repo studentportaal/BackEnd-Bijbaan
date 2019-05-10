@@ -4,6 +4,7 @@ import com.typesafe.config.Config;
 import com.typesafe.config.ConfigFactory;
 import dal.repository.StudentRepository;
 import models.api.ApiError;
+import models.domain.Skill;
 import models.domain.Student;
 import models.domain.User;
 import models.dto.StudentDto;
@@ -20,6 +21,8 @@ import play.test.Helpers;
 
 import javax.validation.Validation;
 import javax.validation.ValidatorFactory;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.concurrent.ExecutionException;
 
 import static java.util.concurrent.CompletableFuture.supplyAsync;
@@ -40,6 +43,8 @@ public class StudentControllerTest {
         // Don't need to be this involved in setting up the mock, but for demo it works:
         StudentRepository repository = mock(StudentRepository.class);
 
+        Skill skill =new Skill("Java");
+
         StudentDto dto = new StudentDto();
         dto.setFirstName("Steve");
         dto.setLastName("Smith");
@@ -47,6 +52,7 @@ public class StudentControllerTest {
         dto.setEmail("test@test.nl");
         dto.setInstitute("Fontys");
         dto.setPassword("password");
+        dto.setSkills(Arrays.asList(skill));
 
         Student student = new Student();
         student.setFirstName("Steve");
@@ -119,6 +125,8 @@ public class StudentControllerTest {
         // Don't need to be this involved in setting up the mock, but for demo it works:
         StudentRepository repository = mock(StudentRepository.class);
 
+        Skill skill = new Skill("Java");
+
         StudentDto dto = new StudentDto();
         dto.setFirstName("Steve");
         dto.setLastName("Smith");
@@ -126,6 +134,7 @@ public class StudentControllerTest {
         dto.setEmail("test@test.nl");
         dto.setInstitute("Fontys");
         dto.setPassword("password");
+        dto.setSkills(Arrays.asList(skill));
 
         // Set up the request builder to reflect input
         Http.Request request = Helpers.fakeRequest("POST", "/").bodyJson(Json.toJson(dto)).build().withTransientLang("es");

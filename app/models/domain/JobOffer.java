@@ -14,9 +14,7 @@ import java.util.Set;
         @NamedQuery(name = "JobOffer.getJobOfferById", query = "SELECT j FROM JobOffer j WHERE j.id = :id"),
         @NamedQuery(name = "JobOffer.getAllJobOffers", query = "SELECT j from JobOffer j")
 })
-
 public class JobOffer {
-
     @Id
     @GeneratedValue(generator = "UUID")
     @GenericGenerator(name = "UUID", strategy = "org.hibernate.id.UUIDGenerator")
@@ -26,6 +24,7 @@ public class JobOffer {
     @Constraints.Required
     private String title;
     @Constraints.Required
+    @Column(columnDefinition = "TEXT")
     private String information;
     @Constraints.Required
     private String function;
