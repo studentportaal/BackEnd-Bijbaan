@@ -125,7 +125,7 @@ public class StudentController extends Controller {
 
         try {
             Student student = studentRepository.login(studentDto.getEmail(), studentDto.getPassword()).toCompletableFuture().get();
-            StudentDto dto = new StudentDto(student.getUuid(), student.getEmail(), student.getFirstName(), student.getLastName(), student.getDateOfBirth(), student.getInstitute());
+            StudentDto dto = new StudentDto(student.getUuid(), student.getEmail(), student.getFirstName(), student.getLastName(), student.getDateOfBirth(), student.getInstitute(), student.getSkills());
 
             return ok(toJson(dto));
         } catch (InterruptedException | ExecutionException | NoResultException e) {

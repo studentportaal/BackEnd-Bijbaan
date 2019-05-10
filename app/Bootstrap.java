@@ -1,10 +1,8 @@
 import dal.repository.CompanyRepository;
 import dal.repository.JobOfferRepository;
+import dal.repository.SkillRepository;
 import dal.repository.StudentRepository;
-import models.domain.Company;
-import models.domain.JobOffer;
-import models.domain.Student;
-import models.domain.User;
+import models.domain.*;
 import play.Environment;
 import play.inject.ApplicationLifecycle;
 import security.PasswordHelper;
@@ -12,10 +10,7 @@ import security.PasswordHelper;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 import java.lang.reflect.Array;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Date;
-import java.util.List;
+import java.util.*;
 import java.util.concurrent.ExecutionException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -31,16 +26,19 @@ public class Bootstrap {
     private final StudentRepository studentRepository;
     private final JobOfferRepository jobRepository;
     private final CompanyRepository companyRepository;
+    private final SkillRepository skillRepository;
 
     @Inject
     public Bootstrap(ApplicationLifecycle lifecycle,
                      Environment environment,
                      StudentRepository studentRepository,
                      JobOfferRepository jobRepository,
-                     CompanyRepository companyRepository) {
+                     CompanyRepository companyRepository,
+                     SkillRepository skillRepository) {
         this.studentRepository = studentRepository;
         this.jobRepository = jobRepository;
         this.companyRepository = companyRepository;
+        this.skillRepository = skillRepository;
 
         addUsers();
         addJobOffers();
@@ -87,25 +85,40 @@ public class Bootstrap {
             e.printStackTrace();
         }
 
+        Skill javaSkill = new Skill("Java");
+        Skill cSkill  = new Skill("C#");
+
+        try {
+            javaSkill = skillRepository.add(javaSkill).toCompletableFuture().get();
+            cSkill = skillRepository.add(cSkill).toCompletableFuture().get();
+        } catch (InterruptedException | ExecutionException e) {
+            e.printStackTrace();
+        }
+
+        LOGGER.log(Level.INFO, javaSkill.toString());
+        LOGGER.log(Level.INFO, cSkill.toString());
+
         JobOffer jobOffer = new JobOffer();
         jobOffer.setFunction("Senior Software Developer");
-        jobOffer.setInformation("Software maken voor geld");
+        jobOffer.setInformation("Java backend engineer");
         jobOffer.setLocation("Google");
         jobOffer.setTitle("Senior back-end engineer");
         jobOffer.setSalary(4500);
         jobOffer.setApplicants(students);
         jobOffer.setCompany(company);
+        jobOffer.setSkills(Arrays.asList(javaSkill));
         jobRepository.addJobOffer(jobOffer);
 
 
         JobOffer jobOffer1 = new JobOffer();
         jobOffer1.setFunction("Junior Software Developer");
-        jobOffer1.setInformation("Junior developer positie");
+        jobOffer1.setInformation("ASP.NET ");
         jobOffer1.setLocation("Google");
         jobOffer1.setTitle("Junior front-end developer");
         jobOffer1.setSalary(2300);
         jobOffer1.setApplicants(students);
         jobOffer1.setCompany(company);
+        jobOffer1.setSkills(Arrays.asList(cSkill));
         jobRepository.addJobOffer(jobOffer1);
     }
 
