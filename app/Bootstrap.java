@@ -95,6 +95,7 @@ public class Bootstrap {
         jobOffer.setSalary(4500);
         jobOffer.setApplicants(students);
         jobOffer.setCompany(company);
+        jobOffer.setTopOfTheDay(new Date());
         jobRepository.addJobOffer(jobOffer);
 
 

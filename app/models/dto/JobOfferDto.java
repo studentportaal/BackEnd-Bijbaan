@@ -39,9 +39,13 @@ public class JobOfferDto {
         this.salary = jobOffer.getSalary();
         this.applicants = jobOffer.getApplicants();
         this.skills = jobOffer.getSkills();
+        if( jobOffer.getTopOfTheDay()!= null){
+            this.topOfTheDay = jobOffer.getTopOfTheDay().toString();
+        }
         if (jobOffer.getCompany() != null) {
             this.company = jobOffer.getCompany().getUuid();
         }
+
     }
 
     public JobOfferDto() {
