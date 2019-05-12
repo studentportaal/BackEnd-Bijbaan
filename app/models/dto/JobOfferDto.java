@@ -7,6 +7,8 @@ import models.domain.Skill;
 import models.domain.Student;
 import play.data.validation.Constraints;
 
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.ExecutionException;
@@ -26,6 +28,7 @@ public class JobOfferDto {
     private List<Student> applicants;
     private List<Skill> skills;
     private String company;
+    private String topOfTheDay;
 
     public JobOfferDto(JobOffer jobOffer) {
         this.id = jobOffer.getId();
@@ -117,6 +120,14 @@ public class JobOfferDto {
         this.skills = skills;
     }
 
+    public String getTopOfTheDay() {
+        return topOfTheDay;
+    }
+
+    public void setTopOfTheDay(String topOfTheDay) {
+        this.topOfTheDay = topOfTheDay;
+    }
+
     public JobOffer toModel(CompanyRepository repository) {
         JobOffer jobOffer = new JobOffer();
         jobOffer.setInformation(this.getInformation());
@@ -138,7 +149,16 @@ public class JobOfferDto {
         } catch (InterruptedException | ExecutionException e) {
             e.printStackTrace();
         }
+        if(this.topOfTheDay!= null){
+            try {
+                SimpleDateFormat formatter = new SimpleDateFormat("dd-MMM-yyyy HH:mm");
+                jobOffer.setTopOfTheDay(formatter.parse(this.topOfTheDay));
+            } catch (ParseException e) {
+                e.printStackTrace();
+            }
+        }
 
         return jobOffer;
     }
+
 }

@@ -10,6 +10,7 @@ import play.db.jpa.JPAApi;
 import javax.inject.Inject;
 import javax.persistence.*;
 import java.util.Arrays;
+import java.util.Date;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.CompletionStage;
@@ -53,6 +54,9 @@ public class JPAJobOfferRepository implements JobOfferRepository {
     public CompletionStage<JobOffer> getJobOfferById(String id) {
         return supplyAsync(() -> wrap((EntityManager em) -> getJobOfferById(em, id)));
     }
+
+
+
 
     @Override
     public CompletionStage<List<JobOffer>> getAllJobOffers(int startNr, int amount, String companies) {
@@ -99,6 +103,14 @@ public class JPAJobOfferRepository implements JobOfferRepository {
 
         return supplyAsync(()
                 -> wrap(em -> update(em, offer)));
+    }
+
+    @Override
+    public CompletionStage<JobOffer> setTopOfDay(String id, Date topOfDay) {
+        JobOffer offer = wrap(em -> getJobOfferById(em, id));
+        offer.setTopOfTheDay(topOfDay);
+
+        return supplyAsync(() -> wrap(em -> update(em,offer)));
     }
 
     private JobOffer insert(EntityManager em, JobOffer jobOffer) {

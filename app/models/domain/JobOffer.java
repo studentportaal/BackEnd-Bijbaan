@@ -6,6 +6,7 @@ import org.hibernate.annotations.GenericGenerator;
 import play.data.validation.Constraints;
 
 import javax.persistence.*;
+import java.util.Date;
 import java.util.List;
 import java.util.Set;
 
@@ -39,6 +40,7 @@ public class JobOffer {
     @ManyToOne
     private Company company;
 
+    private Date TopOfTheDay;
 
     public String getId() {
         return id;
@@ -110,5 +112,13 @@ public class JobOffer {
 
     public void setSkills(List<Skill> skills) {
         this.skills = skills;
+    }
+
+    public Date getTopOfTheDay() {
+        return TopOfTheDay;
+    }
+
+    public void setTopOfTheDay(Date topOfTheDay) {
+        TopOfTheDay = topOfTheDay;
     }
 }
