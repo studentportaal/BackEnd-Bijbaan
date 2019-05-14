@@ -2,6 +2,7 @@ package dal.jpa;
 
 import dal.context.DatabaseExecutionContext;
 import dal.repository.JobOfferRepository;
+import models.domain.Application;
 import models.domain.JobOffer;
 import models.domain.Skill;
 import models.domain.Student;
@@ -43,7 +44,7 @@ public class JPAJobOfferRepository implements JobOfferRepository {
     @Override
     public CompletionStage<JobOffer> updateJobOffer(JobOffer jobOffer) {
         JobOffer j = wrap( em -> getJobOfferById(em, jobOffer.getId()));
-        jobOffer.setApplicants(j.getApplicants());
+        jobOffer.setApplications(j.getApplications());
         jobOffer.setCompany(j.getCompany());
         return supplyAsync(()
                 -> wrap(em ->update(em, jobOffer)), executionContext);
@@ -83,10 +84,10 @@ public class JPAJobOfferRepository implements JobOfferRepository {
     }
 
     @Override
-    public CompletionStage<JobOffer> applyForJob(Student user, String id) {
+    public CompletionStage<JobOffer> applyForJob(Application application, String id) {
 
             JobOffer offer = wrap(em -> getJobOfferById(em, id));
-            offer.getApplicants().add(user);
+            offer.getApplications().add(application);
 
             return supplyAsync(()
                     -> wrap(em -> update(em, offer)));

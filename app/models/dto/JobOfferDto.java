@@ -1,15 +1,15 @@
 package models.dto;
 
 import dal.repository.CompanyRepository;
+import dal.repository.StudentRepository;
 import models.domain.Company;
 import models.domain.JobOffer;
 import models.domain.Skill;
-import models.domain.Student;
 import play.data.validation.Constraints;
 
 import java.util.List;
-import java.util.Set;
 import java.util.concurrent.ExecutionException;
+import java.util.stream.Collectors;
 
 public class JobOfferDto {
     private String id;
@@ -23,7 +23,7 @@ public class JobOfferDto {
     private String function;
     @Constraints.Required
     private double salary;
-    private List<Student> applicants;
+    private List<ApplicationDto> applications;
     private List<Skill> skills;
     private String company;
 
@@ -34,7 +34,7 @@ public class JobOfferDto {
         this.information = jobOffer.getInformation();
         this.function = jobOffer.getFunction();
         this.salary = jobOffer.getSalary();
-        this.applicants = jobOffer.getApplicants();
+        this.applications = jobOffer.getApplications().stream().map(ApplicationDto::new).collect(Collectors.toList());
         this.skills = jobOffer.getSkills();
         if (jobOffer.getCompany() != null) {
             this.company = jobOffer.getCompany().getUuid();
@@ -93,12 +93,12 @@ public class JobOfferDto {
         this.salary = salary;
     }
 
-    public List<Student> getApplicants() {
-        return applicants;
+    public List<ApplicationDto> getApplications() {
+        return applications;
     }
 
-    public void setApplicants(List<Student> applicants) {
-        this.applicants = applicants;
+    public void setApplications(List<ApplicationDto> applications) {
+        this.applications = this.applications;
     }
 
     public String getCompany() {
@@ -117,14 +117,14 @@ public class JobOfferDto {
         this.skills = skills;
     }
 
-    public JobOffer toModel(CompanyRepository repository) {
+    public JobOffer toModel(CompanyRepository repository, StudentRepository studentRepository) {
         JobOffer jobOffer = new JobOffer();
         jobOffer.setInformation(this.getInformation());
         jobOffer.setFunction(this.getFunction());
         jobOffer.setLocation(this.getLocation());
         jobOffer.setSalary(this.getSalary());
         jobOffer.setTitle(this.getTitle());
-        jobOffer.setApplicants(this.getApplicants());
+        jobOffer.setApplications(getApplications().stream().map(a -> a.toModel(studentRepository)).collect(Collectors.toList()));
         jobOffer.setSkills(skills);
         jobOffer.setId(this.getId());
         try {

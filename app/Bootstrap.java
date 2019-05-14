@@ -1,7 +1,4 @@
-import dal.repository.CompanyRepository;
-import dal.repository.JobOfferRepository;
-import dal.repository.SkillRepository;
-import dal.repository.StudentRepository;
+import dal.repository.*;
 import models.domain.*;
 import play.Environment;
 import play.inject.ApplicationLifecycle;
@@ -27,6 +24,7 @@ public class Bootstrap {
     private final JobOfferRepository jobRepository;
     private final CompanyRepository companyRepository;
     private final SkillRepository skillRepository;
+    private final ApplicationRepository applicationRepository;
 
     @Inject
     public Bootstrap(ApplicationLifecycle lifecycle,
@@ -34,11 +32,13 @@ public class Bootstrap {
                      StudentRepository studentRepository,
                      JobOfferRepository jobRepository,
                      CompanyRepository companyRepository,
-                     SkillRepository skillRepository) {
+                     SkillRepository skillRepository,
+                     ApplicationRepository applicationRepository) {
         this.studentRepository = studentRepository;
         this.jobRepository = jobRepository;
         this.companyRepository = companyRepository;
         this.skillRepository = skillRepository;
+        this.applicationRepository = applicationRepository;
 
         addUsers();
         addJobOffers();
@@ -95,8 +95,17 @@ public class Bootstrap {
             e.printStackTrace();
         }
 
-        LOGGER.log(Level.INFO, javaSkill.toString());
-        LOGGER.log(Level.INFO, cSkill.toString());
+        Application application = new Application();
+        application.setApplicant(students.get(0));
+
+        Application application1 = new Application();
+        application1.setApplicant(students.get(1));
+        try {
+            application = applicationRepository.add(application).toCompletableFuture().get();
+            application1 = applicationRepository.add(application1).toCompletableFuture().get();
+        } catch (InterruptedException | ExecutionException e) {
+            e.printStackTrace();
+        }
 
         JobOffer jobOffer = new JobOffer();
         jobOffer.setFunction("Senior Software Developer");
@@ -104,7 +113,7 @@ public class Bootstrap {
         jobOffer.setLocation("Google");
         jobOffer.setTitle("Senior back-end engineer");
         jobOffer.setSalary(4500);
-        jobOffer.setApplicants(students);
+        jobOffer.setApplications(Arrays.asList(application));
         jobOffer.setCompany(company);
         jobOffer.setSkills(Arrays.asList(javaSkill));
         jobRepository.addJobOffer(jobOffer);
@@ -116,7 +125,7 @@ public class Bootstrap {
         jobOffer1.setLocation("Google");
         jobOffer1.setTitle("Junior front-end developer");
         jobOffer1.setSalary(2300);
-        jobOffer1.setApplicants(students);
+        jobOffer1.setApplications(Arrays.asList(application1));
         jobOffer1.setCompany(company);
         jobOffer1.setSkills(Arrays.asList(cSkill));
         jobRepository.addJobOffer(jobOffer1);

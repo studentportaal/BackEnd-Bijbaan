@@ -2,10 +2,7 @@ package dal.repository;
 
 import com.google.inject.ImplementedBy;
 import dal.jpa.JPAJobOfferRepository;
-import models.domain.Company;
-import models.domain.JobOffer;
-import models.domain.Skill;
-import models.domain.Student;
+import models.domain.*;
 
 import java.util.List;
 import java.util.Set;
@@ -27,7 +24,7 @@ public interface JobOfferRepository {
 
     CompletionStage<String> getJobOfferCount();
 
-    CompletionStage<JobOffer> applyForJob(Student user, String id);
+    CompletionStage<JobOffer> applyForJob(Application application, String id);
 
     CompletionStage<JobOffer> setSkills(List<Skill> skills, String id);
 }
