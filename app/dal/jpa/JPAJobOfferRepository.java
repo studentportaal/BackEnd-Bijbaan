@@ -113,6 +113,12 @@ public class JPAJobOfferRepository implements JobOfferRepository {
         return supplyAsync(() -> wrap(em -> update(em,offer)));
     }
 
+    @Override
+    public CompletionStage<List<JobOffer>> getAllTopOfDays() {
+        return supplyAsync(()
+                -> wrap(this::allList), executionContext);
+    }
+
     private JobOffer insert(EntityManager em, JobOffer jobOffer) {
         em.persist(jobOffer);
         return jobOffer;
@@ -149,6 +155,11 @@ public class JPAJobOfferRepository implements JobOfferRepository {
 
     private List<JobOffer> allList(EntityManager em) {
         TypedQuery<JobOffer> jobOffers = em.createQuery("FROM JobOffer j", JobOffer.class);
+        return jobOffers.getResultList();
+    }
+
+    private List<JobOffer> allTopOfDays(EntityManager em){
+        TypedQuery<JobOffer> jobOffers = em.createQuery("FROM JobOffer j WHERE j.topOfTheDay IS NOT NULL", JobOffer.class);
         return jobOffers.getResultList();
     }
 

@@ -8,7 +8,6 @@ import play.data.validation.Constraints;
 import javax.persistence.*;
 import java.util.Date;
 import java.util.List;
-import java.util.Set;
 
 @Entity
 @NamedQueries({
@@ -40,7 +39,7 @@ public class JobOffer {
     @ManyToOne
     private Company company;
 
-    private Date TopOfTheDay;
+    private Date topOfTheDay;
 
     public String getId() {
         return id;
@@ -115,10 +114,10 @@ public class JobOffer {
     }
 
     public Date getTopOfTheDay() {
-        return TopOfTheDay;
+        return topOfTheDay;
     }
 
     public void setTopOfTheDay(Date topOfTheDay) {
-        TopOfTheDay = topOfTheDay;
+        this.topOfTheDay = topOfTheDay;
     }
 }

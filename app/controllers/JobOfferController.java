@@ -170,6 +170,15 @@ public class JobOfferController extends Controller {
         return badRequest(toJson(new ApiError<>("Oops, something went wrong")));
     }
 
+    public Result getAllTopOfDays(){
+        try {
+            return ok(toJson(jobOfferRepository.getAllTopOfDays().toCompletableFuture().get()));
+        } catch (InterruptedException | ExecutionException e) {
+            e.printStackTrace();
+        }
+        return badRequest(toJson(new ApiError<>("Oops, something went wrong")));
+    }
+
     private List<Skill> skillFromRequest(Http.Request req) {
         JsonNode json = req.body().asJson();
         JsonNode skills =  json.get("skills");
