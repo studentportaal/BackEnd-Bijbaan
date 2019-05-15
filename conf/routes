@@ -22,6 +22,7 @@ PATCH   /joboffer/:id               controllers.JobOfferController.applyForJob(r
 PUT     /joboffer/:id               controllers.JobOfferController.updateJobOffer(req: Request, id: String)
 PATCH   /joboffer/:id/skills        controllers.JobOfferController.setSkills(req: Request, id: String)
 POST    /joboffer/topofday          controllers.JobOfferController.setTopOfDay(req: Request)
+GET     /joboffer/topofday/all      controllers.JobOfferController.getAllTopOfDays()
 
 #Company
 POST    /company                    controllers.CompanyController.addCompany(request: Request)

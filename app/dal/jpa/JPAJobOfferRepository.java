@@ -116,7 +116,7 @@ public class JPAJobOfferRepository implements JobOfferRepository {
     @Override
     public CompletionStage<List<JobOffer>> getAllTopOfDays() {
         return supplyAsync(()
-                -> wrap(this::allList), executionContext);
+                -> wrap(this::allTopOfDays), executionContext);
     }
 
     private JobOffer insert(EntityManager em, JobOffer jobOffer) {
