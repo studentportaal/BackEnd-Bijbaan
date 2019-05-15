@@ -108,6 +108,9 @@ public class JPAJobOfferRepository implements JobOfferRepository {
     @Override
     public CompletionStage<JobOffer> setTopOfDay(String id, Date topOfDay) {
         JobOffer offer = wrap(em -> getJobOfferById(em, id));
+        if(offer.getTopOfTheDay() == null){
+            offer.setTopOfTheDay(new Date());
+        }
         offer.setTopOfTheDay(topOfDay);
 
         return supplyAsync(() -> wrap(em -> update(em,offer)));
