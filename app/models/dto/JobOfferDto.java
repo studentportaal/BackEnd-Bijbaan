@@ -27,6 +27,7 @@ public class JobOfferDto {
     private List<ApplicationDto> applications;
     private List<Skill> skills;
     private String company;
+    private boolean isOpen;
 
     public JobOfferDto(JobOffer jobOffer) {
         this.id = jobOffer.getId();
@@ -35,6 +36,7 @@ public class JobOfferDto {
         this.information = jobOffer.getInformation();
         this.function = jobOffer.getFunction();
         this.salary = jobOffer.getSalary();
+        this.isOpen = jobOffer.isOpen();
 
         if (jobOffer.getApplications() != null && jobOffer.getApplications().size() > 0) {
             this.applications = jobOffer.getApplications().stream().map(ApplicationDto::new).collect(Collectors.toList());
@@ -131,6 +133,7 @@ public class JobOfferDto {
         jobOffer.setLocation(this.getLocation());
         jobOffer.setSalary(this.getSalary());
         jobOffer.setTitle(this.getTitle());
+        jobOffer.setOpen(this.isOpen);
 
         if (applications != null && applications.size() > 0) {
             jobOffer.setApplications(getApplications().stream().map(a -> a.toModel(studentRepository)).collect(Collectors.toList()));

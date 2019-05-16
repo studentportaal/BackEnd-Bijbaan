@@ -99,12 +99,9 @@ public class JobOfferController extends Controller {
         JsonNode json = request.body().asJson();
         ApplicationDto applicationDto = Json.fromJson(json, ApplicationDto.class);
 
-        Application application = applicationDto.toModel(studentRepository);
-
-        System.out.println(applicationDto);
-        System.out.println(application);
 
         try {
+            Application application = applicationRepository.add(applicationDto.toModel(studentRepository)).toCompletableFuture().get();
             return ok(toJson(jobOfferRepository.applyForJob(application, id).toCompletableFuture().get()));
         } catch (NoResultException e) {
             return badRequest(toJson(new ApiError<>("No result found with the given ID")));
@@ -145,12 +142,12 @@ public class JobOfferController extends Controller {
         }
     }
 
-    public Result getAllJobOffers(String startNr, String amount, String companies) {
+    public Result getAllJobOffers(String startNr, String amount, String companies, boolean open) {
 
         if (startNr != null && amount != null) {
             if (Parser.stringToInt(startNr) && Parser.stringToInt(amount)) {
                 try {
-                    return ok(toJson(jobOfferRepository.getAllJobOffers(Integer.parseInt(startNr), Integer.parseInt(amount), companies)
+                    return ok(toJson(jobOfferRepository.getAllJobOffers(Integer.parseInt(startNr), Integer.parseInt(amount), companies, open)
                             .toCompletableFuture()
                             .get().stream().map(JobOfferDto::new).collect(Collectors.toList())));
                 } catch (InterruptedException | ExecutionException e) {
@@ -167,6 +164,12 @@ public class JobOfferController extends Controller {
             }
         }
         return badRequest(toJson(new ApiError<>("Oops, something went wrong")));
+    }
+
+    public Result acceptApplicant(String jobOfferId, String applicationId) {
+        applicationRepository.markAccepted(jobOfferId, applicationId);
+
+        return noContent();
     }
 
     private List<Skill> skillFromRequest(Http.Request req) {

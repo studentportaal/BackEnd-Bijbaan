@@ -16,11 +16,12 @@ PUT     /users/:id                  controllers.StudentController.updateStudent(
 #JobOffers
 GET     /joboffer/:id               controllers.JobOfferController.getJobOfferById(id: String)
 POST    /joboffer                   controllers.JobOfferController.addJobOffer(request: Request)
-GET     /joboffer                   controllers.JobOfferController.getAllJobOffers(startNr: String ?= null, amount: String ?= null, companies: String ?= null)
+GET     /joboffer                   controllers.JobOfferController.getAllJobOffers(startNr: String ?= null, amount: String ?= null, companies: String ?= null, open: Boolean ?= true)
 GET     /joboffer/all/count         controllers.JobOfferController.getJobOfferCount()
 PATCH   /joboffer/:id               controllers.JobOfferController.applyForJob(request: Request, id: String)
 PUT     /joboffer/:id               controllers.JobOfferController.updateJobOffer(req: Request, id: String)
 PATCH   /joboffer/:id/skills        controllers.JobOfferController.setSkills(req: Request, id: String)
+PATCH   /joboffer/:jobId/applications/:id  controllers.JobOfferController.acceptApplicant(jobId: String, id: String)
 
 #Company
 POST    /company                    controllers.CompanyController.addCompany(request: Request)

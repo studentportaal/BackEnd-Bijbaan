@@ -18,7 +18,7 @@ public interface JobOfferRepository {
 
     CompletionStage<JobOffer> getJobOfferById(String id);
 
-    CompletionStage<List<JobOffer>> getAllJobOffers(int startNr, int amount, String companies);
+    CompletionStage<List<JobOffer>> getAllJobOffers(int startNr, int amount, String companies, boolean isOpen);
 
     CompletionStage<List<JobOffer>> getAllJobOffers();
 

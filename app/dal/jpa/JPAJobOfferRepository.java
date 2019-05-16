@@ -56,9 +56,9 @@ public class JPAJobOfferRepository implements JobOfferRepository {
     }
 
     @Override
-    public CompletionStage<List<JobOffer>> getAllJobOffers(int startNr, int amount, String companies) {
+    public CompletionStage<List<JobOffer>> getAllJobOffers(int startNr, int amount, String companies, boolean isOpen) {
         return supplyAsync(()
-                -> wrap(em -> list(em, startNr, amount, companies)), executionContext);
+                -> wrap(em -> list(em, startNr, amount, companies, isOpen)), executionContext);
     }
 
     @Override
@@ -122,14 +122,16 @@ public class JPAJobOfferRepository implements JobOfferRepository {
 
     }
 
-    private List<JobOffer> list(EntityManager em, int startNr, int amount, String companies) {
+    private List<JobOffer> list(EntityManager em, int startNr, int amount, String companies, boolean isOpen) {
         TypedQuery<JobOffer> jobOffers;
         if(companies != null && !companies.isEmpty()){
             List<String>companyList = Arrays.asList(companies.split(","));
-            jobOffers = em.createQuery("FROM JobOffer j  WHERE company_uuid IN :companies", JobOffer.class);
+            jobOffers = em.createQuery("FROM JobOffer j  WHERE company_uuid IN :companies AND j.isOpen = :open", JobOffer.class);
             jobOffers.setParameter("companies", companyList);
+            jobOffers.setParameter("open", isOpen);
         }else{
-             jobOffers = em.createQuery("FROM JobOffer j", JobOffer.class);
+             jobOffers = em.createQuery("FROM JobOffer j WHERE j.isOpen = :open", JobOffer.class);
+             jobOffers.setParameter("open", isOpen);
         }
         jobOffers.setFirstResult(startNr);
         jobOffers.setMaxResults(amount);

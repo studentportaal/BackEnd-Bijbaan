@@ -13,7 +13,7 @@ import java.util.Set;
 @NamedQueries({
         @NamedQuery(name = "JobOffer.getJobOfferById", query = "SELECT j FROM JobOffer j WHERE j.id = :id"),
         @NamedQuery(name = "JobOffer.getAllJobOffers", query = "SELECT j from JobOffer j"),
-        @NamedQuery(name = "JobOffer.markClosed", query = "UPDATE JobOffer j SET j.isOpen = 0 WHERE id = :id")
+        @NamedQuery(name = "JobOffer.markClosed", query = "UPDATE JobOffer j SET j.isOpen = false WHERE id = :id")
 })
 public class JobOffer {
     @Id
@@ -38,7 +38,7 @@ public class JobOffer {
     private List<Skill> skills;
     @ManyToOne
     private Company company;
-    private boolean isOpen;
+    private boolean isOpen = true;
 
 
     public String getId() {
