@@ -2,6 +2,7 @@ package models.dto;
 
 import dal.repository.StudentRepository;
 import models.domain.Application;
+import models.domain.Student;
 import play.data.validation.Constraints;
 
 import java.util.Date;
@@ -14,7 +15,7 @@ import java.util.concurrent.ExecutionException;
 public class ApplicationDto {
     private String id;
     @Constraints.Required
-    private String applicant;
+    private StudentDto applicant;
     private Date applicationDate = new Date();
     private boolean accepted = false;
 
@@ -22,7 +23,7 @@ public class ApplicationDto {
         // Required no-args constructor
     }
 
-    public ApplicationDto(String id, String applicant, Date applicationDate, boolean accepted) {
+    public ApplicationDto(String id, StudentDto applicant, Date applicationDate, boolean accepted) {
         this.id = id;
         this.applicant = applicant;
         this.applicationDate = applicationDate;
@@ -31,7 +32,7 @@ public class ApplicationDto {
 
     public ApplicationDto(Application application) {
         this.id = application.getId();
-        this.applicant = application.getApplicant().getUuid();
+        this.applicant = new StudentDto(application.getApplicant());
         this.applicationDate = application.getApplicationDate();
         this.accepted = application.isAccepted();
     }
@@ -44,11 +45,11 @@ public class ApplicationDto {
         this.id = id;
     }
 
-    public String getApplicant() {
+    public StudentDto getApplicant() {
         return applicant;
     }
 
-    public void setApplicant(String applicant) {
+    public void setApplicant(StudentDto applicant) {
         this.applicant = applicant;
     }
 
@@ -71,10 +72,12 @@ public class ApplicationDto {
     public Application toModel(StudentRepository repository)  {
         Application application = new Application();
 
-        application.setId(this.id);
+        if( application.getApplicant() != null) {
+            application.setId(this.id);
+        }
         application.setAccepted(this.accepted);
         try {
-            application.setApplicant(repository.getById(this.applicant).toCompletableFuture().get());
+            application.setApplicant(repository.getById(this.applicant.getUuid()).toCompletableFuture().get());
         } catch (InterruptedException | ExecutionException e) {
             e.printStackTrace();
             return null;

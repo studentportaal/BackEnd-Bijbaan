@@ -99,8 +99,12 @@ public class JobOfferController extends Controller {
         JsonNode json = request.body().asJson();
         ApplicationDto applicationDto = Json.fromJson(json, ApplicationDto.class);
 
+        Application application = applicationDto.toModel(studentRepository);
+
+        System.out.println(applicationDto);
+        System.out.println(application);
+
         try {
-            Application application = applicationDto.toModel(studentRepository);
             return ok(toJson(jobOfferRepository.applyForJob(application, id).toCompletableFuture().get()));
         } catch (NoResultException e) {
             return badRequest(toJson(new ApiError<>("No result found with the given ID")));
