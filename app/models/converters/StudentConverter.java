@@ -24,6 +24,7 @@ public class StudentConverter {
         student.setDateOfBirth(parsed);
         student.setEmail(studentDto.getEmail());
         student.setInstitute(studentDto.getInstitute());
+        student.setSkills(studentDto.getSkills());
 
         return student;
     }
