@@ -7,6 +7,7 @@ import models.domain.JobOffer;
 import models.domain.Skill;
 import play.data.validation.Constraints;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 import java.util.stream.Collectors;
@@ -34,7 +35,13 @@ public class JobOfferDto {
         this.information = jobOffer.getInformation();
         this.function = jobOffer.getFunction();
         this.salary = jobOffer.getSalary();
-        this.applications = jobOffer.getApplications().stream().map(ApplicationDto::new).collect(Collectors.toList());
+
+        if (jobOffer.getApplications() != null && jobOffer.getApplications().size() > 0) {
+            this.applications = jobOffer.getApplications().stream().map(ApplicationDto::new).collect(Collectors.toList());
+        } else {
+            this.applications = new ArrayList<>();
+        }
+
         this.skills = jobOffer.getSkills();
         if (jobOffer.getCompany() != null) {
             this.company = jobOffer.getCompany().getUuid();
@@ -124,7 +131,12 @@ public class JobOfferDto {
         jobOffer.setLocation(this.getLocation());
         jobOffer.setSalary(this.getSalary());
         jobOffer.setTitle(this.getTitle());
-        jobOffer.setApplications(getApplications().stream().map(a -> a.toModel(studentRepository)).collect(Collectors.toList()));
+
+        if (applications != null && applications.size() > 0) {
+            jobOffer.setApplications(getApplications().stream().map(a -> a.toModel(studentRepository)).collect(Collectors.toList()));
+        } else {
+           jobOffer.setApplications(new ArrayList<>());
+        }
         jobOffer.setSkills(skills);
         jobOffer.setId(this.getId());
         try {
