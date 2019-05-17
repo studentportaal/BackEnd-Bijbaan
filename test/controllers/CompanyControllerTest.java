@@ -5,6 +5,7 @@ import com.typesafe.config.ConfigFactory;
 import dal.repository.CompanyRepository;
 import dal.repository.TokenRepository;
 import models.api.ApiError;
+import models.authentication.AuthenticateAction;
 import models.domain.Company;
 import models.dto.CompanyDto;
 import org.hibernate.validator.messageinterpolation.ParameterMessageInterpolator;
@@ -163,7 +164,7 @@ public class CompanyControllerTest {
 
         final CompanyController controller = new CompanyController(formFactory, repository, tokenRepository);
 
-
+        request.addAttr(AuthenticateAction.USER, company);
         Result stage = controller.updateCompany(request);
         String result = contentAsString(stage);
 
