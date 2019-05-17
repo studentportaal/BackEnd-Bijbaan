@@ -6,6 +6,7 @@ import models.domain.JobOffer;
 import models.domain.Skill;
 import models.domain.Student;
 
+import java.util.Date;
 import java.util.List;
 import java.util.concurrent.CompletionStage;
 
@@ -28,4 +29,8 @@ public interface JobOfferRepository {
     CompletionStage<JobOffer> applyForJob(Student user, String id);
 
     CompletionStage<JobOffer> setSkills(List<Skill> skills, String id);
+
+    CompletionStage<JobOffer> setTopOfDay(String id, Date topOfDay);
+
+    CompletionStage<List<JobOffer>> getAllTopOfDays();
 }

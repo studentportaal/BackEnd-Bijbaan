@@ -1,6 +1,8 @@
 package controllers;
 
+import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import dal.repository.CompanyRepository;
 import dal.repository.JobOfferRepository;
@@ -27,6 +29,8 @@ import javax.inject.Inject;
 import javax.persistence.NoResultException;
 import java.io.IOException;
 import java.text.ParseException;
+import java.util.Date;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.CompletionStage;
@@ -111,6 +115,19 @@ public class JobOfferController extends Controller {
         }
     }
 
+
+    @BodyParser.Of(BodyParser.Json.class)
+    public Result setTopOfDay(final Http.Request request) {
+        try {
+            JsonNode json = request.body().asJson();
+            String id = Json.mapper().readValue(json.get("id").toString(),String.class);
+            return ok(toJson(jobOfferRepository.setTopOfDay(id ,new Date()).toCompletableFuture().get()));
+        } catch (NoResultException | InterruptedException | ExecutionException | IOException e) {
+            e.printStackTrace();
+            return badRequest(toJson(new ApiError<>("Something went wrong when adding TopOfDay to job offer")));
+        }
+    }
+
     public Result getJobOfferById(String id) {
         try {
             JobOffer jobOffer = jobOfferRepository.getJobOfferById(id).toCompletableFuture().get();
@@ -152,6 +169,15 @@ public class JobOfferController extends Controller {
             } catch (InterruptedException | ExecutionException e) {
                 e.printStackTrace();
             }
+        }
+        return badRequest(toJson(new ApiError<>("Oops, something went wrong")));
+    }
+
+    public Result getAllTopOfDays(){
+        try {
+            return ok(toJson(jobOfferRepository.getAllTopOfDays().toCompletableFuture().get()));
+        } catch (InterruptedException | ExecutionException e) {
+            e.printStackTrace();
         }
         return badRequest(toJson(new ApiError<>("Oops, something went wrong")));
     }
