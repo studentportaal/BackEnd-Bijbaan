@@ -1,8 +1,8 @@
 package controllers;
 
 import com.fasterxml.jackson.databind.JsonNode;
-import dal.jpa.JPATokenRepository;
 import dal.repository.StudentRepository;
+import dal.repository.TokenRepository;
 import models.api.ApiError;
 import models.authentication.AuthenticationToken;
 import models.authentication.JwtEncoder;
@@ -44,10 +44,10 @@ public class StudentController extends Controller {
     private final FormFactory formFactory;
     private final StudentRepository studentRepository;
     private final StudentConverter studentConverter;
-    private JPATokenRepository tokenRepository;
+    private TokenRepository tokenRepository;
 
     @Inject
-    public StudentController(FormFactory formFactory, StudentRepository studentRepository, JPATokenRepository tokenRepository) {
+    public StudentController(FormFactory formFactory, StudentRepository studentRepository, TokenRepository tokenRepository) {
         this.formFactory = formFactory;
         this.studentRepository = studentRepository;
         this.tokenRepository = tokenRepository;

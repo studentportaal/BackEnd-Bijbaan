@@ -1,6 +1,6 @@
 package models.authentication;
 
-import dal.jpa.JPATokenRepository;
+import dal.repository.TokenRepository;
 import io.jsonwebtoken.*;
 import models.domain.Role;
 import play.libs.Json;
@@ -33,7 +33,7 @@ public class JwtEncoder {
         return builder.signWith(SignatureAlgorithm.HS512, key).compact();
     }
 
-    public static AuthenticationToken fromJWT(String token, JPATokenRepository repository) {
+    public static AuthenticationToken fromJWT(String token, TokenRepository repository) {
 
         String tokenId = Jwts.parser().setSigningKey(key).parseClaimsJws(token).getBody().get("tokenId", String.class);
 

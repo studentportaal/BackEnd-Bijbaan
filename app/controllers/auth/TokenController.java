@@ -1,6 +1,6 @@
 package controllers.auth;
 
-import dal.jpa.JPATokenRepository;
+import dal.repository.TokenRepository;
 import models.authentication.Authenticate;
 import models.authentication.AuthenticateAction;
 import models.authentication.AuthenticationToken;
@@ -17,10 +17,10 @@ import java.util.concurrent.ExecutionException;
 
 public class TokenController extends Controller {
 
-    private JPATokenRepository tokenRepository;
+    private TokenRepository tokenRepository;
 
     @Inject
-    public TokenController(JPATokenRepository tokenRepository) {
+    public TokenController(TokenRepository tokenRepository) {
         this.tokenRepository = tokenRepository;
     }
 

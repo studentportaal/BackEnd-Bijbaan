@@ -1,6 +1,7 @@
 package dal.jpa;
 
 import dal.context.DatabaseExecutionContext;
+import dal.repository.TokenRepository;
 import models.authentication.AuthenticationToken;
 import models.domain.User;
 import play.cache.AsyncCacheApi;
@@ -17,7 +18,7 @@ import java.util.function.Function;
 
 import static java.util.concurrent.CompletableFuture.supplyAsync;
 
-public class JPATokenRepository {
+public class JPATokenRepository implements TokenRepository {
 
     private final JPAApi jpaApi;
     private final DatabaseExecutionContext executionContext;
@@ -31,11 +32,13 @@ public class JPATokenRepository {
     }
 
 
+    @Override
     public CompletionStage<AuthenticationToken> createToken(User user) {
 
         return supplyAsync(() -> wrap(em -> insert(em, user)));
     }
 
+    @Override
     public CompletionStage<Boolean> isTokenValid(String id, String userId, int expirationTime) {
         return supplyAsync(() -> wrap(em -> {
             CompletionStage<AuthenticationToken> futureToken = cache.getOrElseUpdate(id, () -> findOneAsync(em, id));
@@ -52,10 +55,12 @@ public class JPATokenRepository {
         }), executionContext);
     }
 
+    @Override
     public CompletionStage<Boolean> isTokenValid(AuthenticationToken token) {
         return isTokenValid(token.getId(), token.getUser().getUuid(), 3600000);
     }
 
+    @Override
     public CompletionStage<AuthenticationToken> getToken(String id) {
         return supplyAsync(() -> wrap(em -> {
             CompletionStage<AuthenticationToken> futureToken = cache.getOrElseUpdate(id, () -> findOneAsync(em, id));
@@ -72,10 +77,12 @@ public class JPATokenRepository {
         }), executionContext);
     }
 
+    @Override
     public CompletionStage<AuthenticationToken> getTokenByRefreshKey(String refreshKey) {
         return supplyAsync(() -> wrap(em -> findByRefreshToken(em, refreshKey)), executionContext);
     }
 
+    @Override
     public void deleteToken(AuthenticationToken token) {
         try {
             jpaApi.withTransaction(entityManager -> {
@@ -89,6 +96,7 @@ public class JPATokenRepository {
         }
     }
 
+    @Override
     public void deleteTokensByUser(String userId) {
         jpaApi.withTransaction((Consumer<EntityManager>) entityManager -> deleteUserTokens(entityManager, userId));
     }

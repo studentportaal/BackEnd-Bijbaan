@@ -1,6 +1,6 @@
 package models.authentication;
 
-import dal.jpa.JPATokenRepository;
+import dal.repository.TokenRepository;
 import io.jsonwebtoken.Jwts;
 import models.domain.User;
 import play.libs.typedmap.TypedKey;
@@ -17,10 +17,10 @@ import static java.util.concurrent.CompletableFuture.supplyAsync;
 public class AuthenticateAction extends Action<Authenticate> {
 
     public static final TypedKey<User> USER = TypedKey.create("user");
-    private JPATokenRepository tokenRepository;
+    private TokenRepository tokenRepository;
 
     @Inject
-    public AuthenticateAction(JPATokenRepository tokenRepository) {
+    public AuthenticateAction(TokenRepository tokenRepository) {
         this.tokenRepository = tokenRepository;
     }
 

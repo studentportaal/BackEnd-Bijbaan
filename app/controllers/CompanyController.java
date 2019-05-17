@@ -1,8 +1,8 @@
 package controllers;
 
 import com.fasterxml.jackson.databind.JsonNode;
-import dal.jpa.JPATokenRepository;
 import dal.repository.CompanyRepository;
+import dal.repository.TokenRepository;
 import models.api.ApiError;
 import models.authentication.Authenticate;
 import models.authentication.AuthenticateAction;
@@ -36,11 +36,11 @@ public class CompanyController extends Controller {
 
     private final FormFactory formFactory;
     private final CompanyRepository companyRepository;
-    private JPATokenRepository tokenRepository;
+    private TokenRepository tokenRepository;
     private final CompanyConverter converter;
 
     @Inject
-    public CompanyController(FormFactory formFactory, CompanyRepository companyRepository, JPATokenRepository tokenRepository) {
+    public CompanyController(FormFactory formFactory, CompanyRepository companyRepository, TokenRepository tokenRepository) {
         this.formFactory = formFactory;
         this.companyRepository = companyRepository;
         this.tokenRepository = tokenRepository;
