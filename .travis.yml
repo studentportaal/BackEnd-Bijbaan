@@ -1,5 +1,6 @@
 language: scala
-jdk: oraclejdk8
+
+jdk: openjdk8
 sudo: false
 before_cache:
   - find $HOME/.ivy2/cache -name "ivydata-*.properties" -print -delete

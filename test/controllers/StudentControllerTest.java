@@ -2,10 +2,12 @@ package controllers;
 
 import com.typesafe.config.Config;
 import com.typesafe.config.ConfigFactory;
-import dal.repository.UserRepository;
+import dal.repository.StudentRepository;
 import models.api.ApiError;
+import models.domain.Skill;
+import models.domain.Student;
 import models.domain.User;
-import models.dto.UserDto;
+import models.dto.StudentDto;
 import org.hibernate.validator.messageinterpolation.ParameterMessageInterpolator;
 import org.junit.Test;
 import play.data.FormFactory;
@@ -13,16 +15,15 @@ import play.data.format.Formatters;
 import play.i18n.Messages;
 import play.i18n.MessagesApi;
 import play.libs.Json;
-import play.libs.concurrent.HttpExecutionContext;
 import play.mvc.Http;
 import play.mvc.Result;
 import play.test.Helpers;
 
 import javax.validation.Validation;
 import javax.validation.ValidatorFactory;
-import java.util.Date;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.concurrent.ExecutionException;
-import java.util.concurrent.ForkJoinPool;
 
 import static java.util.concurrent.CompletableFuture.supplyAsync;
 import static org.junit.Assert.assertEquals;
@@ -35,25 +36,28 @@ import static play.test.Helpers.contentAsString;
  * @author Max Meijer
  * Created on 27/03/2019
  */
-public class UserControllerTest {
+public class StudentControllerTest {
 
     @Test
     public void checkAddUser() {
         // Don't need to be this involved in setting up the mock, but for demo it works:
-        UserRepository repository = mock(UserRepository.class);
+        StudentRepository repository = mock(StudentRepository.class);
 
-        UserDto dto = new UserDto();
+        Skill skill =new Skill("Java");
+
+        StudentDto dto = new StudentDto();
         dto.setFirstName("Steve");
         dto.setLastName("Smith");
         dto.setDateOfBirth("1990-01-01");
         dto.setEmail("test@test.nl");
         dto.setInstitute("Fontys");
         dto.setPassword("password");
+        dto.setSkills(Arrays.asList(skill));
 
-        User user = new User();
-        user.setFirstName("Steve");
+        Student student = new Student();
+        student.setFirstName("Steve");
 
-        when(repository.add(any())).thenReturn(supplyAsync(() -> user));
+        when(repository.add(any())).thenReturn(supplyAsync(() -> student));
 
         // Set up the request builder to reflect input
         Http.Request request = Helpers.fakeRequest("POST", "/").bodyJson(Json.toJson(dto)).build().withTransientLang("es");
@@ -71,25 +75,23 @@ public class UserControllerTest {
         FormFactory formFactory = new FormFactory(messagesApi, new Formatters(messagesApi), validatorFactory, config);
 
         // Create controller and call method under test:
-        final UserController controller = new UserController(formFactory, repository);
+        final StudentController controller = new StudentController(formFactory, repository);
 
-        Result stage = controller.addUser(request);
+        Result stage = controller.addStudent(request);
         String result = contentAsString(stage);
 
-        User userResult = Json.fromJson(Json.parse(result), User.class);
+        Student studentResult = Json.fromJson(Json.parse(result), Student.class);
 
         assertEquals(200, stage.status());
-        assertEquals(user.getFirstName(), userResult.getFirstName());
+        assertEquals(student.getFirstName(), studentResult.getFirstName());
     }
 
     @Test
     public void checkAddUserInvalidObject() {
         // Don't need to be this involved in setting up the mock, but for demo it works:
-        UserRepository repository = mock(UserRepository.class);
+        StudentRepository repository = mock(StudentRepository.class);
 
-        UserDto dto = new UserDto();
-
-        User user = new User();
+        StudentDto dto = new StudentDto();
 
         // Set up the request builder to reflect input
         Http.Request request = Helpers.fakeRequest("POST", "/").bodyJson(Json.toJson(dto)).build().withTransientLang("es");
@@ -107,9 +109,9 @@ public class UserControllerTest {
         FormFactory formFactory = new FormFactory(messagesApi, new Formatters(messagesApi), validatorFactory, config);
 
         // Create controller and call method under test:
-        final UserController controller = new UserController(formFactory, repository);
+        final StudentController controller = new StudentController(formFactory, repository);
 
-        Result stage = controller.addUser(request);
+        Result stage = controller.addStudent(request);
         String result = contentAsString(stage);
 
         ApiError error = Json.fromJson(Json.parse(result), ApiError.class);
@@ -121,17 +123,18 @@ public class UserControllerTest {
     @Test
     public void checkAddUserInvalidDate() {
         // Don't need to be this involved in setting up the mock, but for demo it works:
-        UserRepository repository = mock(UserRepository.class);
+        StudentRepository repository = mock(StudentRepository.class);
 
-        UserDto dto = new UserDto();
+        Skill skill = new Skill("Java");
+
+        StudentDto dto = new StudentDto();
         dto.setFirstName("Steve");
         dto.setLastName("Smith");
         dto.setDateOfBirth("01 01 1990");
         dto.setEmail("test@test.nl");
         dto.setInstitute("Fontys");
         dto.setPassword("password");
-
-        User user = new User();
+        dto.setSkills(Arrays.asList(skill));
 
         // Set up the request builder to reflect input
         Http.Request request = Helpers.fakeRequest("POST", "/").bodyJson(Json.toJson(dto)).build().withTransientLang("es");
@@ -149,9 +152,9 @@ public class UserControllerTest {
         FormFactory formFactory = new FormFactory(messagesApi, new Formatters(messagesApi), validatorFactory, config);
 
         // Create controller and call method under test:
-        final UserController controller = new UserController(formFactory, repository);
+        final StudentController controller = new StudentController(formFactory, repository);
 
-        Result stage = controller.addUser(request);
+        Result stage = controller.addStudent(request);
         String result = contentAsString(stage);
 
         ApiError error = Json.fromJson(Json.parse(result), ApiError.class);
@@ -164,11 +167,11 @@ public class UserControllerTest {
     @Test
     public void getUser() throws ExecutionException, InterruptedException {
         // Don't need to be this involved in setting up the mock, but for demo it works:
-        UserRepository repository = mock(UserRepository.class);
-        User user = new User();
-        user.setFirstName("Steve");
+        StudentRepository repository = mock(StudentRepository.class);
+        Student student = new Student();
+        student.setFirstName("Steve");
 
-        when(repository.getById(any())).thenReturn(supplyAsync(() -> user));
+        when(repository.getById(any())).thenReturn(supplyAsync(() -> student));
 
         // Set up the request builder to reflect input
         Http.Request request = Helpers.fakeRequest("GET","/users/4799bcf7-8766-426a-b238-cfc3c3b47264").build().withoutTransientLang();
@@ -186,21 +189,21 @@ public class UserControllerTest {
         FormFactory formFactory = new FormFactory(messagesApi, new Formatters(messagesApi), validatorFactory, config);
 
         // Create controller and call method under test:
-        final UserController controller = new UserController(formFactory, repository);
+        final StudentController controller = new StudentController(formFactory, repository);
 
-        Result stage = controller.getUser("4799bcf7-8766-426a-b238-cfc3c3b47264");
+        Result stage = controller.getStudent("4799bcf7-8766-426a-b238-cfc3c3b47264");
         String result = contentAsString(stage);
 
-        User userResult = Json.fromJson(Json.parse(result), User.class);
+        Student studentResult = Json.fromJson(Json.parse(result), Student.class);
 
         assertEquals(200, stage.status());
-        assertEquals(user.getFirstName(), userResult.getFirstName());
+        assertEquals(student.getFirstName(), studentResult.getFirstName());
     }
 
     @Test
     public void checkGetUserInvalidId() throws ExecutionException, InterruptedException {
         // Don't need to be this involved in setting up the mock, but for demo it works:
-        UserRepository repository = mock(UserRepository.class);
+        StudentRepository repository = mock(StudentRepository.class);
 
         // Set up the request builder to reflect input
         Http.Request request = Helpers.fakeRequest("GET","/users/4799bcf7-8766-426a-b238-cfc3c3b47264").build().withoutTransientLang();
@@ -218,9 +221,9 @@ public class UserControllerTest {
         FormFactory formFactory = new FormFactory(messagesApi, new Formatters(messagesApi), validatorFactory, config);
 
         // Create controller and call method under test:
-        final UserController controller = new UserController(formFactory, repository);
+        final StudentController controller = new StudentController(formFactory, repository);
 
-        Result stage = controller.getUser("01234");
+        Result stage = controller.getStudent("01234");
 
         assertEquals(400, stage.status());
 

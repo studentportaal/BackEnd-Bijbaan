@@ -1,40 +1,23 @@
 package models.domain;
 
-import org.hibernate.annotations.GenericGenerator;
 import play.data.validation.Constraints;
 
 import javax.persistence.*;
 
 @Entity
 @NamedQueries({
-        @NamedQuery(name = "Company.getCompanyById", query = "SELECT c FROM Company c WHERE c.id = :id"),
+        @NamedQuery(name = "Company.getCompanyById", query = "SELECT c FROM Company c WHERE c.uuid = :uuid"),
+        @NamedQuery(name = "Company.getAllCompanies", query = "SELECT c FROM Company c ORDER BY c.name ASC"),
 })
-public class Company {
+public class Company extends User implements Comparable<Company> {
 
-    @Id
-    @GeneratedValue(generator = "uuid")
-    @GenericGenerator(name = "uuid", strategy = "uuid2")
-    private String id;
-    @Constraints.Required
     private String name;
-    @Constraints.Required
     private String city;
-    @Constraints.Required
     private String streetname;
-    @Constraints.Required
     private int housenumber;
-    @Constraints.Required
     private String postalcode;
     private String description;
 
-
-    public String getId() {
-        return id;
-    }
-
-    public void setId(String id) {
-        this.id = id;
-    }
 
     public String getName() {
         return name;
@@ -82,5 +65,22 @@ public class Company {
 
     public void setDescription(String description) {
         this.description = description;
+    }
+
+    @Override
+    public String toString() {
+        return "Company{" +
+                "name='" + name + '\'' +
+                ", city='" + city + '\'' +
+                ", streetname='" + streetname + '\'' +
+                ", housenumber=" + housenumber +
+                ", postalcode='" + postalcode + '\'' +
+                ", description='" + description + '\'' +
+                "} " + super.toString();
+    }
+
+    @Override
+    public int compareTo(Company company) {
+        return this.name.compareTo(company.name);
     }
 }

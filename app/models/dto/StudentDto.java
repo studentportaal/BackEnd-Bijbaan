@@ -1,14 +1,17 @@
 package models.dto;
 
+import models.domain.Skill;
 import play.data.validation.Constraints;
 
+import javax.validation.Constraint;
 import java.util.Date;
+import java.util.List;
 
 /**
  * @author Max Meijer
  * Created on 26/03/2019
  */
-public class UserDto {
+public class StudentDto {
     private String uuid;
     @Constraints.Required
     private String firstName;
@@ -21,18 +24,31 @@ public class UserDto {
     private String password;
     @Constraints.Required
     private String institute;
+    @Constraints.Required
+    private List<Skill> skills;
 
-    public UserDto() {
+    public StudentDto() {
         // Empty constructor for Json parsing.
     }
 
-    public UserDto(String uuid, String email, String firstName, String lastName, Date dateOfBirth, String institute){
+    public StudentDto(String uuid, String firstName, String lastName, String email, String dateOfBirth, String password, String institute) {
+        this.uuid = uuid;
+        this.firstName = firstName;
+        this.lastName = lastName;
+        this.email = email;
+        this.dateOfBirth = dateOfBirth;
+        this.password = password;
+        this.institute = institute;
+    }
+
+    public StudentDto(String uuid, String email, String firstName, String lastName, Date dateOfBirth, String institute, List<Skill> skills){
         this.uuid = uuid;
         this.email = email;
         this.firstName = firstName;
         this.lastName = lastName;
         this.dateOfBirth = dateOfBirth.toString();
         this.institute = institute;
+        this.skills = skills;
     }
 
     public String getUuid() {
@@ -91,9 +107,17 @@ public class UserDto {
         this.institute = institute;
     }
 
+    public List<Skill> getSkills() {
+        return skills;
+    }
+
+    public void setSkills(List<Skill> skills) {
+        this.skills = skills;
+    }
+
     @Override
     public String toString() {
-        return "UserDto{" +
+        return "StudentDto{" +
                 "uuid='" + uuid + '\'' +
                 ", firstName='" + firstName + '\'' +
                 ", lastName='" + lastName + '\'' +

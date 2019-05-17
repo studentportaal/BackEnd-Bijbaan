@@ -3,10 +3,12 @@ package models.dto;
 import dal.repository.CompanyRepository;
 import models.domain.Company;
 import models.domain.JobOffer;
-import models.domain.User;
+import models.domain.Skill;
+import models.domain.Student;
 import play.data.validation.Constraints;
 
 import java.util.List;
+import java.util.Set;
 import java.util.concurrent.ExecutionException;
 
 public class JobOfferDto {
@@ -21,7 +23,8 @@ public class JobOfferDto {
     private String function;
     @Constraints.Required
     private double salary;
-    private List<User> applicants;
+    private List<Student> applicants;
+    private List<Skill> skills;
     private String company;
 
     public JobOfferDto(JobOffer jobOffer) {
@@ -32,8 +35,9 @@ public class JobOfferDto {
         this.function = jobOffer.getFunction();
         this.salary = jobOffer.getSalary();
         this.applicants = jobOffer.getApplicants();
+        this.skills = jobOffer.getSkills();
         if (jobOffer.getCompany() != null) {
-            this.company = jobOffer.getCompany().getId();
+            this.company = jobOffer.getCompany().getUuid();
         }
     }
 
@@ -89,11 +93,11 @@ public class JobOfferDto {
         this.salary = salary;
     }
 
-    public List<User> getApplicants() {
+    public List<Student> getApplicants() {
         return applicants;
     }
 
-    public void setApplicants(List<User> applicants) {
+    public void setApplicants(List<Student> applicants) {
         this.applicants = applicants;
     }
 
@@ -105,6 +109,14 @@ public class JobOfferDto {
         this.company = company;
     }
 
+    public List<Skill> getSkills() {
+        return skills;
+    }
+
+    public void setSkills(List<Skill> skills) {
+        this.skills = skills;
+    }
+
     public JobOffer toModel(CompanyRepository repository) {
         JobOffer jobOffer = new JobOffer();
         jobOffer.setInformation(this.getInformation());
@@ -113,12 +125,14 @@ public class JobOfferDto {
         jobOffer.setSalary(this.getSalary());
         jobOffer.setTitle(this.getTitle());
         jobOffer.setApplicants(this.getApplicants());
+        jobOffer.setSkills(skills);
         jobOffer.setId(this.getId());
         try {
             if (this.getCompany() != null) {
                 Company fullCompany = repository.getCompanyById(this.getCompany()).toCompletableFuture().get();
                 if (fullCompany != null) {
-                    this.setCompany(fullCompany.getId());
+                    jobOffer.setCompany(fullCompany);
+                    this.setCompany(fullCompany.getUuid());
                 }
             }
         } catch (InterruptedException | ExecutionException e) {
