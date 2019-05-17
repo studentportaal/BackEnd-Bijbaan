@@ -3,15 +3,16 @@ package dal.jpa;
 import dal.context.DatabaseExecutionContext;
 import dal.repository.JobOfferRepository;
 import models.domain.JobOffer;
-import models.domain.User;
+import models.domain.Skill;
+import models.domain.Student;
 import play.db.jpa.JPAApi;
-import play.mvc.Result;
 
 import javax.inject.Inject;
 import javax.persistence.*;
+import java.util.Arrays;
+import java.util.Date;
 import java.util.List;
 import java.util.concurrent.CompletionStage;
-import java.util.concurrent.ExecutionException;
 import java.util.function.Function;
 
 import static java.util.concurrent.CompletableFuture.supplyAsync;
@@ -41,7 +42,11 @@ public class JPAJobOfferRepository implements JobOfferRepository {
 
     @Override
     public CompletionStage<JobOffer> updateJobOffer(JobOffer jobOffer) {
-        return null;
+        JobOffer j = wrap( em -> getJobOfferById(em, jobOffer.getId()));
+        jobOffer.setApplicants(j.getApplicants());
+        jobOffer.setCompany(j.getCompany());
+        return supplyAsync(()
+                -> wrap(em ->update(em, jobOffer)), executionContext);
     }
 
     @Override
@@ -50,9 +55,9 @@ public class JPAJobOfferRepository implements JobOfferRepository {
     }
 
     @Override
-    public CompletionStage<List<JobOffer>> getAllJobOffers(int startNr, int amount) {
+    public CompletionStage<List<JobOffer>> getAllJobOffers(int startNr, int amount, String companies) {
         return supplyAsync(()
-                -> wrap(em -> list(em, startNr, amount)), executionContext);
+                -> wrap(em -> list(em, startNr, amount, companies)), executionContext);
     }
 
     @Override
@@ -78,7 +83,7 @@ public class JPAJobOfferRepository implements JobOfferRepository {
     }
 
     @Override
-    public CompletionStage<JobOffer> applyForJob(User user, String id) {
+    public CompletionStage<JobOffer> applyForJob(Student user, String id) {
 
             JobOffer offer = wrap(em -> getJobOfferById(em, id));
             offer.getApplicants().add(user);
@@ -87,16 +92,40 @@ public class JPAJobOfferRepository implements JobOfferRepository {
                     -> wrap(em -> update(em, offer)));
     }
 
+    @Override
+    public CompletionStage<JobOffer> setSkills(List<Skill> skills, String id) {
+        JobOffer offer = wrap(em -> getJobOfferById(em, id));
+        offer.setSkills(skills);
+
+        return supplyAsync(()
+                -> wrap(em -> update(em, offer)));
+    }
+
+    @Override
+    public CompletionStage<JobOffer> setTopOfDay(String id, Date topOfDay) {
+        JobOffer offer = wrap(em -> getJobOfferById(em, id));
+        if(offer.getTopOfTheDay() == null){
+            offer.setTopOfTheDay(new Date());
+        }
+        offer.setTopOfTheDay(topOfDay);
+
+        return supplyAsync(() -> wrap(em -> update(em,offer)));
+    }
+
+    @Override
+    public CompletionStage<List<JobOffer>> getAllTopOfDays() {
+        return supplyAsync(()
+                -> wrap(this::allTopOfDays), executionContext);
+    }
+
     private JobOffer insert(EntityManager em, JobOffer jobOffer) {
         em.persist(jobOffer);
         return jobOffer;
     }
 
-    //needs some work
     private JobOffer update(EntityManager em, JobOffer offer) {
         em.merge(offer);
         return offer;
-
     }
 
     private <T> T wrap(Function<EntityManager, T> function) {
@@ -109,8 +138,15 @@ public class JPAJobOfferRepository implements JobOfferRepository {
 
     }
 
-    private List<JobOffer> list(EntityManager em, int startNr, int amount) {
-        TypedQuery<JobOffer> jobOffers = em.createQuery("FROM JobOffer j", JobOffer.class);
+    private List<JobOffer> list(EntityManager em, int startNr, int amount, String companies) {
+        TypedQuery<JobOffer> jobOffers;
+        if(companies != null && !companies.isEmpty()){
+            List<String>companyList = Arrays.asList(companies.split(","));
+            jobOffers = em.createQuery("FROM JobOffer j  WHERE company_uuid IN :companies", JobOffer.class);
+            jobOffers.setParameter("companies", companyList);
+        }else{
+             jobOffers = em.createQuery("FROM JobOffer j", JobOffer.class);
+        }
         jobOffers.setFirstResult(startNr);
         jobOffers.setMaxResults(amount);
         return jobOffers.getResultList();
@@ -120,4 +156,10 @@ public class JPAJobOfferRepository implements JobOfferRepository {
         TypedQuery<JobOffer> jobOffers = em.createQuery("FROM JobOffer j", JobOffer.class);
         return jobOffers.getResultList();
     }
+
+    private List<JobOffer> allTopOfDays(EntityManager em){
+        TypedQuery<JobOffer> jobOffers = em.createQuery("FROM JobOffer j WHERE j.topOfTheDay > timestampadd(hour, -24, now()) AND j.topOfTheDay IS NOT NULL ORDER BY RAND()", JobOffer.class);
+        return jobOffers.setMaxResults(6).getResultList();
+    }
+
 }

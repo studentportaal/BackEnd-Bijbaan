@@ -1,13 +1,18 @@
 package controllers;
 
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.JsonNode;
 import dal.repository.CompanyRepository;
 import dal.repository.JobOfferRepository;
 import models.api.ApiError;
+import models.authentication.Authenticate;
 import models.converters.StudentConverter;
 import models.domain.JobOffer;
-import models.domain.User;
+import models.domain.Role;
+import models.domain.Skill;
+import models.domain.Student;
 import models.dto.JobOfferDto;
+import models.dto.SkillDto;
 import models.dto.StudentDto;
 import models.parser.Parser;
 import play.data.Form;
@@ -20,7 +25,11 @@ import play.mvc.Result;
 
 import javax.inject.Inject;
 import javax.persistence.NoResultException;
+import java.io.IOException;
 import java.text.ParseException;
+import java.util.Date;
+import java.util.List;
+import java.util.Set;
 import java.util.concurrent.CompletionStage;
 import java.util.concurrent.ExecutionException;
 import java.util.stream.Collectors;
@@ -41,6 +50,7 @@ public class JobOfferController extends Controller {
     }
 
     @BodyParser.Of(BodyParser.Json.class)
+    @Authenticate(requiredRole = Role.COMPANY)
     public Result addJobOffer(final Http.Request request) {
         Form<JobOfferDto> jobOfferValidator = formFactory.form(JobOfferDto.class).bindFromRequest(request);
 
@@ -58,28 +68,62 @@ public class JobOfferController extends Controller {
         return null;
     }
 
-    public CompletionStage<Result> updateJobOffer() {
-        return null;
+    @Authenticate(requiredRole = Role.COMPANY)
+    public Result updateJobOffer(final Http.Request request, String id) {
+        Form<JobOfferDto> jobOfferValidator = formFactory.form(JobOfferDto.class).bindFromRequest(request);
+        if (jobOfferValidator.hasErrors()) {
+            return badRequest(toJson(new ApiError<>("Invalid json object")));
+        } else {
+            JsonNode json = request.body().asJson();
+            JobOffer jobOffer = Json.fromJson(json, JobOfferDto.class).toModel(companyRepository);
+
+            jobOfferRepository.updateJobOffer(jobOffer);
+            return ok(toJson(jobOffer));
+
+        }
     }
 
     @BodyParser.Of(BodyParser.Json.class)
-    public Result applyForJob(final Http.Request request, String id){
+    @Authenticate(requiredRole = Role.STUDENT)
+    public Result applyForJob(final Http.Request request, String id) {
 
-            JsonNode json = request.body().asJson();
-            StudentDto studentDto = Json.fromJson(json, StudentDto.class);
-            StudentConverter c = new StudentConverter();
+        JsonNode json = request.body().asJson();
+        StudentDto studentDto = Json.fromJson(json, StudentDto.class);
+        StudentConverter c = new StudentConverter();
 
-
-        try{
-                User u = c.convertDtoToStudent(studentDto);
-                return ok(toJson(jobOfferRepository.applyForJob(u, id).toCompletableFuture().get()));
-            } catch (NoResultException e ){
-                return badRequest(toJson(new ApiError<>("No result found with the given ID")));
-            } catch (InterruptedException | ParseException | ExecutionException e){
-                return badRequest(toJson(new ApiError<>("Oops something went wrong")));
-            }
+        try {
+            Student u = c.convertDtoToStudent(studentDto);
+            return ok(toJson(jobOfferRepository.applyForJob(u, id).toCompletableFuture().get()));
+        } catch (NoResultException e) {
+            return badRequest(toJson(new ApiError<>("No result found with the given ID")));
+        } catch (InterruptedException | ParseException | ExecutionException e) {
+            return badRequest(toJson(new ApiError<>("Oops something went wrong")));
         }
+    }
 
+    @BodyParser.Of(BodyParser.Json.class)
+    public Result setSkills(final Http.Request request, String id) {
+        List<Skill> skills = skillFromRequest(request);
+
+        try {
+            return ok(toJson(jobOfferRepository.setSkills(skills, id).toCompletableFuture().get()));
+        } catch (NoResultException | InterruptedException | ExecutionException e) {
+            return badRequest(toJson(new ApiError<>("No result found with the given ID")));
+        }
+    }
+
+
+    @BodyParser.Of(BodyParser.Json.class)
+    public Result setTopOfDay(final Http.Request request) {
+        try {
+            JsonNode json = request.body().asJson();
+            String id = Json.mapper().readValue(json.get("id").toString(),String.class);
+            return ok(toJson(jobOfferRepository.setTopOfDay(id ,new Date()).toCompletableFuture().get()));
+        } catch (NoResultException | InterruptedException | ExecutionException | IOException e) {
+            e.printStackTrace();
+            return badRequest(toJson(new ApiError<>("Something went wrong when adding TopOfDay to job offer")));
+        }
+    }
 
     public Result getJobOfferById(String id) {
         try {
@@ -102,13 +146,12 @@ public class JobOfferController extends Controller {
         }
     }
 
-
-    public Result getAllJobOffers(String startNr, String amount) {
+    public Result getAllJobOffers(String startNr, String amount, String companies) {
 
         if (startNr != null && amount != null) {
             if (Parser.stringToInt(startNr) && Parser.stringToInt(amount)) {
                 try {
-                    return ok(toJson(jobOfferRepository.getAllJobOffers(Integer.parseInt(startNr), Integer.parseInt(amount))
+                    return ok(toJson(jobOfferRepository.getAllJobOffers(Integer.parseInt(startNr), Integer.parseInt(amount), companies)
                             .toCompletableFuture()
                             .get().stream().map(JobOfferDto::new).collect(Collectors.toList())));
                 } catch (InterruptedException | ExecutionException e) {
@@ -125,5 +168,30 @@ public class JobOfferController extends Controller {
             }
         }
         return badRequest(toJson(new ApiError<>("Oops, something went wrong")));
+    }
+
+    public Result getAllTopOfDays(){
+        try {
+            return ok(toJson(jobOfferRepository.getAllTopOfDays().toCompletableFuture().get()));
+        } catch (InterruptedException | ExecutionException e) {
+            e.printStackTrace();
+        }
+        return badRequest(toJson(new ApiError<>("Oops, something went wrong")));
+    }
+
+    private List<Skill> skillFromRequest(Http.Request req) {
+        JsonNode json = req.body().asJson();
+        JsonNode skills =  json.get("skills");
+
+        List<SkillDto> skillSet = null;
+        try {
+            skillSet = Json.mapper().readValue(skills.traverse(), new TypeReference<Set<SkillDto>>(){});
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        return skillSet.stream()
+                .map(Skill::new)
+                .collect(Collectors.toList());
     }
 }

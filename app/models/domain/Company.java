@@ -1,14 +1,15 @@
 package models.domain;
 
-import play.data.validation.Constraints;
-
-import javax.persistence.*;
+import javax.persistence.Entity;
+import javax.persistence.NamedQueries;
+import javax.persistence.NamedQuery;
 
 @Entity
 @NamedQueries({
-        @NamedQuery(name = "Company.getCompanyById", query = "SELECT c FROM Company c WHERE c.uuid = :uuid"),
+        @NamedQuery(name = "COMPANY.getCompanyById", query = "SELECT c FROM Company c WHERE c.uuid = :uuid"),
+        @NamedQuery(name = "COMPANY.getAllCompanies", query = "SELECT c FROM Company c ORDER BY c.name ASC"),
 })
-public class Company extends User {
+public class Company extends User implements Comparable<Company> {
 
     private String name;
     private String city;
@@ -68,7 +69,7 @@ public class Company extends User {
 
     @Override
     public String toString() {
-        return "Company{" +
+        return "COMPANY{" +
                 "name='" + name + '\'' +
                 ", city='" + city + '\'' +
                 ", streetname='" + streetname + '\'' +
@@ -76,5 +77,10 @@ public class Company extends User {
                 ", postalcode='" + postalcode + '\'' +
                 ", description='" + description + '\'' +
                 "} " + super.toString();
+    }
+
+    @Override
+    public int compareTo(Company company) {
+        return this.name.compareTo(company.name);
     }
 }

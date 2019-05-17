@@ -94,8 +94,7 @@ public class JPAStudentRepository implements StudentRepository {
 
     private Student getStudentAndPassword(EntityManager em, String email, byte[] hashedPassword){
         TypedQuery<Student> query = em.createQuery(
-                "SELECT s " +
-                        "FROM Student s WHERE s.email = :email AND s.password = :password", Student.class)
+                "SELECT s FROM Student s WHERE s.email = :email AND s.password = :password", Student.class)
                 .setParameter("email", email)
                 .setParameter("password", hashedPassword);
         return query.getSingleResult();
@@ -103,7 +102,7 @@ public class JPAStudentRepository implements StudentRepository {
 
     @Transactional
     byte[] getStudentSalt(EntityManager em, String email) {
-        TypedQuery<byte[]> query = em.createQuery("SELECT S.salt FROM Student s WHERE s.email = :email", byte[].class);
+        TypedQuery<byte[]> query = em.createQuery("SELECT s.salt FROM Student s WHERE s.email = :email", byte[].class);
         query.setParameter("email", email);
         return query.getSingleResult();
     }
