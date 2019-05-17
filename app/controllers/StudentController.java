@@ -154,13 +154,10 @@ public class StudentController extends Controller {
                 student.setDateOfBirth(new Date());
                 student.setEmail(email);
 
-
                 try {
                     Student addedUser = studentRepository.add(student).toCompletableFuture().get();
                     return ok(toJson(addedUser));
-                } catch (InterruptedException ex) {
-                    return badRequest();
-                } catch (ExecutionException ex) {
+                } catch (InterruptedException | ExecutionException ex) {
                     return badRequest();
                 }
             }
