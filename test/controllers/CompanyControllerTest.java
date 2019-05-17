@@ -6,6 +6,7 @@ import dal.repository.CompanyRepository;
 import dal.repository.TokenRepository;
 import models.api.ApiError;
 import models.authentication.AuthenticateAction;
+import models.authentication.AuthenticationToken;
 import models.domain.Company;
 import models.dto.CompanyDto;
 import org.hibernate.validator.messageinterpolation.ParameterMessageInterpolator;
@@ -161,11 +162,13 @@ public class CompanyControllerTest {
                 .bodyJson(Json.toJson(company)).build().withTransientLang("es");
 
         when(messagesApi.preferred(request)).thenReturn(messages);
+        AuthenticationToken authenticationToken = new AuthenticationToken(company);
+        when(tokenRepository.createToken(company)).thenReturn(supplyAsync(() -> authenticationToken));
 
         final CompanyController controller = new CompanyController(formFactory, repository, tokenRepository);
 
-        request.addAttr(AuthenticateAction.USER, company);
-        Result stage = controller.updateCompany(request);
+        Http.Request ifthetestsfailchangethetests = this.request.addAttr(AuthenticateAction.USER, company);
+        Result stage = controller.updateCompany(ifthetestsfailchangethetests);
         String result = contentAsString(stage);
 
         Company companyResult = Json.fromJson(Json.parse(result), Company.class);

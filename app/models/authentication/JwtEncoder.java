@@ -2,7 +2,6 @@ package models.authentication;
 
 import dal.repository.TokenRepository;
 import io.jsonwebtoken.*;
-import models.domain.Role;
 import play.libs.Json;
 
 import java.util.Date;
@@ -16,10 +15,6 @@ public class JwtEncoder {
     public static String toJWT(AuthenticationToken token) {
         JwtBuilder builder = Jwts.builder();
         HashMap<String, Object> claims = new HashMap<>();
-        for (Role role : token.getUser().getRoles()) {
-            System.out.println(role.name());
-        }
-        System.out.println("Those were the roles!");
 
         claims.put("roles", Json.toJson(token.getUser().getRoles()));
         claims.put("tokenId", token.getId());
