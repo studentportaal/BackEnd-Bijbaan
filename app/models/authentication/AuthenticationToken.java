@@ -24,11 +24,11 @@ public class AuthenticationToken {
     private String id;
     @ManyToOne
     private User user;
+    /**
+     * The starting date of the validity of this authentication Token, with which the added duration decides the expiry.
+     */
     @CreationTimestamp
     private Date start;
-    //    @Generated(GenerationTime.ALWAYS)
-//    @GeneratedValue(generator = "uuid")
-//    @GenericGenerator(name = "uuid", strategy = "uuid2")
     private String refreshKey;
 
 
@@ -59,5 +59,9 @@ public class AuthenticationToken {
 
     public String getRefreshKey() {
         return refreshKey;
+    }
+
+    public void setStart(Date start) {
+        this.start = start;
     }
 }

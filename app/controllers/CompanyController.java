@@ -128,11 +128,7 @@ public class CompanyController extends Controller {
             Company company = companyRepository.login(companyDto.getEmail(), companyDto.getPassword()).toCompletableFuture().get();
 
             CompletionStage<AuthenticationToken> token = tokenRepository.createToken(company);
-
-            System.out.println("is token null?");
-            System.out.println(token);
-            System.out.println("No, but something elsei");
-            System.out.println(token.toCompletableFuture().get());
+            
             String jwt = JwtEncoder.toJWT(token.toCompletableFuture().get());
 
             return ok(toJson(jwt));

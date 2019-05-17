@@ -8,6 +8,7 @@ import models.api.ApiError;
 import models.authentication.AuthenticateAction;
 import models.authentication.AuthenticationToken;
 import models.domain.Company;
+import models.domain.Role;
 import models.dto.CompanyDto;
 import org.hibernate.validator.messageinterpolation.ParameterMessageInterpolator;
 import org.junit.Before;
@@ -24,6 +25,7 @@ import play.test.Helpers;
 import javax.persistence.NoResultException;
 import javax.validation.Validation;
 import javax.validation.ValidatorFactory;
+import java.util.*;
 
 import static java.util.concurrent.CompletableFuture.supplyAsync;
 import static org.junit.Assert.assertEquals;
@@ -157,18 +159,20 @@ public class CompanyControllerTest {
     public void updateCompany() {
         company.setName("newTest");
         when(repository.update(any())).thenReturn(supplyAsync(() -> company));
-
+        company.setUuid(UUID.randomUUID().toString());
         request = Helpers.fakeRequest("PUT", "/")
                 .bodyJson(Json.toJson(company)).build().withTransientLang("es");
 
+        Set<Role> roles = new HashSet<>(Arrays.asList(Role.USER, Role.COMPANY));
+        company.setRoles(roles);
+
+        request = request.addAttr(AuthenticateAction.USER, company);
+
         when(messagesApi.preferred(request)).thenReturn(messages);
-        AuthenticationToken authenticationToken = new AuthenticationToken(company);
-        when(tokenRepository.createToken(company)).thenReturn(supplyAsync(() -> authenticationToken));
 
         final CompanyController controller = new CompanyController(formFactory, repository, tokenRepository);
 
-        Http.Request ifthetestsfailchangethetests = this.request.addAttr(AuthenticateAction.USER, company);
-        Result stage = controller.updateCompany(ifthetestsfailchangethetests);
+        Result stage = controller.updateCompany(request);
         String result = contentAsString(stage);
 
         Company companyResult = Json.fromJson(Json.parse(result), Company.class);
@@ -186,16 +190,17 @@ public class CompanyControllerTest {
                 .bodyJson(Json.toJson(companyDto)).build();
 
         when(messagesApi.preferred(request)).thenReturn(messages);
+        AuthenticationToken authenticationToken = new AuthenticationToken(company);
+        authenticationToken.setStart(new Date());
+        when(tokenRepository.createToken(any(Company.class))).thenReturn(supplyAsync(() -> authenticationToken));
 
         final CompanyController controller = new CompanyController(formFactory, repository, tokenRepository);
 
         Result stage = controller.login(request);
         String result = contentAsString(stage);
 
-        Company companyResult = Json.fromJson(Json.parse(result), Company.class);
 
         assertEquals(200, stage.status());
-        assertEquals(company.getName(), companyResult.getName());
     }
 
     @Test
