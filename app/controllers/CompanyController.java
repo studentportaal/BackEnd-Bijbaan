@@ -1,13 +1,18 @@
 package controllers;
 
 import com.fasterxml.jackson.databind.JsonNode;
+import dal.jpa.JPATokenRepository;
 import dal.repository.CompanyRepository;
 import models.api.ApiError;
+import models.authentication.Authenticate;
+import models.authentication.AuthenticateAction;
+import models.authentication.AuthenticationToken;
+import models.authentication.JwtEncoder;
 import models.converters.CompanyConverter;
 import models.domain.Company;
-import models.domain.Student;
+import models.domain.Role;
+import models.domain.User;
 import models.dto.CompanyDto;
-import models.dto.StudentDto;
 import play.data.Form;
 import play.data.FormFactory;
 import play.libs.Json;
@@ -19,6 +24,10 @@ import security.PasswordHelper;
 
 import javax.inject.Inject;
 import javax.persistence.NoResultException;
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.Set;
+import java.util.concurrent.CompletionStage;
 import java.util.concurrent.ExecutionException;
 
 import static play.libs.Json.toJson;
@@ -27,16 +36,19 @@ public class CompanyController extends Controller {
 
     private final FormFactory formFactory;
     private final CompanyRepository companyRepository;
+    private JPATokenRepository tokenRepository;
     private final CompanyConverter converter;
 
     @Inject
-    public CompanyController(FormFactory formFactory, CompanyRepository companyRepository) {
+    public CompanyController(FormFactory formFactory, CompanyRepository companyRepository, JPATokenRepository tokenRepository) {
         this.formFactory = formFactory;
         this.companyRepository = companyRepository;
+        this.tokenRepository = tokenRepository;
 
         converter = new CompanyConverter();
     }
 
+    @Authenticate(requiredRole = Role.User)
     public Result getCompanyById(String id) {
         try {
             Company company = companyRepository.getCompanyById(id).toCompletableFuture().get();
@@ -74,13 +86,18 @@ public class CompanyController extends Controller {
 
         company.setSalt(salt);
         company.setPassword(password);
+        Set<Role> roles = new HashSet<>(Arrays.asList(Role.User, Role.Company));
+        company.setRoles(roles);
 
         companyRepository.add(company);
         return created(toJson(company));
     }
 
+    @Authenticate(requiredRole = Role.Company)
     @SuppressWarnings("Duplicates")
     public Result updateCompany(final Http.Request request) {
+        User user = request.attrs().get(AuthenticateAction.USER);
+
         Form<Company> companyValidator = formFactory.form(Company.class).bindFromRequest(request);
 
         if (companyValidator.hasErrors()) {
@@ -88,6 +105,11 @@ public class CompanyController extends Controller {
         }
         JsonNode json = request.body().asJson();
         Company company = Json.fromJson(json, Company.class);
+
+        if (!user.getRoles().contains(Role.Administrator) && user.getUuid() != company.getUuid()) {
+            return unauthorized("This is not your company, buddy.");
+        }
+
         companyRepository.update(company);
         return ok(json);
     }
@@ -105,7 +127,11 @@ public class CompanyController extends Controller {
         try {
             Company company = companyRepository.login(companyDto.getEmail(), companyDto.getPassword()).toCompletableFuture().get();
 
-            return ok(toJson(converter.convert(company)));
+            CompletionStage<AuthenticationToken> token = tokenRepository.createToken(company);
+
+            String jwt = JwtEncoder.toJWT(token.toCompletableFuture().get());
+
+            return ok(toJson(jwt));
         } catch (InterruptedException | ExecutionException | NoResultException e) {
             return badRequest(toJson(new ApiError<>("Invalid username and/or password")));
         }

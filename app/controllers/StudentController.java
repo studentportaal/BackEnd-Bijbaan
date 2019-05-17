@@ -1,13 +1,14 @@
 package controllers;
 
 import com.fasterxml.jackson.databind.JsonNode;
-import dal.repository.StudentRepository;
 import dal.jpa.JPATokenRepository;
+import dal.repository.StudentRepository;
 import models.api.ApiError;
-import models.converters.StudentConverter;
-import models.domain.Student;
 import models.authentication.AuthenticationToken;
 import models.authentication.JwtEncoder;
+import models.converters.StudentConverter;
+import models.domain.Role;
+import models.domain.Student;
 import models.domain.User;
 import models.dto.StudentDto;
 import play.data.Form;
@@ -23,11 +24,13 @@ import javax.inject.Inject;
 import javax.persistence.NoResultException;
 import javax.validation.ConstraintViolationException;
 import java.text.ParseException;
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.Set;
 import java.util.concurrent.CompletionStage;
 import java.util.concurrent.ExecutionException;
 import java.util.stream.Collectors;
 
-import static play.libs.Json.fromJson;
 import static play.libs.Json.toJson;
 
 
@@ -79,6 +82,8 @@ public class StudentController extends Controller {
         }
         user.setSalt(salt);
         user.setPassword(password);
+        Set<Role> roles = new HashSet<>(Arrays.asList(Role.User, Role.Student));
+        user.setRoles(roles);
 
         try {
             User addedUser = studentRepository.add(user).toCompletableFuture().get();

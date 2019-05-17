@@ -53,7 +53,7 @@ public class JPATokenRepository {
     }
 
     public CompletionStage<Boolean> isTokenValid(AuthenticationToken token) {
-        return isTokenValid(token.getId(), token.getUser().getUuid(), 3600);
+        return isTokenValid(token.getId(), token.getUser().getUuid(), 3600000);
     }
 
     public CompletionStage<AuthenticationToken> getToken(String id) {
@@ -72,10 +72,26 @@ public class JPATokenRepository {
         }), executionContext);
     }
 
-    public void deleteToken(AuthenticationToken token) {
-        jpaApi.withTransaction((Consumer<EntityManager>) entityManager -> entityManager.remove(token));
+    public CompletionStage<AuthenticationToken> getTokenByRefreshKey(String refreshKey) {
+        return supplyAsync(() -> wrap(em -> findByRefreshToken(em, refreshKey)), executionContext);
     }
 
+    public void deleteToken(AuthenticationToken token) {
+        try {
+            jpaApi.withTransaction(entityManager -> {
+                if (!entityManager.contains(token))
+                    entityManager.merge(token);
+
+                entityManager.remove(token);
+            });
+        } catch (IllegalArgumentException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void deleteTokensByUser(String userId) {
+        jpaApi.withTransaction((Consumer<EntityManager>) entityManager -> deleteUserTokens(entityManager, userId));
+    }
 
     private <T> T wrap(Function<EntityManager, T> function) {
         return jpaApi.withTransaction(function);
@@ -97,7 +113,29 @@ public class JPATokenRepository {
                     .setParameter("id", id)
                     .getSingleResult();
         } catch (EntityNotFoundException | NoResultException e) {
+            e.printStackTrace();
             return null;
+        }
+    }
+
+    private AuthenticationToken findByRefreshToken(EntityManager em, String refreshKey) {
+        try {
+            return em.createNamedQuery("findByRefreshToken", AuthenticationToken.class)
+                    .setParameter("refreshKey", refreshKey)
+                    .getSingleResult();
+        } catch (EntityNotFoundException | NoResultException e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
+
+    private void deleteUserTokens(EntityManager em, String userId) {
+        try {
+            em.createNamedQuery("deleteByUser")
+                    .setParameter("userId", userId)
+                    .executeUpdate();
+        } catch (EntityNotFoundException | NoResultException e) {
+            e.printStackTrace();
         }
     }
 }

@@ -2,5 +2,7 @@ package models.domain;
 
 public enum Role {
     Administrator,
-    User
+    User,
+    Company,
+    Student
 }

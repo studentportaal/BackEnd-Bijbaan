@@ -11,7 +11,6 @@ import javax.inject.Inject;
 import javax.persistence.*;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Set;
 import java.util.concurrent.CompletionStage;
 import java.util.function.Function;
 
@@ -139,5 +138,4 @@ public class JPAJobOfferRepository implements JobOfferRepository {
         TypedQuery<JobOffer> jobOffers = em.createQuery("FROM JobOffer j", JobOffer.class);
         return jobOffers.getResultList();
     }
-
 }

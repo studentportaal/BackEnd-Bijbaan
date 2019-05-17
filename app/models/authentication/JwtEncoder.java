@@ -1,9 +1,8 @@
 package models.authentication;
 
 import dal.jpa.JPATokenRepository;
-import io.jsonwebtoken.JwtBuilder;
-import io.jsonwebtoken.Jwts;
-import io.jsonwebtoken.SignatureAlgorithm;
+import io.jsonwebtoken.*;
+import models.domain.Role;
 import play.libs.Json;
 
 import java.util.Date;
@@ -16,16 +15,21 @@ public class JwtEncoder {
 
     public static String toJWT(AuthenticationToken token) {
         JwtBuilder builder = Jwts.builder();
-        builder.setSubject(token.getUser().getUuid());
         HashMap<String, Object> claims = new HashMap<>();
-        claims.put("roles", Json.toJson(token.getUser().getRoles()).asText());
+        for (Role role : token.getUser().getRoles()) {
+            System.out.println(role.name());
+        }
+        System.out.println("Those were the roles!");
+
+        claims.put("roles", Json.toJson(token.getUser().getRoles()));
         claims.put("tokenId", token.getId());
         claims.put("refreshKey", token.getRefreshKey());
         builder.setClaims(claims);
         builder.setIssuedAt(token.getStart());
         Date start = token.getStart();
-        start.setTime(start.getTime() + 3600);
+        start.setTime(start.getTime() + 3600000);
         builder.setExpiration(start);
+        builder.setSubject(token.getUser().getUuid());
         return builder.signWith(SignatureAlgorithm.HS512, key).compact();
     }
 
@@ -34,9 +38,10 @@ public class JwtEncoder {
         String tokenId = Jwts.parser().setSigningKey(key).parseClaimsJws(token).getBody().get("tokenId", String.class);
 
         try {
-            return repository.getToken(tokenId).toCompletableFuture().get();
-        } catch (InterruptedException | ExecutionException e) {
-            e.printStackTrace();
+            AuthenticationToken authenticationToken = repository.getToken(tokenId).toCompletableFuture().get();
+            Jwts.parser().setSigningKey(key).requireSubject(authenticationToken.getUser().getUuid()).parse(token);
+            return authenticationToken;
+        } catch (InterruptedException | MissingClaimException | IncorrectClaimException | ExecutionException e) {
             return null;
         }
     }

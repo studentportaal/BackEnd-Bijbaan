@@ -21,7 +21,6 @@ public class AuthenticateAction extends Action<Authenticate> {
 
     @Inject
     public AuthenticateAction(JPATokenRepository tokenRepository) {
-
         this.tokenRepository = tokenRepository;
     }
 
@@ -29,7 +28,7 @@ public class AuthenticateAction extends Action<Authenticate> {
         System.out.println(request.getHeaders());
 
         if (!request.hasHeader("authentication")) {
-            return supplyAsync(() -> unauthorized("Missing Authentication Header"));
+            return supplyAsync(() -> badRequest("Missing Authentication Header"));
         }
 
         if (!Jwts.parser().isSigned(request.header("authentication").get())) {
@@ -38,10 +37,12 @@ public class AuthenticateAction extends Action<Authenticate> {
 
         AuthenticationToken token = JwtEncoder.fromJWT(request.header("authentication").get(), tokenRepository);
 
+        if (token == null) return supplyAsync(() -> unauthorized("Bad Token"));
+
         try {
             if (tokenRepository.isTokenValid(token).toCompletableFuture().get()) {
                 if (token.getUser().getRoles().contains(configuration.requiredRole())) {
-                    request.addAttr(USER, token.getUser());
+                    request = request.addAttr(USER, token.getUser());
                     return delegate.call(request);
                 } else {
                     return supplyAsync(() -> unauthorized("Missing Required Role"));

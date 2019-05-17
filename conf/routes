@@ -34,4 +34,6 @@ POST    /skills                     controllers.SkillController.addSkill(request
 PUT     /skills                     controllers.SkillController.updateSkill(request: Request)
 GET     /skills                     controllers.SkillController.getAll(query: String ?= null)
 
-GET     /auth/token/refresh         controllers.auth.TokenController.refreshToken()
+GET     /auth/token/refresh         controllers.auth.TokenController.refreshToken(refreshKey: String, userId: String)
+DELETE  /auth/token/:id             controllers.auth.TokenController.deleteToken(request: Request, id: String)
+GET     /auth/me                    controllers.auth.MeController.me(request: Request)

@@ -2,19 +2,18 @@ package controllers;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import dal.repository.CompanyRepository;
 import dal.repository.JobOfferRepository;
 import models.api.ApiError;
+import models.authentication.Authenticate;
 import models.converters.StudentConverter;
 import models.domain.JobOffer;
+import models.domain.Role;
 import models.domain.Skill;
 import models.domain.Student;
 import models.dto.JobOfferDto;
 import models.dto.SkillDto;
 import models.dto.StudentDto;
-import models.form.JobOfferSkills;
-import models.form.SkillUpdateCheck;
 import models.parser.Parser;
 import play.data.Form;
 import play.data.FormFactory;
@@ -28,7 +27,6 @@ import javax.inject.Inject;
 import javax.persistence.NoResultException;
 import java.io.IOException;
 import java.text.ParseException;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.CompletionStage;
@@ -51,6 +49,7 @@ public class JobOfferController extends Controller {
     }
 
     @BodyParser.Of(BodyParser.Json.class)
+    @Authenticate(requiredRole = Role.Company)
     public Result addJobOffer(final Http.Request request) {
         Form<JobOfferDto> jobOfferValidator = formFactory.form(JobOfferDto.class).bindFromRequest(request);
 
@@ -68,6 +67,7 @@ public class JobOfferController extends Controller {
         return null;
     }
 
+    @Authenticate(requiredRole = Role.Company)
     public Result updateJobOffer(final Http.Request request, String id) {
         Form<JobOfferDto> jobOfferValidator = formFactory.form(JobOfferDto.class).bindFromRequest(request);
         if (jobOfferValidator.hasErrors()) {
@@ -75,6 +75,7 @@ public class JobOfferController extends Controller {
         } else {
             JsonNode json = request.body().asJson();
             JobOffer jobOffer = Json.fromJson(json, JobOfferDto.class).toModel(companyRepository);
+
             jobOfferRepository.updateJobOffer(jobOffer);
             return ok(toJson(jobOffer));
 
@@ -82,6 +83,7 @@ public class JobOfferController extends Controller {
     }
 
     @BodyParser.Of(BodyParser.Json.class)
+    @Authenticate(requiredRole = Role.Student)
     public Result applyForJob(final Http.Request request, String id) {
 
         JsonNode json = request.body().asJson();

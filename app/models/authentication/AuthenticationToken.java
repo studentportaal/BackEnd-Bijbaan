@@ -6,11 +6,16 @@ import org.hibernate.annotations.GenericGenerator;
 
 import javax.persistence.*;
 import java.util.Date;
+import java.util.UUID;
 
 @Entity
 @NamedQueries({
-        @NamedQuery(name = "AuthenticationToken.findOne", query = "select a from AuthenticationToken a WHERE a.id = :id"),
-        @NamedQuery(name = "AuthenticationToken.findOneWithUserId", query = "select a from AuthenticationToken as a WHERE a.id = :id AND a.user.id = :userId "),
+        @NamedQuery(name = "findOne", query = "select a from AuthenticationToken a WHERE a.id = :id"),
+        @NamedQuery(name = "findOneWithUserId", query = "select a from AuthenticationToken as a WHERE a.id = :id AND a.user.id = :userId "),
+        @NamedQuery(name = "findByRefreshToken", query = "select a from AuthenticationToken as a WHERE  a.refreshKey = :refreshKey"),
+        @NamedQuery(name = "deleteByUser", query = "DELETE from AuthenticationToken as a WHERE  a.user.id = :userId"),
+
+
 })
 public class AuthenticationToken {
     @Id
@@ -21,13 +26,15 @@ public class AuthenticationToken {
     private User user;
     @CreationTimestamp
     private Date start;
-    @GeneratedValue(generator = "uuid")
-    @GenericGenerator(name = "uuid", strategy = "uuid2")
+    //    @Generated(GenerationTime.ALWAYS)
+//    @GeneratedValue(generator = "uuid")
+//    @GenericGenerator(name = "uuid", strategy = "uuid2")
     private String refreshKey;
 
 
     public AuthenticationToken(User user) {
-        user = user;
+        this.user = user;
+        refreshKey = UUID.randomUUID().toString();
     }
 
     public AuthenticationToken() {
@@ -52,9 +59,5 @@ public class AuthenticationToken {
 
     public String getRefreshKey() {
         return refreshKey;
-    }
-
-    public void setRefreshKey(String refreshKey) {
-        this.refreshKey = refreshKey;
     }
 }
