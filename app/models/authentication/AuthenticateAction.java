@@ -25,8 +25,6 @@ public class AuthenticateAction extends Action<Authenticate> {
     }
 
     public CompletionStage<Result> call(Http.Request request) {
-        System.out.println(request.getHeaders());
-
         if (!request.hasHeader("authentication")) {
             return supplyAsync(() -> badRequest("Missing Authentication Header"));
         }

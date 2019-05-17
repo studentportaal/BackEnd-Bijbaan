@@ -14,7 +14,7 @@ import static play.libs.Json.toJson;
 
 public class MeController extends Controller {
 
-    @Authenticate(requiredRole = Role.User)
+    @Authenticate(requiredRole = Role.USER)
     public Result me(Http.Request request) {
         try {
             User user = request.attrs().get(AuthenticateAction.USER);

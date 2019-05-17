@@ -82,7 +82,7 @@ public class StudentController extends Controller {
         }
         user.setSalt(salt);
         user.setPassword(password);
-        Set<Role> roles = new HashSet<>(Arrays.asList(Role.User, Role.Student));
+        Set<Role> roles = new HashSet<>(Arrays.asList(Role.USER, Role.STUDENT));
         user.setRoles(roles);
 
         try {
@@ -121,7 +121,7 @@ public class StudentController extends Controller {
         try{
             return ok(toJson(studentRepository.getById(id).toCompletableFuture().get()));
         } catch (NullPointerException e){
-            return badRequest(toJson(new ApiError<>("User not found")));
+            return badRequest(toJson(new ApiError<>("USER not found")));
         }
     }
 

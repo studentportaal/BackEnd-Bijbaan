@@ -48,11 +48,11 @@ public class CompanyController extends Controller {
         converter = new CompanyConverter();
     }
 
-    @Authenticate(requiredRole = Role.User)
+    @Authenticate(requiredRole = Role.USER)
     public Result getCompanyById(String id) {
         try {
             Company company = companyRepository.getCompanyById(id).toCompletableFuture().get();
-            if (company == null) return notFound("No Company");
+            if (company == null) return notFound("No COMPANY");
             return ok(toJson(company));
         } catch (InterruptedException | ExecutionException e) {
             e.printStackTrace();
@@ -86,14 +86,14 @@ public class CompanyController extends Controller {
 
         company.setSalt(salt);
         company.setPassword(password);
-        Set<Role> roles = new HashSet<>(Arrays.asList(Role.User, Role.Company));
+        Set<Role> roles = new HashSet<>(Arrays.asList(Role.USER, Role.COMPANY));
         company.setRoles(roles);
 
         companyRepository.add(company);
         return created(toJson(company));
     }
 
-    @Authenticate(requiredRole = Role.Company)
+    @Authenticate(requiredRole = Role.COMPANY)
     @SuppressWarnings("Duplicates")
     public Result updateCompany(final Http.Request request) {
         User user = request.attrs().get(AuthenticateAction.USER);
@@ -106,7 +106,7 @@ public class CompanyController extends Controller {
         JsonNode json = request.body().asJson();
         Company company = Json.fromJson(json, Company.class);
 
-        if (!user.getRoles().contains(Role.Administrator) && user.getUuid() != company.getUuid()) {
+        if (!user.getRoles().contains(Role.ADMINISTRATOR) && user.getUuid() != company.getUuid()) {
             return unauthorized("This is not your company, buddy.");
         }
 

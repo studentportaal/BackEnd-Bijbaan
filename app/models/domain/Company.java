@@ -1,8 +1,8 @@
 package models.domain;
 
-import play.data.validation.Constraints;
-
-import javax.persistence.*;
+import javax.persistence.Entity;
+import javax.persistence.NamedQueries;
+import javax.persistence.NamedQuery;
 
 @Entity
 @NamedQueries({
@@ -69,7 +69,7 @@ public class Company extends User implements Comparable<Company> {
 
     @Override
     public String toString() {
-        return "Company{" +
+        return "COMPANY{" +
                 "name='" + name + '\'' +
                 ", city='" + city + '\'' +
                 ", streetname='" + streetname + '\'' +

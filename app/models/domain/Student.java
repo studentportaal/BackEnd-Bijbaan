@@ -1,7 +1,5 @@
 package models.domain;
 
-import org.hibernate.annotations.Fetch;
-
 import javax.persistence.*;
 import java.util.Date;
 import java.util.List;
@@ -72,7 +70,7 @@ public class Student extends User {
 
     @Override
     public String toString() {
-        return "Student{" +
+        return "STUDENT{" +
                 "firstName='" + firstName + '\'' +
                 ", lastName='" + lastName + '\'' +
                 ", dateOfBirth=" + dateOfBirth +

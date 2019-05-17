@@ -1,8 +1,6 @@
 package controllers;
 
-import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import dal.repository.CompanyRepository;
 import dal.repository.JobOfferRepository;
@@ -30,7 +28,6 @@ import javax.persistence.NoResultException;
 import java.io.IOException;
 import java.text.ParseException;
 import java.util.Date;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.CompletionStage;
@@ -53,7 +50,7 @@ public class JobOfferController extends Controller {
     }
 
     @BodyParser.Of(BodyParser.Json.class)
-    @Authenticate(requiredRole = Role.Company)
+    @Authenticate(requiredRole = Role.COMPANY)
     public Result addJobOffer(final Http.Request request) {
         Form<JobOfferDto> jobOfferValidator = formFactory.form(JobOfferDto.class).bindFromRequest(request);
 
@@ -71,7 +68,7 @@ public class JobOfferController extends Controller {
         return null;
     }
 
-    @Authenticate(requiredRole = Role.Company)
+    @Authenticate(requiredRole = Role.COMPANY)
     public Result updateJobOffer(final Http.Request request, String id) {
         Form<JobOfferDto> jobOfferValidator = formFactory.form(JobOfferDto.class).bindFromRequest(request);
         if (jobOfferValidator.hasErrors()) {
@@ -87,7 +84,7 @@ public class JobOfferController extends Controller {
     }
 
     @BodyParser.Of(BodyParser.Json.class)
-    @Authenticate(requiredRole = Role.Student)
+    @Authenticate(requiredRole = Role.STUDENT)
     public Result applyForJob(final Http.Request request, String id) {
 
         JsonNode json = request.body().asJson();

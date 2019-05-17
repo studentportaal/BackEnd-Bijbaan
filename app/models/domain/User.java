@@ -56,7 +56,7 @@ public abstract class User {
 
     @Override
     public String toString() {
-        return "User{" +
+        return "USER{" +
                 "uuid='" + uuid + '\'' +
                 ", email='" + email + '\'' +
                 ", salt=" + Arrays.toString(salt) +
