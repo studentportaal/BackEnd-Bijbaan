@@ -6,8 +6,8 @@ import org.hibernate.annotations.GenericGenerator;
 import play.data.validation.Constraints;
 
 import javax.persistence.*;
+import java.util.Date;
 import java.util.List;
-import java.util.Set;
 
 @Entity
 @NamedQueries({
@@ -38,6 +38,7 @@ public class JobOffer {
     @ManyToOne
     private Company company;
 
+    private Date topOfTheDay;
 
     public String getId() {
         return id;
@@ -109,5 +110,13 @@ public class JobOffer {
 
     public void setSkills(List<Skill> skills) {
         this.skills = skills;
+    }
+
+    public Date getTopOfTheDay() {
+        return topOfTheDay;
+    }
+
+    public void setTopOfTheDay(Date topOfTheDay) {
+        this.topOfTheDay = topOfTheDay;
     }
 }

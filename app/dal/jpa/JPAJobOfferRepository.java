@@ -10,6 +10,7 @@ import play.db.jpa.JPAApi;
 import javax.inject.Inject;
 import javax.persistence.*;
 import java.util.Arrays;
+import java.util.Date;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.CompletionStage;
@@ -53,6 +54,9 @@ public class JPAJobOfferRepository implements JobOfferRepository {
     public CompletionStage<JobOffer> getJobOfferById(String id) {
         return supplyAsync(() -> wrap((EntityManager em) -> getJobOfferById(em, id)));
     }
+
+
+
 
     @Override
     public CompletionStage<List<JobOffer>> getAllJobOffers(int startNr, int amount, String companies) {
@@ -101,6 +105,23 @@ public class JPAJobOfferRepository implements JobOfferRepository {
                 -> wrap(em -> update(em, offer)));
     }
 
+    @Override
+    public CompletionStage<JobOffer> setTopOfDay(String id, Date topOfDay) {
+        JobOffer offer = wrap(em -> getJobOfferById(em, id));
+        if(offer.getTopOfTheDay() == null){
+            offer.setTopOfTheDay(new Date());
+        }
+        offer.setTopOfTheDay(topOfDay);
+
+        return supplyAsync(() -> wrap(em -> update(em,offer)));
+    }
+
+    @Override
+    public CompletionStage<List<JobOffer>> getAllTopOfDays() {
+        return supplyAsync(()
+                -> wrap(this::allTopOfDays), executionContext);
+    }
+
     private JobOffer insert(EntityManager em, JobOffer jobOffer) {
         em.persist(jobOffer);
         return jobOffer;
@@ -138,6 +159,11 @@ public class JPAJobOfferRepository implements JobOfferRepository {
     private List<JobOffer> allList(EntityManager em) {
         TypedQuery<JobOffer> jobOffers = em.createQuery("FROM JobOffer j", JobOffer.class);
         return jobOffers.getResultList();
+    }
+
+    private List<JobOffer> allTopOfDays(EntityManager em){
+        TypedQuery<JobOffer> jobOffers = em.createQuery("FROM JobOffer j WHERE j.topOfTheDay > timestampadd(hour, -24, now()) AND j.topOfTheDay IS NOT NULL ORDER BY RAND()", JobOffer.class);
+        return jobOffers.setMaxResults(6).getResultList();
     }
 
 }
