@@ -2,14 +2,12 @@ package dal.repository;
 
 import com.google.inject.ImplementedBy;
 import dal.jpa.JPAJobOfferRepository;
-import models.domain.Company;
 import models.domain.JobOffer;
 import models.domain.Skill;
 import models.domain.Student;
 
 import java.util.Date;
 import java.util.List;
-import java.util.Set;
 import java.util.concurrent.CompletionStage;
 
 @ImplementedBy(JPAJobOfferRepository.class)

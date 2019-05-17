@@ -3,10 +3,10 @@ package controllers;
 import com.typesafe.config.Config;
 import com.typesafe.config.ConfigFactory;
 import dal.repository.StudentRepository;
+import dal.repository.TokenRepository;
 import models.api.ApiError;
 import models.domain.Skill;
 import models.domain.Student;
-import models.domain.User;
 import models.dto.StudentDto;
 import org.hibernate.validator.messageinterpolation.ParameterMessageInterpolator;
 import org.junit.Test;
@@ -21,7 +21,6 @@ import play.test.Helpers;
 
 import javax.validation.Validation;
 import javax.validation.ValidatorFactory;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.concurrent.ExecutionException;
 
@@ -42,6 +41,7 @@ public class StudentControllerTest {
     public void checkAddUser() {
         // Don't need to be this involved in setting up the mock, but for demo it works:
         StudentRepository repository = mock(StudentRepository.class);
+        TokenRepository tokenRepository = mock(TokenRepository.class);
 
         Skill skill =new Skill("Java");
 
@@ -75,7 +75,7 @@ public class StudentControllerTest {
         FormFactory formFactory = new FormFactory(messagesApi, new Formatters(messagesApi), validatorFactory, config);
 
         // Create controller and call method under test:
-        final StudentController controller = new StudentController(formFactory, repository);
+        final StudentController controller = new StudentController(formFactory, repository, tokenRepository);
 
         Result stage = controller.addStudent(request);
         String result = contentAsString(stage);
@@ -90,6 +90,7 @@ public class StudentControllerTest {
     public void checkAddUserInvalidObject() {
         // Don't need to be this involved in setting up the mock, but for demo it works:
         StudentRepository repository = mock(StudentRepository.class);
+        TokenRepository tokenRepository = mock(TokenRepository.class);
 
         StudentDto dto = new StudentDto();
 
@@ -109,7 +110,7 @@ public class StudentControllerTest {
         FormFactory formFactory = new FormFactory(messagesApi, new Formatters(messagesApi), validatorFactory, config);
 
         // Create controller and call method under test:
-        final StudentController controller = new StudentController(formFactory, repository);
+        final StudentController controller = new StudentController(formFactory, repository, tokenRepository);
 
         Result stage = controller.addStudent(request);
         String result = contentAsString(stage);
@@ -124,6 +125,7 @@ public class StudentControllerTest {
     public void checkAddUserInvalidDate() {
         // Don't need to be this involved in setting up the mock, but for demo it works:
         StudentRepository repository = mock(StudentRepository.class);
+        TokenRepository tokenRepository = mock(TokenRepository.class);
 
         Skill skill = new Skill("Java");
 
@@ -152,7 +154,7 @@ public class StudentControllerTest {
         FormFactory formFactory = new FormFactory(messagesApi, new Formatters(messagesApi), validatorFactory, config);
 
         // Create controller and call method under test:
-        final StudentController controller = new StudentController(formFactory, repository);
+        final StudentController controller = new StudentController(formFactory, repository, tokenRepository);
 
         Result stage = controller.addStudent(request);
         String result = contentAsString(stage);
@@ -166,6 +168,8 @@ public class StudentControllerTest {
 
     @Test
     public void getUser() throws ExecutionException, InterruptedException {
+        TokenRepository tokenRepository = mock(TokenRepository.class);
+
         // Don't need to be this involved in setting up the mock, but for demo it works:
         StudentRepository repository = mock(StudentRepository.class);
         Student student = new Student();
@@ -189,7 +193,7 @@ public class StudentControllerTest {
         FormFactory formFactory = new FormFactory(messagesApi, new Formatters(messagesApi), validatorFactory, config);
 
         // Create controller and call method under test:
-        final StudentController controller = new StudentController(formFactory, repository);
+        final StudentController controller = new StudentController(formFactory, repository, tokenRepository);
 
         Result stage = controller.getStudent("4799bcf7-8766-426a-b238-cfc3c3b47264");
         String result = contentAsString(stage);
@@ -204,6 +208,8 @@ public class StudentControllerTest {
     public void checkGetUserInvalidId() throws ExecutionException, InterruptedException {
         // Don't need to be this involved in setting up the mock, but for demo it works:
         StudentRepository repository = mock(StudentRepository.class);
+        TokenRepository tokenRepository = mock(TokenRepository.class);
+
 
         // Set up the request builder to reflect input
         Http.Request request = Helpers.fakeRequest("GET","/users/4799bcf7-8766-426a-b238-cfc3c3b47264").build().withoutTransientLang();
@@ -221,7 +227,7 @@ public class StudentControllerTest {
         FormFactory formFactory = new FormFactory(messagesApi, new Formatters(messagesApi), validatorFactory, config);
 
         // Create controller and call method under test:
-        final StudentController controller = new StudentController(formFactory, repository);
+        final StudentController controller = new StudentController(formFactory, repository, tokenRepository);
 
         Result stage = controller.getStudent("01234");
 

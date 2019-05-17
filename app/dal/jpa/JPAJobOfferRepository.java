@@ -12,7 +12,6 @@ import javax.persistence.*;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
-import java.util.Set;
 import java.util.concurrent.CompletionStage;
 import java.util.function.Function;
 
@@ -54,9 +53,6 @@ public class JPAJobOfferRepository implements JobOfferRepository {
     public CompletionStage<JobOffer> getJobOfferById(String id) {
         return supplyAsync(() -> wrap((EntityManager em) -> getJobOfferById(em, id)));
     }
-
-
-
 
     @Override
     public CompletionStage<List<JobOffer>> getAllJobOffers(int startNr, int amount, String companies) {
