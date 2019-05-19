@@ -8,9 +8,11 @@ import dal.repository.CompanyRepository;
 import dal.repository.JobOfferRepository;
 import dal.repository.StudentRepository;
 import models.api.ApiError;
+import models.authentication.Authenticate;
 import models.converters.StudentConverter;
 import models.domain.Application;
 import models.domain.JobOffer;
+import models.domain.Role;
 import models.domain.Skill;
 import models.domain.Student;
 import models.dto.ApplicationDto;
@@ -32,7 +34,7 @@ import javax.inject.Inject;
 import javax.persistence.NoResultException;
 import java.io.IOException;
 import java.text.ParseException;
-import java.util.HashSet;
+import java.util.Date;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.CompletionStage;
@@ -63,6 +65,7 @@ public class JobOfferController extends Controller {
     }
 
     @BodyParser.Of(BodyParser.Json.class)
+    @Authenticate(requiredRole = Role.COMPANY)
     public Result addJobOffer(final Http.Request request) {
         Form<JobOfferDto> jobOfferValidator = formFactory.form(JobOfferDto.class).bindFromRequest(request);
 
@@ -80,6 +83,7 @@ public class JobOfferController extends Controller {
         return null;
     }
 
+    @Authenticate(requiredRole = Role.COMPANY)
     public Result updateJobOffer(final Http.Request request, String id) {
         Form<JobOfferDto> jobOfferValidator = formFactory.form(JobOfferDto.class).bindFromRequest(request);
         if (jobOfferValidator.hasErrors()) {
@@ -94,6 +98,7 @@ public class JobOfferController extends Controller {
     }
 
     @BodyParser.Of(BodyParser.Json.class)
+    @Authenticate(requiredRole = Role.STUDENT)
     public Result applyForJob(final Http.Request request, String id) {
 
         JsonNode json = request.body().asJson();
@@ -118,6 +123,19 @@ public class JobOfferController extends Controller {
             return ok(toJson(jobOfferRepository.setSkills(skills, id).toCompletableFuture().get()));
         } catch (NoResultException | InterruptedException | ExecutionException e) {
             return badRequest(toJson(new ApiError<>("No result found with the given ID")));
+        }
+    }
+
+
+    @BodyParser.Of(BodyParser.Json.class)
+    public Result setTopOfDay(final Http.Request request) {
+        try {
+            JsonNode json = request.body().asJson();
+            String id = Json.mapper().readValue(json.get("id").toString(),String.class);
+            return ok(toJson(jobOfferRepository.setTopOfDay(id ,new Date()).toCompletableFuture().get()));
+        } catch (NoResultException | InterruptedException | ExecutionException | IOException e) {
+            e.printStackTrace();
+            return badRequest(toJson(new ApiError<>("Something went wrong when adding TopOfDay to job offer")));
         }
     }
 
@@ -162,6 +180,15 @@ public class JobOfferController extends Controller {
             } catch (InterruptedException | ExecutionException e) {
                 e.printStackTrace();
             }
+        }
+        return badRequest(toJson(new ApiError<>("Oops, something went wrong")));
+    }
+
+    public Result getAllTopOfDays(){
+        try {
+            return ok(toJson(jobOfferRepository.getAllTopOfDays().toCompletableFuture().get()));
+        } catch (InterruptedException | ExecutionException e) {
+            e.printStackTrace();
         }
         return badRequest(toJson(new ApiError<>("Oops, something went wrong")));
     }

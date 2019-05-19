@@ -2,8 +2,12 @@ package controllers;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import dal.repository.StudentRepository;
+import dal.repository.TokenRepository;
 import models.api.ApiError;
+import models.authentication.AuthenticationToken;
+import models.authentication.JwtEncoder;
 import models.converters.StudentConverter;
+import models.domain.Role;
 import models.domain.Student;
 import models.domain.User;
 import models.dto.StudentDto;
@@ -20,6 +24,10 @@ import javax.inject.Inject;
 import javax.persistence.NoResultException;
 import javax.validation.ConstraintViolationException;
 import java.text.ParseException;
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.Set;
+import java.util.concurrent.CompletionStage;
 import java.util.concurrent.ExecutionException;
 import java.util.stream.Collectors;
 
@@ -36,11 +44,13 @@ public class StudentController extends Controller {
     private final FormFactory formFactory;
     private final StudentRepository studentRepository;
     private final StudentConverter studentConverter;
+    private TokenRepository tokenRepository;
 
     @Inject
-    public StudentController(FormFactory formFactory, StudentRepository studentRepository) {
+    public StudentController(FormFactory formFactory, StudentRepository studentRepository, TokenRepository tokenRepository) {
         this.formFactory = formFactory;
         this.studentRepository = studentRepository;
+        this.tokenRepository = tokenRepository;
         this.studentConverter = new StudentConverter();
     }
 
@@ -72,6 +82,8 @@ public class StudentController extends Controller {
         }
         user.setSalt(salt);
         user.setPassword(password);
+        Set<Role> roles = new HashSet<>(Arrays.asList(Role.USER, Role.STUDENT));
+        user.setRoles(roles);
 
         try {
             User addedUser = studentRepository.add(user).toCompletableFuture().get();
@@ -109,7 +121,7 @@ public class StudentController extends Controller {
         try{
             return ok(toJson(studentRepository.getById(id).toCompletableFuture().get()));
         } catch (NullPointerException e){
-            return badRequest(toJson(new ApiError<>("User not found")));
+            return badRequest(toJson(new ApiError<>("USER not found")));
         }
     }
 
@@ -125,9 +137,12 @@ public class StudentController extends Controller {
 
         try {
             Student student = studentRepository.login(studentDto.getEmail(), studentDto.getPassword()).toCompletableFuture().get();
-            StudentDto dto = new StudentDto(student.getUuid(), student.getEmail(), student.getFirstName(), student.getLastName(), student.getDateOfBirth(), student.getInstitute(), student.getSkills());
 
-            return ok(toJson(dto));
+            CompletionStage<AuthenticationToken> token = tokenRepository.createToken(student);
+
+            String jwt = JwtEncoder.toJWT(token.toCompletableFuture().get());
+
+            return ok(toJson(jwt));
         } catch (InterruptedException | ExecutionException | NoResultException e) {
             return badRequest(toJson(new ApiError<>("Invalid username and/or password")));
         }

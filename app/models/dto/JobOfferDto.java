@@ -5,9 +5,12 @@ import dal.repository.StudentRepository;
 import models.domain.Company;
 import models.domain.JobOffer;
 import models.domain.Skill;
+import models.domain.Student;
 import play.data.validation.Constraints;
 
 import java.util.ArrayList;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 import java.util.stream.Collectors;
@@ -28,6 +31,7 @@ public class JobOfferDto {
     private List<Skill> skills;
     private String company;
     private boolean isOpen;
+    private String topOfTheDay;
 
     public JobOfferDto(JobOffer jobOffer) {
         this.id = jobOffer.getId();
@@ -45,9 +49,13 @@ public class JobOfferDto {
         }
 
         this.skills = jobOffer.getSkills();
+        if( jobOffer.getTopOfTheDay()!= null){
+            this.topOfTheDay = jobOffer.getTopOfTheDay().toString();
+        }
         if (jobOffer.getCompany() != null) {
             this.company = jobOffer.getCompany().getUuid();
         }
+
     }
 
     public JobOfferDto() {
@@ -127,6 +135,15 @@ public class JobOfferDto {
     }
 
     public JobOffer toModel(CompanyRepository repository, StudentRepository studentRepository) {
+    public String getTopOfTheDay() {
+        return topOfTheDay;
+    }
+
+    public void setTopOfTheDay(String topOfTheDay) {
+        this.topOfTheDay = topOfTheDay;
+    }
+
+    public JobOffer toModel(CompanyRepository repository) {
         JobOffer jobOffer = new JobOffer();
         jobOffer.setInformation(this.getInformation());
         jobOffer.setFunction(this.getFunction());
@@ -152,6 +169,14 @@ public class JobOfferDto {
             }
         } catch (InterruptedException | ExecutionException e) {
             e.printStackTrace();
+        }
+        if(this.topOfTheDay!= null){
+            try {
+                SimpleDateFormat formatter = new SimpleDateFormat("dd-MMM-yyyy HH:mm");
+                jobOffer.setTopOfTheDay(formatter.parse(this.topOfTheDay));
+            } catch (ParseException e) {
+                e.printStackTrace();
+            }
         }
 
         return jobOffer;

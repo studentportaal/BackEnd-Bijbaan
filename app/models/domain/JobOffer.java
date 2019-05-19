@@ -6,6 +6,7 @@ import org.hibernate.annotations.GenericGenerator;
 import play.data.validation.Constraints;
 
 import javax.persistence.*;
+import java.util.Date;
 import java.util.List;
 import java.util.Set;
 
@@ -40,6 +41,7 @@ public class JobOffer {
     private Company company;
     private boolean isOpen = true;
 
+    private Date topOfTheDay;
 
     public String getId() {
         return id;
@@ -119,5 +121,13 @@ public class JobOffer {
 
     public void setOpen(boolean open) {
         isOpen = open;
+    }
+
+    public Date getTopOfTheDay() {
+        return topOfTheDay;
+    }
+
+    public void setTopOfTheDay(Date topOfTheDay) {
+        this.topOfTheDay = topOfTheDay;
     }
 }

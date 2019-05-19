@@ -4,8 +4,8 @@ import com.google.inject.ImplementedBy;
 import dal.jpa.JPAJobOfferRepository;
 import models.domain.*;
 
+import java.util.Date;
 import java.util.List;
-import java.util.Set;
 import java.util.concurrent.CompletionStage;
 
 @ImplementedBy(JPAJobOfferRepository.class)
@@ -27,4 +27,8 @@ public interface JobOfferRepository {
     CompletionStage<JobOffer> applyForJob(Application application, String id);
 
     CompletionStage<JobOffer> setSkills(List<Skill> skills, String id);
+
+    CompletionStage<JobOffer> setTopOfDay(String id, Date topOfDay);
+
+    CompletionStage<List<JobOffer>> getAllTopOfDays();
 }

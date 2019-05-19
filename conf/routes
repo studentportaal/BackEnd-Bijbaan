@@ -22,6 +22,8 @@ PATCH   /joboffer/:id               controllers.JobOfferController.applyForJob(r
 PUT     /joboffer/:id               controllers.JobOfferController.updateJobOffer(req: Request, id: String)
 PATCH   /joboffer/:id/skills        controllers.JobOfferController.setSkills(req: Request, id: String)
 PATCH   /joboffer/:jobId/applications/:id  controllers.JobOfferController.acceptApplicant(jobId: String, id: String)
+POST    /joboffer/topofday          controllers.JobOfferController.setTopOfDay(req: Request)
+GET     /joboffer/topofday/all      controllers.JobOfferController.getAllTopOfDays()
 
 #Company
 POST    /company                    controllers.CompanyController.addCompany(request: Request)
@@ -34,3 +36,7 @@ GET     /company                    controllers.CompanyController.getAllCompanie
 POST    /skills                     controllers.SkillController.addSkill(request: Request)
 PUT     /skills                     controllers.SkillController.updateSkill(request: Request)
 GET     /skills                     controllers.SkillController.getAll(query: String ?= null)
+
+GET     /auth/token/refresh         controllers.auth.TokenController.refreshToken(refreshKey: String, userId: String)
+DELETE  /auth/token/:id             controllers.auth.TokenController.deleteToken(request: Request, id: String)
+GET     /auth/me                    controllers.auth.MeController.me(request: Request)

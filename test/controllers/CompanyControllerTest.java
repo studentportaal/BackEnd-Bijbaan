@@ -3,8 +3,12 @@ package controllers;
 import com.typesafe.config.Config;
 import com.typesafe.config.ConfigFactory;
 import dal.repository.CompanyRepository;
+import dal.repository.TokenRepository;
 import models.api.ApiError;
+import models.authentication.AuthenticateAction;
+import models.authentication.AuthenticationToken;
 import models.domain.Company;
+import models.domain.Role;
 import models.dto.CompanyDto;
 import org.hibernate.validator.messageinterpolation.ParameterMessageInterpolator;
 import org.junit.Before;
@@ -21,6 +25,7 @@ import play.test.Helpers;
 import javax.persistence.NoResultException;
 import javax.validation.Validation;
 import javax.validation.ValidatorFactory;
+import java.util.*;
 
 import static java.util.concurrent.CompletableFuture.supplyAsync;
 import static org.junit.Assert.assertEquals;
@@ -32,6 +37,7 @@ import static play.test.Helpers.contentAsString;
 public class CompanyControllerTest {
 
     private CompanyRepository repository;
+    private TokenRepository tokenRepository;
     private Company company;
     private CompanyDto companyDto;
     private Http.Request request;
@@ -44,6 +50,7 @@ public class CompanyControllerTest {
     @Before
     public void setUp() throws Exception {
         repository = mock(CompanyRepository.class);
+        tokenRepository = mock(TokenRepository.class);
         company = new Company();
         companyDto = new CompanyDto();
         messages = mock(Messages.class);
@@ -55,7 +62,7 @@ public class CompanyControllerTest {
         formFactory = new FormFactory(messagesApi, new Formatters(messagesApi), validatorFactory, config);
 
         company.setEmail("test@company.nl");
-        company.setName("Test Company");
+        company.setName("Test COMPANY");
         company.setCity("Eindhoven");
         company.setStreetname("Rachelsmolen");
         company.setHousenumber(1);
@@ -63,7 +70,7 @@ public class CompanyControllerTest {
         company.setDescription("This is a test company");
 
         companyDto.setEmail("test@company.nl");
-        companyDto.setName("Test Company");
+        companyDto.setName("Test COMPANY");
         companyDto.setCity("Eindhoven");
         companyDto.setStreetName("Rachelsmolen");
         companyDto.setHouseNumber("1");
@@ -80,7 +87,7 @@ public class CompanyControllerTest {
 
         when(repository.getCompanyById("abc")).thenReturn(supplyAsync(() -> company));
 
-        final CompanyController controller = new CompanyController(formFactory, repository);
+        final CompanyController controller = new CompanyController(formFactory, repository, tokenRepository);
 
         Company sameCompany = Json.fromJson(Json.parse(contentAsString(controller.getCompanyById("abc"))), Company.class);
         assertEquals("testinfo", sameCompany.getName());
@@ -95,7 +102,7 @@ public class CompanyControllerTest {
 
         when(messagesApi.preferred(request)).thenReturn(messages);
 
-        final CompanyController controller = new CompanyController(formFactory, repository);
+        final CompanyController controller = new CompanyController(formFactory, repository, tokenRepository);
 
         Result stage = controller.addCompany(request);
         String result = contentAsString(stage);
@@ -116,7 +123,7 @@ public class CompanyControllerTest {
 
         when(messagesApi.preferred(request)).thenReturn(messages);
 
-        final CompanyController controller = new CompanyController(formFactory, repository);
+        final CompanyController controller = new CompanyController(formFactory, repository, tokenRepository);
 
         Result stage = controller.addCompany(request);
         String result = contentAsString(stage);
@@ -137,7 +144,7 @@ public class CompanyControllerTest {
 
         when(messagesApi.preferred(request)).thenReturn(messages);
 
-        final CompanyController controller = new CompanyController(formFactory, repository);
+        final CompanyController controller = new CompanyController(formFactory, repository, tokenRepository);
 
         Result stage = controller.addCompany(request);
         String result = contentAsString(stage);
@@ -152,14 +159,18 @@ public class CompanyControllerTest {
     public void updateCompany() {
         company.setName("newTest");
         when(repository.update(any())).thenReturn(supplyAsync(() -> company));
-
+        company.setUuid(UUID.randomUUID().toString());
         request = Helpers.fakeRequest("PUT", "/")
                 .bodyJson(Json.toJson(company)).build().withTransientLang("es");
 
+        Set<Role> roles = new HashSet<>(Arrays.asList(Role.USER, Role.COMPANY));
+        company.setRoles(roles);
+
+        request = request.addAttr(AuthenticateAction.USER, company);
+
         when(messagesApi.preferred(request)).thenReturn(messages);
 
-        final CompanyController controller = new CompanyController(formFactory, repository);
-
+        final CompanyController controller = new CompanyController(formFactory, repository, tokenRepository);
 
         Result stage = controller.updateCompany(request);
         String result = contentAsString(stage);
@@ -179,16 +190,17 @@ public class CompanyControllerTest {
                 .bodyJson(Json.toJson(companyDto)).build();
 
         when(messagesApi.preferred(request)).thenReturn(messages);
+        AuthenticationToken authenticationToken = new AuthenticationToken(company);
+        authenticationToken.setStart(new Date());
+        when(tokenRepository.createToken(any(Company.class))).thenReturn(supplyAsync(() -> authenticationToken));
 
-        final CompanyController controller = new CompanyController(formFactory, repository);
+        final CompanyController controller = new CompanyController(formFactory, repository, tokenRepository);
 
         Result stage = controller.login(request);
         String result = contentAsString(stage);
 
-        Company companyResult = Json.fromJson(Json.parse(result), Company.class);
 
         assertEquals(200, stage.status());
-        assertEquals(company.getName(), companyResult.getName());
     }
 
     @Test
@@ -200,7 +212,7 @@ public class CompanyControllerTest {
 
         when(messagesApi.preferred(request)).thenReturn(messages);
 
-        final CompanyController controller = new CompanyController(formFactory, repository);
+        final CompanyController controller = new CompanyController(formFactory, repository, tokenRepository);
 
         Result stage = controller.login(request);
         String result = contentAsString(stage);

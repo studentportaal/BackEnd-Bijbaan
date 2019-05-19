@@ -107,17 +107,18 @@ public class Bootstrap {
             e.printStackTrace();
         }
 
-        JobOffer jobOffer = new JobOffer();
-        jobOffer.setFunction("Senior Software Developer");
-        jobOffer.setInformation("Java backend engineer");
-        jobOffer.setLocation("Google");
-        jobOffer.setTitle("Senior back-end engineer");
-        jobOffer.setSalary(4500);
-        jobOffer.setApplications(Arrays.asList(application));
-        jobOffer.setCompany(company);
-        jobOffer.setSkills(Arrays.asList(javaSkill));
-        jobRepository.addJobOffer(jobOffer);
 
+
+        JobOffer jobOffer = this.createJobOffer("Senior software developer",students,company,javaSkill);
+        JobOffer jobOffer2 = this.createJobOffer("PHP developer",students,company,javaSkill);
+        JobOffer jobOffer3 = this.createJobOffer("Java EE developer",students,company,javaSkill);
+        JobOffer jobOffer4 = this.createJobOffer("Awesome ASP.NET stuff",students,company,javaSkill);
+        JobOffer jobOffer5 = this.createJobOffer("HTML/CSS job offer",students,company,javaSkill);
+        jobRepository.addJobOffer(jobOffer);
+        jobRepository.addJobOffer(jobOffer2);
+        jobRepository.addJobOffer(jobOffer3);
+        jobRepository.addJobOffer(jobOffer4);
+        jobRepository.addJobOffer(jobOffer5);
 
         JobOffer jobOffer1 = new JobOffer();
         jobOffer1.setFunction("Junior Software Developer");
@@ -129,6 +130,19 @@ public class Bootstrap {
         jobOffer1.setCompany(company);
         jobOffer1.setSkills(Arrays.asList(cSkill));
         jobRepository.addJobOffer(jobOffer1);
+
+
+        JobOffer jobOffer6 = new JobOffer();
+        jobOffer6.setFunction("Something");
+        jobOffer6.setInformation("Junior developer positie");
+        jobOffer6.setLocation("Google");
+        jobOffer6.setTitle("Old topofday");
+        jobOffer6.setSalary(2300);
+        jobOffer6.setApplicants(students);
+        jobOffer6.setCompany(company);
+        long DAY_IN_MS = 1000 * 60 * 60 * 24;
+        jobOffer6.setTopOfTheDay(new Date(System.currentTimeMillis() - (3 * DAY_IN_MS)));
+        jobRepository.addJobOffer(jobOffer6);
     }
 
     private Company createCompany(String email) {
@@ -149,5 +163,19 @@ public class Bootstrap {
         company.setStreetname("One MegaHard Way");
 
         return company;
+    }
+
+    private JobOffer createJobOffer(String title, List<Student> students, Company company, Skill skill){
+        JobOffer jobOffer = new JobOffer();
+        jobOffer.setFunction("Senior Software Developer");
+        jobOffer.setInformation("Software maken voor geld");
+        jobOffer.setLocation("Google");
+        jobOffer.setTitle(title);
+        jobOffer.setSalary(4500);
+        jobOffer.setApplicants(students);
+        jobOffer.setCompany(company);
+        jobOffer.setSkills(Arrays.asList(skill));
+        jobOffer.setTopOfTheDay(new Date());
+        return jobOffer;
     }
 }
