@@ -134,7 +134,6 @@ public class JobOfferDto {
         this.skills = skills;
     }
 
-    public JobOffer toModel(CompanyRepository repository, StudentRepository studentRepository) {
     public String getTopOfTheDay() {
         return topOfTheDay;
     }
@@ -143,7 +142,7 @@ public class JobOfferDto {
         this.topOfTheDay = topOfTheDay;
     }
 
-    public JobOffer toModel(CompanyRepository repository) {
+    public JobOffer toModel(CompanyRepository repository, StudentRepository studentRepository) {
         JobOffer jobOffer = new JobOffer();
         jobOffer.setInformation(this.getInformation());
         jobOffer.setFunction(this.getFunction());

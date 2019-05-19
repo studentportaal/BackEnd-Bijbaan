@@ -109,11 +109,12 @@ public class Bootstrap {
 
 
 
-        JobOffer jobOffer = this.createJobOffer("Senior software developer",students,company,javaSkill);
-        JobOffer jobOffer2 = this.createJobOffer("PHP developer",students,company,javaSkill);
-        JobOffer jobOffer3 = this.createJobOffer("Java EE developer",students,company,javaSkill);
-        JobOffer jobOffer4 = this.createJobOffer("Awesome ASP.NET stuff",students,company,javaSkill);
-        JobOffer jobOffer5 = this.createJobOffer("HTML/CSS job offer",students,company,javaSkill);
+        JobOffer jobOffer = this.createJobOffer("Senior software developer", Arrays.asList(application),company,javaSkill);
+        JobOffer jobOffer2 = this.createJobOffer("PHP developer",Arrays.asList(application),company,javaSkill);
+        JobOffer jobOffer3 = this.createJobOffer("Java EE developer",Arrays.asList(application),company,javaSkill);
+        JobOffer jobOffer4 = this.createJobOffer("Awesome ASP.NET stuff",Arrays.asList(application),company,javaSkill);
+        JobOffer jobOffer5 = this.createJobOffer("HTML/CSS job offer",Arrays.asList(application),company,javaSkill);
+
         jobRepository.addJobOffer(jobOffer);
         jobRepository.addJobOffer(jobOffer2);
         jobRepository.addJobOffer(jobOffer3);
@@ -138,9 +139,10 @@ public class Bootstrap {
         jobOffer6.setLocation("Google");
         jobOffer6.setTitle("Old topofday");
         jobOffer6.setSalary(2300);
-        jobOffer6.setApplicants(students);
+        jobOffer6.setApplications(Arrays.asList(application1));
         jobOffer6.setCompany(company);
         long DAY_IN_MS = 1000 * 60 * 60 * 24;
+        jobOffer1.setSkills(Arrays.asList(cSkill));
         jobOffer6.setTopOfTheDay(new Date(System.currentTimeMillis() - (3 * DAY_IN_MS)));
         jobRepository.addJobOffer(jobOffer6);
     }
@@ -165,14 +167,14 @@ public class Bootstrap {
         return company;
     }
 
-    private JobOffer createJobOffer(String title, List<Student> students, Company company, Skill skill){
+    private JobOffer createJobOffer(String title, List<Application> applications, Company company, Skill skill){
         JobOffer jobOffer = new JobOffer();
         jobOffer.setFunction("Senior Software Developer");
         jobOffer.setInformation("Software maken voor geld");
         jobOffer.setLocation("Google");
         jobOffer.setTitle(title);
         jobOffer.setSalary(4500);
-        jobOffer.setApplicants(students);
+        jobOffer.setApplications(applications);
         jobOffer.setCompany(company);
         jobOffer.setSkills(Arrays.asList(skill));
         jobOffer.setTopOfTheDay(new Date());
