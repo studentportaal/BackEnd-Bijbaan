@@ -176,7 +176,7 @@ public class JobOfferController extends Controller {
             }
         } else {
             try {
-                return ok(toJson(jobOfferRepository.getAllJobOffers().toCompletableFuture().get()));
+                return ok(toJson(jobOfferRepository.getAllJobOffers().toCompletableFuture().get().stream().map(JobOfferDto::new).collect(Collectors.toList())));
             } catch (InterruptedException | ExecutionException e) {
                 e.printStackTrace();
             }
@@ -186,7 +186,7 @@ public class JobOfferController extends Controller {
 
     public Result getAllTopOfDays(){
         try {
-            return ok(toJson(jobOfferRepository.getAllTopOfDays().toCompletableFuture().get()));
+            return ok(toJson(jobOfferRepository.getAllTopOfDays().toCompletableFuture().get().stream().map(JobOfferDto::new).collect(Collectors.toList())));
         } catch (InterruptedException | ExecutionException e) {
             e.printStackTrace();
         }
