@@ -153,28 +153,23 @@ public class StudentController extends Controller {
     public Result profile(Http.Request request, String email) {
 
         JsonNode json = request.body().asJson();
-        System.out.println(request.body().asJson());
 
         try {
             Student student = studentRepository.getByEmail(email).toCompletableFuture().get();
-
             return ok(toJson(JwtEncoder.toJWT(
                     tokenRepository.createToken(student).toCompletableFuture().get())));
         } catch (InterruptedException e) {
             return badRequest();
         } catch (ExecutionException e) {
             if (e.getCause() instanceof NoResultException) {
-                System.out.println(json);
                 Student student = new Student();
                 student.setLastName(json.get("surName").asText());
                 student.setFirstName(json.get("givenName").asText());
                 student.setInstitute("Fontys");
                 student.setEmail(email);
                 student.setRoles(new HashSet<>((Arrays.asList(Role.USER))));
-
                 try {
                     Student addedUser = studentRepository.add(student).toCompletableFuture().get();
-
                     return ok(toJson(JwtEncoder.toJWT(
                             tokenRepository.createToken(addedUser).toCompletableFuture().get())));
                 } catch (InterruptedException | ExecutionException ex) {
