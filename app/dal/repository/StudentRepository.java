@@ -22,4 +22,6 @@ public interface StudentRepository {
     CompletionStage<Student> login(String email, String password);
 
     CompletionStage<Student> getById(String id);
+
+    CompletionStage<Student> getByEmail(String email);
 }

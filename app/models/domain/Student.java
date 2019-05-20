@@ -1,9 +1,8 @@
 package models.domain;
 
-import javax.persistence.Entity;
-import javax.persistence.NamedQueries;
-import javax.persistence.NamedQuery;
+import javax.persistence.*;
 import java.util.Date;
+import java.util.List;
 
 /**
  * @author Max Meijer
@@ -22,6 +21,8 @@ public class Student extends User {
     private String lastName;
     private Date dateOfBirth;
     private String institute;
+    @ManyToMany(fetch = FetchType.EAGER)
+    private List<Skill> skills;
 
     public Student() {
         // Required no-arg constructor
@@ -59,9 +60,17 @@ public class Student extends User {
         this.institute = institute;
     }
 
+    public List<Skill> getSkills() {
+        return skills;
+    }
+
+    public void setSkills(List<Skill> skills) {
+        this.skills = skills;
+    }
+
     @Override
     public String toString() {
-        return "Student{" +
+        return "STUDENT{" +
                 "firstName='" + firstName + '\'' +
                 ", lastName='" + lastName + '\'' +
                 ", dateOfBirth=" + dateOfBirth +

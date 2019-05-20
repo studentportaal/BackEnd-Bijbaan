@@ -3,7 +3,6 @@ package dal.jpa;
 import dal.context.DatabaseExecutionContext;
 import dal.repository.CompanyRepository;
 import models.domain.Company;
-import models.domain.Student;
 import play.db.jpa.JPAApi;
 import security.PasswordHelper;
 
@@ -13,7 +12,6 @@ import javax.persistence.EntityNotFoundException;
 import javax.persistence.NoResultException;
 import javax.persistence.TypedQuery;
 import javax.transaction.Transactional;
-import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.CompletionStage;
 import java.util.function.Function;
@@ -61,7 +59,7 @@ public class JPACompanyRepository implements CompanyRepository {
     public CompletionStage<Company> getCompanyById(String id) {
         return supplyAsync(() -> wrap((EntityManager em) -> {
             try {
-                TypedQuery<Company> namedQuery = em.createNamedQuery("Company.getCompanyById", Company.class);
+                TypedQuery<Company> namedQuery = em.createNamedQuery("COMPANY.getCompanyById", Company.class);
                 namedQuery.setParameter("uuid", id);
                 return namedQuery.getSingleResult();
             } catch (EntityNotFoundException | NoResultException e) {
@@ -100,7 +98,7 @@ public class JPACompanyRepository implements CompanyRepository {
     }
 
     public List<Company> list(EntityManager em){
-        TypedQuery<Company> query = em.createNamedQuery("Company.getAllCompanies", Company.class);
+        TypedQuery<Company> query = em.createNamedQuery("COMPANY.getAllCompanies", Company.class);
         List<Company> allCompanies= query.getResultList();
         return allCompanies;
     }

@@ -4,6 +4,7 @@ import org.hibernate.annotations.GenericGenerator;
 
 import javax.persistence.*;
 import java.util.Arrays;
+import java.util.Set;
 
 @Entity
 public abstract class User {
@@ -16,6 +17,9 @@ public abstract class User {
     private String email;
     private byte[] salt;
     private byte[] password;
+    @ElementCollection(targetClass = Role.class, fetch = FetchType.EAGER)
+    @Enumerated(EnumType.STRING)
+    private Set<Role> roles;
 
     public String getUuid() {
         return uuid;
@@ -51,11 +55,19 @@ public abstract class User {
 
     @Override
     public String toString() {
-        return "User{" +
+        return "USER{" +
                 "uuid='" + uuid + '\'' +
                 ", email='" + email + '\'' +
                 ", salt=" + Arrays.toString(salt) +
                 ", password=" + Arrays.toString(password) +
                 '}';
+    }
+
+    public Set<Role> getRoles() {
+        return roles;
+    }
+
+    public void setRoles(Set<Role> roles) {
+        this.roles = roles;
     }
 }

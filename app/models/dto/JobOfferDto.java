@@ -1,13 +1,19 @@
 package models.dto;
 
 import dal.repository.CompanyRepository;
+import dal.repository.StudentRepository;
 import models.domain.Company;
 import models.domain.JobOffer;
+import models.domain.Skill;
 import models.domain.Student;
 import play.data.validation.Constraints;
 
+import java.util.ArrayList;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
+import java.util.stream.Collectors;
 
 public class JobOfferDto {
     private String id;
@@ -21,8 +27,11 @@ public class JobOfferDto {
     private String function;
     @Constraints.Required
     private double salary;
-    private List<Student> applicants;
+    private List<ApplicationDto> applications;
+    private List<Skill> skills;
     private String company;
+    private boolean isOpen;
+    private String topOfTheDay;
 
     public JobOfferDto(JobOffer jobOffer) {
         this.id = jobOffer.getId();
@@ -31,10 +40,22 @@ public class JobOfferDto {
         this.information = jobOffer.getInformation();
         this.function = jobOffer.getFunction();
         this.salary = jobOffer.getSalary();
-        this.applicants = jobOffer.getApplicants();
+        this.isOpen = jobOffer.isOpen();
+
+        if (jobOffer.getApplications() != null && jobOffer.getApplications().size() > 0) {
+            this.applications = jobOffer.getApplications().stream().map(ApplicationDto::new).collect(Collectors.toList());
+        } else {
+            this.applications = new ArrayList<>();
+        }
+
+        this.skills = jobOffer.getSkills();
+        if( jobOffer.getTopOfTheDay()!= null){
+            this.topOfTheDay = jobOffer.getTopOfTheDay().toString();
+        }
         if (jobOffer.getCompany() != null) {
             this.company = jobOffer.getCompany().getUuid();
         }
+
     }
 
     public JobOfferDto() {
@@ -89,12 +110,12 @@ public class JobOfferDto {
         this.salary = salary;
     }
 
-    public List<Student> getApplicants() {
-        return applicants;
+    public List<ApplicationDto> getApplications() {
+        return applications;
     }
 
-    public void setApplicants(List<Student> applicants) {
-        this.applicants = applicants;
+    public void setApplications(List<ApplicationDto> applications) {
+        this.applications = applications;
     }
 
     public String getCompany() {
@@ -105,14 +126,37 @@ public class JobOfferDto {
         this.company = company;
     }
 
-    public JobOffer toModel(CompanyRepository repository) {
+    public List<Skill> getSkills() {
+        return skills;
+    }
+
+    public void setSkills(List<Skill> skills) {
+        this.skills = skills;
+    }
+
+    public String getTopOfTheDay() {
+        return topOfTheDay;
+    }
+
+    public void setTopOfTheDay(String topOfTheDay) {
+        this.topOfTheDay = topOfTheDay;
+    }
+
+    public JobOffer toModel(CompanyRepository repository, StudentRepository studentRepository) {
         JobOffer jobOffer = new JobOffer();
         jobOffer.setInformation(this.getInformation());
         jobOffer.setFunction(this.getFunction());
         jobOffer.setLocation(this.getLocation());
         jobOffer.setSalary(this.getSalary());
         jobOffer.setTitle(this.getTitle());
-        jobOffer.setApplicants(this.getApplicants());
+        jobOffer.setOpen(this.isOpen);
+
+        if (applications != null && applications.size() > 0) {
+            jobOffer.setApplications(getApplications().stream().map(a -> a.toModel(studentRepository)).collect(Collectors.toList()));
+        } else {
+           jobOffer.setApplications(new ArrayList<>());
+        }
+        jobOffer.setSkills(skills);
         jobOffer.setId(this.getId());
         try {
             if (this.getCompany() != null) {
@@ -124,6 +168,14 @@ public class JobOfferDto {
             }
         } catch (InterruptedException | ExecutionException e) {
             e.printStackTrace();
+        }
+        if(this.topOfTheDay!= null){
+            try {
+                SimpleDateFormat formatter = new SimpleDateFormat("dd-MMM-yyyy HH:mm");
+                jobOffer.setTopOfTheDay(formatter.parse(this.topOfTheDay));
+            } catch (ParseException e) {
+                e.printStackTrace();
+            }
         }
 
         return jobOffer;

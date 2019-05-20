@@ -1,19 +1,22 @@
 package models.domain;
 
+import org.hibernate.annotations.Fetch;
+import org.hibernate.annotations.FetchMode;
 import org.hibernate.annotations.GenericGenerator;
 import play.data.validation.Constraints;
 
 import javax.persistence.*;
+import java.util.Date;
 import java.util.List;
+import java.util.Set;
 
 @Entity
 @NamedQueries({
         @NamedQuery(name = "JobOffer.getJobOfferById", query = "SELECT j FROM JobOffer j WHERE j.id = :id"),
-        @NamedQuery(name = "JobOffer.getAllJobOffers", query = "SELECT j from JobOffer j")
+        @NamedQuery(name = "JobOffer.getAllJobOffers", query = "SELECT j from JobOffer j"),
+        @NamedQuery(name = "JobOffer.markClosed", query = "UPDATE JobOffer j SET j.isOpen = false WHERE id = :id")
 })
-
 public class JobOffer {
-
     @Id
     @GeneratedValue(generator = "UUID")
     @GenericGenerator(name = "UUID", strategy = "org.hibernate.id.UUIDGenerator")
@@ -23,16 +26,22 @@ public class JobOffer {
     @Constraints.Required
     private String title;
     @Constraints.Required
+    @Column(columnDefinition = "TEXT")
     private String information;
     @Constraints.Required
     private String function;
     @Constraints.Required
     private double salary;
+    @OneToMany(fetch = FetchType.EAGER)
+    private List<Application> applications;
     @ManyToMany(fetch = FetchType.EAGER)
-    private List<Student> applicants;
+    @Fetch(value = FetchMode.SUBSELECT)
+    private List<Skill> skills;
     @ManyToOne
     private Company company;
+    private boolean isOpen = true;
 
+    private Date topOfTheDay;
 
     public String getId() {
         return id;
@@ -82,19 +91,43 @@ public class JobOffer {
         this.salary = salary;
     }
 
-    public List<Student> getApplicants() {
-        return applicants;
-    }
-
-    public void setApplicants(List<Student> applicants) {
-        this.applicants = applicants;
-    }
-
     public Company getCompany() {
         return company;
     }
 
     public void setCompany(Company company) {
         this.company = company;
+    }
+
+    public List<Skill> getSkills() {
+        return skills;
+    }
+
+    public void setSkills(List<Skill> skills) {
+        this.skills = skills;
+    }
+
+    public List<Application> getApplications() {
+        return applications;
+    }
+
+    public void setApplications(List<Application> applications) {
+        this.applications = applications;
+    }
+
+    public boolean isOpen() {
+        return isOpen;
+    }
+
+    public void setOpen(boolean open) {
+        isOpen = open;
+    }
+
+    public Date getTopOfTheDay() {
+        return topOfTheDay;
+    }
+
+    public void setTopOfTheDay(Date topOfTheDay) {
+        this.topOfTheDay = topOfTheDay;
     }
 }

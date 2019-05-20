@@ -2,10 +2,9 @@ package dal.repository;
 
 import com.google.inject.ImplementedBy;
 import dal.jpa.JPAJobOfferRepository;
-import models.domain.Company;
-import models.domain.JobOffer;
-import models.domain.Student;
+import models.domain.*;
 
+import java.util.Date;
 import java.util.List;
 import java.util.concurrent.CompletionStage;
 
@@ -19,11 +18,17 @@ public interface JobOfferRepository {
 
     CompletionStage<JobOffer> getJobOfferById(String id);
 
-    CompletionStage<List<JobOffer>> getAllJobOffers(int startNr, int amount, String companies);
+    CompletionStage<List<JobOffer>> getAllJobOffers(int startNr, int amount, String companies, boolean isOpen);
 
     CompletionStage<List<JobOffer>> getAllJobOffers();
 
     CompletionStage<String> getJobOfferCount();
 
-    CompletionStage<JobOffer> applyForJob(Student user, String id);
+    CompletionStage<JobOffer> applyForJob(Application application, String id);
+
+    CompletionStage<JobOffer> setSkills(List<Skill> skills, String id);
+
+    CompletionStage<JobOffer> setTopOfDay(String id, Date topOfDay);
+
+    CompletionStage<List<JobOffer>> getAllTopOfDays();
 }

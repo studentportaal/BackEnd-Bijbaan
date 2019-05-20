@@ -1,8 +1,12 @@
 package models.dto;
 
+import models.domain.Skill;
+import models.domain.Student;
 import play.data.validation.Constraints;
 
+import javax.validation.Constraint;
 import java.util.Date;
+import java.util.List;
 
 /**
  * @author Max Meijer
@@ -21,18 +25,41 @@ public class StudentDto {
     private String password;
     @Constraints.Required
     private String institute;
+    @Constraints.Required
+    private List<Skill> skills;
 
     public StudentDto() {
         // Empty constructor for Json parsing.
     }
 
-    public StudentDto(String uuid, String email, String firstName, String lastName, Date dateOfBirth, String institute){
+    public StudentDto(String uuid, String firstName, String lastName, String email, String dateOfBirth, String password, String institute) {
+        this.uuid = uuid;
+        this.firstName = firstName;
+        this.lastName = lastName;
+        this.email = email;
+        this.dateOfBirth = dateOfBirth;
+        this.password = password;
+        this.institute = institute;
+    }
+
+    public StudentDto(String uuid, String email, String firstName, String lastName, Date dateOfBirth, String institute, List<Skill> skills){
         this.uuid = uuid;
         this.email = email;
         this.firstName = firstName;
         this.lastName = lastName;
         this.dateOfBirth = dateOfBirth.toString();
         this.institute = institute;
+        this.skills = skills;
+    }
+
+    public StudentDto(Student student) {
+        this.uuid = student.getUuid();
+        this.email = student.getEmail();
+        this.firstName = student.getFirstName();
+        this.lastName = student.getLastName();
+        this.dateOfBirth = String.valueOf(student.getDateOfBirth());
+        this.institute = student.getInstitute();
+        this.skills = student.getSkills();
     }
 
     public String getUuid() {
@@ -89,6 +116,14 @@ public class StudentDto {
 
     public void setInstitute(String institute) {
         this.institute = institute;
+    }
+
+    public List<Skill> getSkills() {
+        return skills;
+    }
+
+    public void setSkills(List<Skill> skills) {
+        this.skills = skills;
     }
 
     @Override

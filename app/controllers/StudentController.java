@@ -1,9 +1,15 @@
 package controllers;
 
 import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import dal.repository.StudentRepository;
+import dal.repository.TokenRepository;
+import io.jsonwebtoken.Jwt;
 import models.api.ApiError;
+import models.authentication.AuthenticationToken;
+import models.authentication.JwtEncoder;
 import models.converters.StudentConverter;
+import models.domain.Role;
 import models.domain.Student;
 import models.domain.User;
 import models.dto.StudentDto;
@@ -20,11 +26,15 @@ import javax.inject.Inject;
 import javax.persistence.NoResultException;
 import javax.validation.ConstraintViolationException;
 import java.text.ParseException;
+import java.util.Date;
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.Set;
+import java.util.concurrent.CompletionStage;
 import java.util.concurrent.ExecutionException;
 import java.util.stream.Collectors;
 
 import static play.libs.Json.toJson;
-
 
 /**
  * The controller keeps all database operations behind the repository, and uses
@@ -36,11 +46,13 @@ public class StudentController extends Controller {
     private final FormFactory formFactory;
     private final StudentRepository studentRepository;
     private final StudentConverter studentConverter;
+    private TokenRepository tokenRepository;
 
     @Inject
-    public StudentController(FormFactory formFactory, StudentRepository studentRepository) {
+    public StudentController(FormFactory formFactory, StudentRepository studentRepository, TokenRepository tokenRepository) {
         this.formFactory = formFactory;
         this.studentRepository = studentRepository;
+        this.tokenRepository = tokenRepository;
         this.studentConverter = new StudentConverter();
     }
 
@@ -72,6 +84,8 @@ public class StudentController extends Controller {
         }
         user.setSalt(salt);
         user.setPassword(password);
+        Set<Role> roles = new HashSet<>(Arrays.asList(Role.USER, Role.STUDENT));
+        user.setRoles(roles);
 
         try {
             User addedUser = studentRepository.add(user).toCompletableFuture().get();
@@ -86,7 +100,7 @@ public class StudentController extends Controller {
     }
 
     @SuppressWarnings("Duplicates")
-    public Result updateStudent(Http.Request request, String id){
+    public Result updateStudent(Http.Request request, String id) {
         JsonNode json = request.body().asJson();
 
         StudentDto dto = Json.fromJson(json, StudentDto.class);
@@ -105,32 +119,64 @@ public class StudentController extends Controller {
     }
 
 
-    public Result getStudent(String id)  throws InterruptedException, ExecutionException {
-        try{
+    public Result getStudent(String id) throws InterruptedException, ExecutionException {
+        try {
             return ok(toJson(studentRepository.getById(id).toCompletableFuture().get()));
         } catch (NullPointerException e){
-            return badRequest(toJson(new ApiError<>("User not found")));
+            return badRequest(toJson(new ApiError<>("USER not found")));
         }
     }
 
     @SuppressWarnings("Duplicates")
-    public Result login(Http.Request request){
+    public Result login(Http.Request request) {
 
         JsonNode json = request.body().asJson();
         StudentDto studentDto = Json.fromJson(json, StudentDto.class);
 
-        if(studentDto.getEmail() == null || studentDto.getPassword() == null || studentDto.getEmail().isEmpty() || studentDto.getPassword().isEmpty()){
+        if (studentDto.getEmail() == null || studentDto.getPassword() == null || studentDto.getEmail().isEmpty() || studentDto.getPassword().isEmpty()) {
             return badRequest(toJson(new ApiError<>("Invalid json format")));
         }
 
         try {
             Student student = studentRepository.login(studentDto.getEmail(), studentDto.getPassword()).toCompletableFuture().get();
-            StudentDto dto = new StudentDto(student.getUuid(), student.getEmail(), student.getFirstName(), student.getLastName(), student.getDateOfBirth(), student.getInstitute());
 
-            return ok(toJson(dto));
+            CompletionStage<AuthenticationToken> token = tokenRepository.createToken(student);
+
+            String jwt = JwtEncoder.toJWT(token.toCompletableFuture().get());
+
+            return ok(toJson(jwt));
         } catch (InterruptedException | ExecutionException | NoResultException e) {
             return badRequest(toJson(new ApiError<>("Invalid username and/or password")));
         }
     }
 
+    public Result profile(Http.Request request, String email) {
+
+        JsonNode json = request.body().asJson();
+
+        try {
+            Student student = studentRepository.getByEmail(email).toCompletableFuture().get();
+            return ok(toJson(JwtEncoder.toJWT(
+                    tokenRepository.createToken(student).toCompletableFuture().get())));
+        } catch (InterruptedException e) {
+            return badRequest();
+        } catch (ExecutionException e) {
+            if (e.getCause() instanceof NoResultException) {
+                Student student = new Student();
+                student.setLastName(json.get("surName").asText());
+                student.setFirstName(json.get("givenName").asText());
+                student.setInstitute("Fontys");
+                student.setEmail(email);
+                student.setRoles(new HashSet<>((Arrays.asList(Role.USER))));
+                try {
+                    Student addedUser = studentRepository.add(student).toCompletableFuture().get();
+                    return ok(toJson(JwtEncoder.toJWT(
+                            tokenRepository.createToken(addedUser).toCompletableFuture().get())));
+                } catch (InterruptedException | ExecutionException ex) {
+                    return badRequest();
+                }
+            }
+        }
+        return badRequest();
+    }
 }
