@@ -99,8 +99,6 @@ public class Bootstrap {
         jobOffer6.setSalary(2300);
         jobOffer6.setApplications(new ArrayList<>());
         jobOffer6.setCompany(company2);
-        long DAY_IN_MS = 1000 * 60 * 60 * 24;
-        jobOffer6.setTopOfTheDay(new Date(System.currentTimeMillis() - (3 * DAY_IN_MS)));
         jobRepository.addJobOffer(jobOffer6);
     }
 

@@ -5,7 +5,6 @@ import dal.repository.StudentRepository;
 import models.domain.Company;
 import models.domain.JobOffer;
 import models.domain.Skill;
-import models.domain.Student;
 import play.data.validation.Constraints;
 
 import java.util.ArrayList;
@@ -40,7 +39,7 @@ public class JobOfferDto {
         this.information = jobOffer.getInformation();
         this.function = jobOffer.getFunction();
         this.salary = jobOffer.getSalary();
-        this.isOpen = jobOffer.isOpen();
+        this.isOpen = jobOffer.isisOpen();
 
         if (jobOffer.getApplications() != null && jobOffer.getApplications().size() > 0) {
             this.applications = jobOffer.getApplications().stream().map(ApplicationDto::new).collect(Collectors.toList());
@@ -142,6 +141,14 @@ public class JobOfferDto {
         this.topOfTheDay = topOfTheDay;
     }
 
+    public boolean isisOpen() {
+        return isOpen;
+    }
+
+    public void setisOpen(boolean open) {
+        isOpen = open;
+    }
+
     public JobOffer toModel(CompanyRepository repository, StudentRepository studentRepository) {
         JobOffer jobOffer = new JobOffer();
         jobOffer.setInformation(this.getInformation());
@@ -149,7 +156,7 @@ public class JobOfferDto {
         jobOffer.setLocation(this.getLocation());
         jobOffer.setSalary(this.getSalary());
         jobOffer.setTitle(this.getTitle());
-        jobOffer.setOpen(this.isOpen);
+        jobOffer.setisOpen(this.isOpen);
 
         if (applications != null && applications.size() > 0) {
             jobOffer.setApplications(getApplications().stream().map(a -> a.toModel(studentRepository)).collect(Collectors.toList()));
@@ -169,15 +176,16 @@ public class JobOfferDto {
         } catch (InterruptedException | ExecutionException e) {
             e.printStackTrace();
         }
+        System.out.println(topOfTheDay);
         if(this.topOfTheDay!= null){
             try {
-                SimpleDateFormat formatter = new SimpleDateFormat("dd-MMM-yyyy HH:mm");
+                SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd HH:mm");
                 jobOffer.setTopOfTheDay(formatter.parse(this.topOfTheDay));
             } catch (ParseException e) {
                 e.printStackTrace();
             }
         }
-
+        System.out.println(jobOffer.getTopOfTheDay());
         return jobOffer;
     }
 }
