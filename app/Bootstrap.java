@@ -92,10 +92,10 @@ public class Bootstrap {
 
 
         JobOffer jobOffer6 = new JobOffer();
-        jobOffer6.setFunction("Something");
+        jobOffer6.setFunction("Developer");
         jobOffer6.setInformation("Junior developer positie");
         jobOffer6.setLocation("Google");
-        jobOffer6.setTitle("Old topofday");
+        jobOffer6.setTitle("Software developer");
         jobOffer6.setSalary(2300);
         jobOffer6.setApplications(new ArrayList<>());
         jobOffer6.setCompany(company2);
