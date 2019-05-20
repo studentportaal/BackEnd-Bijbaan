@@ -2,6 +2,7 @@ package dal.jpa;
 
 import dal.context.DatabaseExecutionContext;
 import dal.repository.JobOfferRepository;
+import models.domain.Application;
 import models.domain.JobOffer;
 import models.domain.Skill;
 import models.domain.Student;
@@ -43,7 +44,7 @@ public class JPAJobOfferRepository implements JobOfferRepository {
     @Override
     public CompletionStage<JobOffer> updateJobOffer(JobOffer jobOffer) {
         JobOffer j = wrap( em -> getJobOfferById(em, jobOffer.getId()));
-        jobOffer.setApplicants(j.getApplicants());
+        jobOffer.setApplications(j.getApplications());
         jobOffer.setCompany(j.getCompany());
         return supplyAsync(()
                 -> wrap(em ->update(em, jobOffer)), executionContext);
@@ -55,9 +56,9 @@ public class JPAJobOfferRepository implements JobOfferRepository {
     }
 
     @Override
-    public CompletionStage<List<JobOffer>> getAllJobOffers(int startNr, int amount, String companies) {
+    public CompletionStage<List<JobOffer>> getAllJobOffers(int startNr, int amount, String companies, boolean isOpen) {
         return supplyAsync(()
-                -> wrap(em -> list(em, startNr, amount, companies)), executionContext);
+                -> wrap(em -> list(em, startNr, amount, companies, isOpen)), executionContext);
     }
 
     @Override
@@ -83,10 +84,10 @@ public class JPAJobOfferRepository implements JobOfferRepository {
     }
 
     @Override
-    public CompletionStage<JobOffer> applyForJob(Student user, String id) {
+    public CompletionStage<JobOffer> applyForJob(Application application, String id) {
 
             JobOffer offer = wrap(em -> getJobOfferById(em, id));
-            offer.getApplicants().add(user);
+            offer.getApplications().add(application);
 
             return supplyAsync(()
                     -> wrap(em -> update(em, offer)));
@@ -138,14 +139,16 @@ public class JPAJobOfferRepository implements JobOfferRepository {
 
     }
 
-    private List<JobOffer> list(EntityManager em, int startNr, int amount, String companies) {
+    private List<JobOffer> list(EntityManager em, int startNr, int amount, String companies, boolean isOpen) {
         TypedQuery<JobOffer> jobOffers;
         if(companies != null && !companies.isEmpty()){
             List<String>companyList = Arrays.asList(companies.split(","));
-            jobOffers = em.createQuery("FROM JobOffer j  WHERE company_uuid IN :companies", JobOffer.class);
+            jobOffers = em.createQuery("FROM JobOffer j  WHERE company_uuid IN :companies AND j.isOpen = :open", JobOffer.class);
             jobOffers.setParameter("companies", companyList);
+            jobOffers.setParameter("open", isOpen);
         }else{
-             jobOffers = em.createQuery("FROM JobOffer j", JobOffer.class);
+             jobOffers = em.createQuery("FROM JobOffer j WHERE j.isOpen = :open", JobOffer.class);
+             jobOffers.setParameter("open", isOpen);
         }
         jobOffers.setFirstResult(startNr);
         jobOffers.setMaxResults(amount);

@@ -1,7 +1,4 @@
-import dal.repository.CompanyRepository;
-import dal.repository.JobOfferRepository;
-import dal.repository.SkillRepository;
-import dal.repository.StudentRepository;
+import dal.repository.*;
 import models.domain.*;
 import play.Environment;
 import play.inject.ApplicationLifecycle;
@@ -27,6 +24,7 @@ public class Bootstrap {
     private final JobOfferRepository jobRepository;
     private final CompanyRepository companyRepository;
     private final SkillRepository skillRepository;
+    private final ApplicationRepository applicationRepository;
 
     @Inject
     public Bootstrap(ApplicationLifecycle lifecycle,
@@ -34,11 +32,13 @@ public class Bootstrap {
                      StudentRepository studentRepository,
                      JobOfferRepository jobRepository,
                      CompanyRepository companyRepository,
-                     SkillRepository skillRepository) {
+                     SkillRepository skillRepository,
+                     ApplicationRepository applicationRepository) {
         this.studentRepository = studentRepository;
         this.jobRepository = jobRepository;
         this.companyRepository = companyRepository;
         this.skillRepository = skillRepository;
+        this.applicationRepository = applicationRepository;
 
         addUsers();
         addJobOffers();
@@ -85,10 +85,9 @@ public class Bootstrap {
             e.printStackTrace();
         }
 
-
-
-        Skill cSkill  = new Skill("C#");
         Skill javaSkill = new Skill("Java");
+        Skill cSkill  = new Skill("C#");
+
         try {
             javaSkill = skillRepository.add(javaSkill).toCompletableFuture().get();
             cSkill = skillRepository.add(cSkill).toCompletableFuture().get();
@@ -96,16 +95,35 @@ public class Bootstrap {
             e.printStackTrace();
         }
 
-        LOGGER.log(Level.INFO, javaSkill.toString());
-        LOGGER.log(Level.INFO, cSkill.toString());
+        Application application = new Application();
+        application.setApplicant(students.get(0));
+
+        Application application1 = new Application();
+        application1.setApplicant(students.get(1));
+
+        Application application2 = new Application();
+        application2.setApplicant(students.get(2));
+
+        Application application3 = new Application();
+        application3.setApplicant(students.get(3));
+
+        try {
+            application = applicationRepository.add(application).toCompletableFuture().get();
+            application1 = applicationRepository.add(application1).toCompletableFuture().get();
+            application2 = applicationRepository.add(application2).toCompletableFuture().get();
+            application3 = applicationRepository.add(application3).toCompletableFuture().get();
+        } catch (InterruptedException | ExecutionException e) {
+            e.printStackTrace();
+        }
 
 
 
-        JobOffer jobOffer = this.createJobOffer("Senior software developer",students,company,javaSkill);
-        JobOffer jobOffer2 = this.createJobOffer("PHP developer",students,company,javaSkill);
-        JobOffer jobOffer3 = this.createJobOffer("Java EE developer",students,company,javaSkill);
-        JobOffer jobOffer4 = this.createJobOffer("Awesome ASP.NET stuff",students,company,javaSkill);
-        JobOffer jobOffer5 = this.createJobOffer("HTML/CSS job offer",students,company,javaSkill);
+        JobOffer jobOffer = this.createJobOffer("Senior software developer", Arrays.asList(application),company,javaSkill);
+        JobOffer jobOffer2 = this.createJobOffer("PHP developer",Arrays.asList(application1),company,javaSkill);
+        JobOffer jobOffer3 = this.createJobOffer("Java EE developer",Arrays.asList(application2),company,javaSkill);
+        JobOffer jobOffer4 = this.createJobOffer("Awesome ASP.NET stuff",new ArrayList<>(),company,javaSkill);
+        JobOffer jobOffer5 = this.createJobOffer("HTML/CSS job offer",new ArrayList<>(),company,javaSkill);
+
         jobRepository.addJobOffer(jobOffer);
         jobRepository.addJobOffer(jobOffer2);
         jobRepository.addJobOffer(jobOffer3);
@@ -118,7 +136,7 @@ public class Bootstrap {
         jobOffer1.setLocation("Google");
         jobOffer1.setTitle("Junior front-end developer");
         jobOffer1.setSalary(2300);
-        jobOffer1.setApplicants(students);
+        jobOffer1.setApplications(Arrays.asList(application3));
         jobOffer1.setCompany(company);
         jobOffer1.setSkills(Arrays.asList(cSkill));
         jobRepository.addJobOffer(jobOffer1);
@@ -130,9 +148,10 @@ public class Bootstrap {
         jobOffer6.setLocation("Google");
         jobOffer6.setTitle("Old topofday");
         jobOffer6.setSalary(2300);
-        jobOffer6.setApplicants(students);
+        jobOffer6.setApplications(new ArrayList<>());
         jobOffer6.setCompany(company);
         long DAY_IN_MS = 1000 * 60 * 60 * 24;
+        jobOffer1.setSkills(Arrays.asList(cSkill));
         jobOffer6.setTopOfTheDay(new Date(System.currentTimeMillis() - (3 * DAY_IN_MS)));
         jobRepository.addJobOffer(jobOffer6);
     }
@@ -153,18 +172,19 @@ public class Bootstrap {
         company.setHousenumber(10000);
         company.setPostalcode("4242XL");
         company.setStreetname("One MegaHard Way");
+        company.setRoles(new HashSet<>(Arrays.asList(Role.USER, Role.COMPANY)));
 
         return company;
     }
 
-    private JobOffer createJobOffer(String title, List<Student> students, Company company, Skill skill){
+    private JobOffer createJobOffer(String title, List<Application> applications, Company company, Skill skill){
         JobOffer jobOffer = new JobOffer();
         jobOffer.setFunction("Senior Software Developer");
         jobOffer.setInformation("Software maken voor geld");
         jobOffer.setLocation("Google");
         jobOffer.setTitle(title);
         jobOffer.setSalary(4500);
-        jobOffer.setApplicants(students);
+        jobOffer.setApplications(applications);
         jobOffer.setCompany(company);
         jobOffer.setSkills(Arrays.asList(skill));
         jobOffer.setTopOfTheDay(new Date());

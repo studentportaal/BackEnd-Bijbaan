@@ -2,18 +2,25 @@ package controllers;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import dal.repository.ApplicationRepository;
 import dal.repository.CompanyRepository;
 import dal.repository.JobOfferRepository;
+import dal.repository.StudentRepository;
 import models.api.ApiError;
 import models.authentication.Authenticate;
 import models.converters.StudentConverter;
+import models.domain.Application;
 import models.domain.JobOffer;
 import models.domain.Role;
 import models.domain.Skill;
 import models.domain.Student;
+import models.dto.ApplicationDto;
 import models.dto.JobOfferDto;
 import models.dto.SkillDto;
 import models.dto.StudentDto;
+import models.form.JobOfferSkills;
+import models.form.SkillUpdateCheck;
 import models.parser.Parser;
 import play.data.Form;
 import play.data.FormFactory;
@@ -41,12 +48,20 @@ public class JobOfferController extends Controller {
     private final FormFactory formFactory;
     private final JobOfferRepository jobOfferRepository;
     private final CompanyRepository companyRepository;
+    private final ApplicationRepository applicationRepository;
+    private final StudentRepository studentRepository;
 
     @Inject
-    public JobOfferController(FormFactory formFactory, JobOfferRepository jobOfferRepository, CompanyRepository companyRepository) {
+    public JobOfferController(FormFactory formFactory,
+                              JobOfferRepository jobOfferRepository,
+                              CompanyRepository companyRepository,
+                              ApplicationRepository applicationRepository,
+                              StudentRepository studentRepository) {
         this.formFactory = formFactory;
         this.jobOfferRepository = jobOfferRepository;
         this.companyRepository = companyRepository;
+        this.applicationRepository = applicationRepository;
+        this.studentRepository = studentRepository;
     }
 
     @BodyParser.Of(BodyParser.Json.class)
@@ -58,7 +73,7 @@ public class JobOfferController extends Controller {
             return badRequest(toJson(new ApiError<>("Invalid json object")));
         } else {
             JsonNode json = request.body().asJson();
-            JobOffer jobOffer = Json.fromJson(json, JobOfferDto.class).toModel(companyRepository);
+            JobOffer jobOffer = Json.fromJson(json, JobOfferDto.class).toModel(companyRepository, studentRepository);
             jobOfferRepository.addJobOffer(jobOffer);
             return created(json);
         }
@@ -75,8 +90,7 @@ public class JobOfferController extends Controller {
             return badRequest(toJson(new ApiError<>("Invalid json object")));
         } else {
             JsonNode json = request.body().asJson();
-            JobOffer jobOffer = Json.fromJson(json, JobOfferDto.class).toModel(companyRepository);
-
+            JobOffer jobOffer = Json.fromJson(json, JobOfferDto.class).toModel(companyRepository, studentRepository);
             jobOfferRepository.updateJobOffer(jobOffer);
             return ok(toJson(jobOffer));
 
@@ -88,15 +102,15 @@ public class JobOfferController extends Controller {
     public Result applyForJob(final Http.Request request, String id) {
 
         JsonNode json = request.body().asJson();
-        StudentDto studentDto = Json.fromJson(json, StudentDto.class);
-        StudentConverter c = new StudentConverter();
+        ApplicationDto applicationDto = Json.fromJson(json, ApplicationDto.class);
+
 
         try {
-            Student u = c.convertDtoToStudent(studentDto);
-            return ok(toJson(jobOfferRepository.applyForJob(u, id).toCompletableFuture().get()));
+            Application application = applicationRepository.add(applicationDto.toModel(studentRepository)).toCompletableFuture().get();
+            return ok(toJson(jobOfferRepository.applyForJob(application, id).toCompletableFuture().get()));
         } catch (NoResultException e) {
             return badRequest(toJson(new ApiError<>("No result found with the given ID")));
-        } catch (InterruptedException | ParseException | ExecutionException e) {
+        } catch (InterruptedException | ExecutionException e) {
             return badRequest(toJson(new ApiError<>("Oops something went wrong")));
         }
     }
@@ -146,12 +160,12 @@ public class JobOfferController extends Controller {
         }
     }
 
-    public Result getAllJobOffers(String startNr, String amount, String companies) {
+    public Result getAllJobOffers(String startNr, String amount, String companies, boolean open) {
 
         if (startNr != null && amount != null) {
             if (Parser.stringToInt(startNr) && Parser.stringToInt(amount)) {
                 try {
-                    return ok(toJson(jobOfferRepository.getAllJobOffers(Integer.parseInt(startNr), Integer.parseInt(amount), companies)
+                    return ok(toJson(jobOfferRepository.getAllJobOffers(Integer.parseInt(startNr), Integer.parseInt(amount), companies, open)
                             .toCompletableFuture()
                             .get().stream().map(JobOfferDto::new).collect(Collectors.toList())));
                 } catch (InterruptedException | ExecutionException e) {
@@ -177,6 +191,12 @@ public class JobOfferController extends Controller {
             e.printStackTrace();
         }
         return badRequest(toJson(new ApiError<>("Oops, something went wrong")));
+    }
+
+    public Result acceptApplicant(String jobOfferId, String applicationId) {
+        applicationRepository.markAccepted(jobOfferId, applicationId);
+
+        return noContent();
     }
 
     private List<Skill> skillFromRequest(Http.Request req) {
