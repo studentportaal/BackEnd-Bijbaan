@@ -1,6 +1,7 @@
 package controllers;
 
 import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import dal.repository.CompanyRepository;
 import dal.repository.TokenRepository;
 import models.api.ApiError;
