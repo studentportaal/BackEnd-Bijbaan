@@ -167,7 +167,7 @@ public class StudentController extends Controller {
                 student.setFirstName(json.get("givenName").asText());
                 student.setInstitute("Fontys");
                 student.setEmail(email);
-                student.setRoles(new HashSet<>((Arrays.asList(Role.USER))));
+                student.setRoles(new HashSet<>((Arrays.asList(Role.USER, Role.STUDENT))));
                 try {
                     Student addedUser = studentRepository.add(student).toCompletableFuture().get();
                     return ok(toJson(JwtEncoder.toJWT(
