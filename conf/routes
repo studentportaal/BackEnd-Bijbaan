@@ -12,6 +12,7 @@ POST    /users/login                controllers.StudentController.login(req: Req
 GET     /users                      controllers.StudentController.getAllStudents()
 GET     /users/:id                  controllers.StudentController.getStudent(id: String)
 PUT     /users/:id                  controllers.StudentController.updateStudent(req: Request, id: String)
+POST    /users/:email/profile       controllers.StudentController.profile(req: Request, email: String)
 
 #JobOffers
 GET     /joboffer/:id               controllers.JobOfferController.getJobOfferById(id: String)
