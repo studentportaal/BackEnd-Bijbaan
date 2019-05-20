@@ -40,106 +40,55 @@ public class Bootstrap {
         this.skillRepository = skillRepository;
         this.applicationRepository = applicationRepository;
 
-        addUsers();
         addJobOffers();
-    }
-
-    private void addUsers() {
-        LOGGER.log(Level.WARNING, "Adding mock user data");
-        for (int i = 0; i < 9; i++) {
-            Student s = new Student();
-            s.setEmail("test" + i + "@test.nl");
-            s.setFirstName((Integer.toString(i)));
-            s.setLastName("Test");
-            s.setInstitute("Fontys");
-            s.setDateOfBirth(new Date());
-
-            byte[] salt = PasswordHelper.generateSalt();
-            byte[] password = PasswordHelper.generateHash(salt, "password");
-
-            s.setSalt(salt);
-            s.setPassword(password);
-
-            studentRepository.add(s);
-        }
     }
 
     private void addJobOffers() {
         LOGGER.log(Level.WARNING, "Adding mock joboffer data");
 
-        Company company = createCompany("test@bedrijf.nl");
-        Company company2 = createCompany("test2@bedrijf.nl");
-        company2.setName("Testcompany");
+        Company company = createCompany("sundar@google.com", "Google", "Don't be evil", "Mountain View", 1, "94040", "Googleplex");
+        Company company2 = createCompany("bill@microsoft.com", "Microsoft", "Empowering us all", "Redmond", 1, "40024", "Microsoft road");
+        Company company3 = createCompany("jeff@amazon.com", "Amazon", "Work Hard. Have Fun. Make History.", "Seattle", 1, "133769", "Amazon river");
+        Company company4 = createCompany("elon@spacex.com", "SpaceX", "Space Exploration Technologies", "Hawthorne", 1, "42351", "Milky way");
+        Company company5 = createCompany("pieter@coolblue.nl", "Coolblue", "Alles voor een glimlach", "Rotterdam", 1, "5133AA", "Blauwweg");
 
-        try {
-            companyRepository.add(company).toCompletableFuture().get();
-            companyRepository.add(company2).toCompletableFuture().get();
-        } catch (InterruptedException | ExecutionException e) {
-            e.printStackTrace();
-        }
-
-        List<Student> students = new ArrayList<>();
-        try {
-            students = studentRepository.list().toCompletableFuture().get().collect(Collectors.toList());
-        } catch (InterruptedException | ExecutionException e) {
-            e.printStackTrace();
-        }
+            companyRepository.add(company);
+            companyRepository.add(company2);
+            companyRepository.add(company3);
+            companyRepository.add(company4);
+            companyRepository.add(company5);
 
         Skill javaSkill = new Skill("Java");
         Skill cSkill  = new Skill("C#");
+        Skill goSkill = new Skill("Go");
+        Skill pSkill = new Skill("Python");
+        Skill cssSkill = new Skill("CSS");
+        Skill htmlSkill = new Skill("HTML");
 
         try {
             javaSkill = skillRepository.add(javaSkill).toCompletableFuture().get();
             cSkill = skillRepository.add(cSkill).toCompletableFuture().get();
-        } catch (InterruptedException | ExecutionException e) {
-            e.printStackTrace();
-        }
-
-        Application application = new Application();
-        application.setApplicant(students.get(0));
-
-        Application application1 = new Application();
-        application1.setApplicant(students.get(1));
-
-        Application application2 = new Application();
-        application2.setApplicant(students.get(2));
-
-        Application application3 = new Application();
-        application3.setApplicant(students.get(3));
-
-        try {
-            application = applicationRepository.add(application).toCompletableFuture().get();
-            application1 = applicationRepository.add(application1).toCompletableFuture().get();
-            application2 = applicationRepository.add(application2).toCompletableFuture().get();
-            application3 = applicationRepository.add(application3).toCompletableFuture().get();
+            goSkill = skillRepository.add(goSkill).toCompletableFuture().get();
+            pSkill = skillRepository.add(pSkill).toCompletableFuture().get();
+            cssSkill = skillRepository.add(cssSkill).toCompletableFuture().get();
+            htmlSkill = skillRepository.add(htmlSkill).toCompletableFuture().get();
         } catch (InterruptedException | ExecutionException e) {
             e.printStackTrace();
         }
 
 
 
-        JobOffer jobOffer = this.createJobOffer("Senior software developer", Arrays.asList(application),company,javaSkill);
-        JobOffer jobOffer2 = this.createJobOffer("PHP developer",Arrays.asList(application1),company,javaSkill);
-        JobOffer jobOffer3 = this.createJobOffer("Java EE developer",Arrays.asList(application2),company,javaSkill);
-        JobOffer jobOffer4 = this.createJobOffer("Awesome ASP.NET stuff",new ArrayList<>(),company,javaSkill);
-        JobOffer jobOffer5 = this.createJobOffer("HTML/CSS job offer",new ArrayList<>(),company,javaSkill);
+        JobOffer jobOffer = createJobOffer("Senior software developer", new ArrayList<>(),company,goSkill);
+        JobOffer jobOffer2 = createJobOffer("PHP developer", new ArrayList<>(),company2,htmlSkill);
+        JobOffer jobOffer3 = createJobOffer("Java EE developer",new ArrayList<>(),company3,javaSkill);
+        JobOffer jobOffer4 = createJobOffer("ASP.NET Core developer",new ArrayList<>(),company4,cSkill);
+        JobOffer jobOffer5 = createJobOffer("Junior front end developer",new ArrayList<>(),company5,cssSkill);
 
         jobRepository.addJobOffer(jobOffer);
         jobRepository.addJobOffer(jobOffer2);
         jobRepository.addJobOffer(jobOffer3);
         jobRepository.addJobOffer(jobOffer4);
         jobRepository.addJobOffer(jobOffer5);
-
-        JobOffer jobOffer1 = new JobOffer();
-        jobOffer1.setFunction("Junior Software Developer");
-        jobOffer1.setInformation("ASP.NET ");
-        jobOffer1.setLocation("Google");
-        jobOffer1.setTitle("Junior front-end developer");
-        jobOffer1.setSalary(2300);
-        jobOffer1.setApplications(Arrays.asList(application3));
-        jobOffer1.setCompany(company);
-        jobOffer1.setSkills(Arrays.asList(cSkill));
-        jobRepository.addJobOffer(jobOffer1);
 
 
         JobOffer jobOffer6 = new JobOffer();
@@ -149,14 +98,13 @@ public class Bootstrap {
         jobOffer6.setTitle("Old topofday");
         jobOffer6.setSalary(2300);
         jobOffer6.setApplications(new ArrayList<>());
-        jobOffer6.setCompany(company);
+        jobOffer6.setCompany(company2);
         long DAY_IN_MS = 1000 * 60 * 60 * 24;
-        jobOffer1.setSkills(Arrays.asList(cSkill));
         jobOffer6.setTopOfTheDay(new Date(System.currentTimeMillis() - (3 * DAY_IN_MS)));
         jobRepository.addJobOffer(jobOffer6);
     }
 
-    private Company createCompany(String email) {
+    private Company createCompany(String email, String name, String description, String city, int housenumber, String postalCode, String streetname) {
         Company company = new Company();
         company.setEmail(email);
 
@@ -166,12 +114,12 @@ public class Bootstrap {
         company.setSalt(salt);
         company.setPassword(password);
 
-        company.setName("MegaHard");
-        company.setDescription("Embrace, extend, extinguish.");
-        company.setCity("Bluemont");
-        company.setHousenumber(10000);
-        company.setPostalcode("4242XL");
-        company.setStreetname("One MegaHard Way");
+        company.setName(name);
+        company.setDescription(description);
+        company.setCity(city);
+        company.setHousenumber(housenumber);
+        company.setPostalcode(postalCode);
+        company.setStreetname(streetname);
         company.setRoles(new HashSet<>(Arrays.asList(Role.USER, Role.COMPANY)));
 
         return company;
@@ -179,9 +127,9 @@ public class Bootstrap {
 
     private JobOffer createJobOffer(String title, List<Application> applications, Company company, Skill skill){
         JobOffer jobOffer = new JobOffer();
-        jobOffer.setFunction("Senior Software Developer");
-        jobOffer.setInformation("Software maken voor geld");
-        jobOffer.setLocation("Google");
+        jobOffer.setFunction("Software developer");
+        jobOffer.setInformation("Op zoek naar een software engineer om het team uit te breiden.");
+        jobOffer.setLocation("Hoofdkantoor");
         jobOffer.setTitle(title);
         jobOffer.setSalary(4500);
         jobOffer.setApplications(applications);
