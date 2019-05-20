@@ -115,12 +115,12 @@ public class JobOffer {
         this.applications = applications;
     }
 
-    public boolean isOpen() {
+    public boolean isisOpen() {
         return isOpen;
     }
 
-    public void setOpen(boolean open) {
-        isOpen = open;
+    public void setisOpen(boolean isWat) {
+        isOpen = isWat;
     }
 
     public Date getTopOfTheDay() {
