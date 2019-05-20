@@ -1,8 +1,10 @@
 package controllers;
 
 import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import dal.repository.StudentRepository;
 import dal.repository.TokenRepository;
+import io.jsonwebtoken.Jwt;
 import models.api.ApiError;
 import models.authentication.AuthenticationToken;
 import models.authentication.JwtEncoder;
@@ -33,7 +35,6 @@ import java.util.concurrent.ExecutionException;
 import java.util.stream.Collectors;
 
 import static play.libs.Json.toJson;
-
 
 /**
  * The controller keeps all database operations behind the repository, and uses
@@ -156,7 +157,9 @@ public class StudentController extends Controller {
 
         try {
             Student student = studentRepository.getByEmail(email).toCompletableFuture().get();
-            return ok(toJson(student));
+
+            return ok(toJson(JwtEncoder.toJWT(
+                    tokenRepository.createToken(student).toCompletableFuture().get())));
         } catch (InterruptedException e) {
             return badRequest();
         } catch (ExecutionException e) {
@@ -166,12 +169,14 @@ public class StudentController extends Controller {
                 student.setLastName(json.get("surName").asText());
                 student.setFirstName(json.get("givenName").asText());
                 student.setInstitute("Fontys");
-                student.setDateOfBirth(new Date());
                 student.setEmail(email);
+                student.setRoles(new HashSet<>((Arrays.asList(Role.USER))));
 
                 try {
                     Student addedUser = studentRepository.add(student).toCompletableFuture().get();
-                    return ok(toJson(addedUser));
+
+                    return ok(toJson(JwtEncoder.toJWT(
+                            tokenRepository.createToken(addedUser).toCompletableFuture().get())));
                 } catch (InterruptedException | ExecutionException ex) {
                     return badRequest();
                 }
