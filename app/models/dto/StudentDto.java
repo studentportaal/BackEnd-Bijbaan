@@ -1,6 +1,7 @@
 package models.dto;
 
 import models.domain.Skill;
+import models.domain.Student;
 import play.data.validation.Constraints;
 
 import javax.validation.Constraint;
@@ -49,6 +50,16 @@ public class StudentDto {
         this.dateOfBirth = dateOfBirth.toString();
         this.institute = institute;
         this.skills = skills;
+    }
+
+    public StudentDto(Student student) {
+        this.uuid = student.getUuid();
+        this.email = student.getEmail();
+        this.firstName = student.getFirstName();
+        this.lastName = student.getLastName();
+        this.dateOfBirth = String.valueOf(student.getDateOfBirth());
+        this.institute = student.getInstitute();
+        this.skills = student.getSkills();
     }
 
     public String getUuid() {

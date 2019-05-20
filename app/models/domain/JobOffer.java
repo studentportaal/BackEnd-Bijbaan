@@ -8,11 +8,13 @@ import play.data.validation.Constraints;
 import javax.persistence.*;
 import java.util.Date;
 import java.util.List;
+import java.util.Set;
 
 @Entity
 @NamedQueries({
         @NamedQuery(name = "JobOffer.getJobOfferById", query = "SELECT j FROM JobOffer j WHERE j.id = :id"),
-        @NamedQuery(name = "JobOffer.getAllJobOffers", query = "SELECT j from JobOffer j")
+        @NamedQuery(name = "JobOffer.getAllJobOffers", query = "SELECT j from JobOffer j"),
+        @NamedQuery(name = "JobOffer.markClosed", query = "UPDATE JobOffer j SET j.isOpen = false WHERE id = :id")
 })
 public class JobOffer {
     @Id
@@ -30,13 +32,14 @@ public class JobOffer {
     private String function;
     @Constraints.Required
     private double salary;
-    @ManyToMany(fetch = FetchType.EAGER)
-    private List<Student> applicants;
+    @OneToMany(fetch = FetchType.EAGER)
+    private List<Application> applications;
     @ManyToMany(fetch = FetchType.EAGER)
     @Fetch(value = FetchMode.SUBSELECT)
     private List<Skill> skills;
     @ManyToOne
     private Company company;
+    private boolean isOpen = true;
 
     private Date topOfTheDay;
 
@@ -88,14 +91,6 @@ public class JobOffer {
         this.salary = salary;
     }
 
-    public List<Student> getApplicants() {
-        return applicants;
-    }
-
-    public void setApplicants(List<Student> applicants) {
-        this.applicants = applicants;
-    }
-
     public Company getCompany() {
         return company;
     }
@@ -110,6 +105,22 @@ public class JobOffer {
 
     public void setSkills(List<Skill> skills) {
         this.skills = skills;
+    }
+
+    public List<Application> getApplications() {
+        return applications;
+    }
+
+    public void setApplications(List<Application> applications) {
+        this.applications = applications;
+    }
+
+    public boolean isOpen() {
+        return isOpen;
+    }
+
+    public void setOpen(boolean open) {
+        isOpen = open;
     }
 
     public Date getTopOfTheDay() {
