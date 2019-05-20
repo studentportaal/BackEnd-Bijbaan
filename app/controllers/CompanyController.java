@@ -48,12 +48,15 @@ public class CompanyController extends Controller {
         converter = new CompanyConverter();
     }
 
-    @Authenticate(requiredRole = Role.USER)
     public Result getCompanyById(String id) {
         try {
             Company company = companyRepository.getCompanyById(id).toCompletableFuture().get();
             if (company == null) return notFound("No COMPANY");
-            return ok(toJson(company));
+            
+            JsonNode companyJson = toJson(company);
+            ((ObjectNode) companyJson).remove("password");
+            ((ObjectNode) companyJson).remove("salt");
+            return ok(companyJson);
         } catch (InterruptedException | ExecutionException e) {
             e.printStackTrace();
 
