@@ -115,7 +115,7 @@ public class JobOfferDto {
     }
 
     public void setApplications(List<ApplicationDto> applications) {
-        this.applications = this.applications;
+        this.applications = applications;
     }
 
     public String getCompany() {
