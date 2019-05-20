@@ -163,6 +163,7 @@ public class Bootstrap {
         company.setHousenumber(10000);
         company.setPostalcode("4242XL");
         company.setStreetname("One MegaHard Way");
+        company.setRoles(new HashSet<>(Arrays.asList(Role.USER, Role.COMPANY)));
 
         return company;
     }
