@@ -83,6 +83,7 @@ public class JPAStudentRepository implements StudentRepository {
         Student u = getById(em, student.getUuid());
         student.setSalt(u.getSalt());
         student.setPassword(u.getPassword());
+        student.setRoles(u.getRoles());
         em.merge(student);
         return student;
     }
