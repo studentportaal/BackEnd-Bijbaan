@@ -41,6 +41,12 @@ public class Bootstrap {
         this.applicationRepository = applicationRepository;
 
         addJobOffers();
+        addStudent();
+    }
+
+    private void addStudent(){
+        Student student = createStudent();
+        studentRepository.add(student);
     }
 
     private void addJobOffers() {
@@ -135,5 +141,20 @@ public class Bootstrap {
         jobOffer.setSkills(Arrays.asList(skill));
         jobOffer.setTopOfTheDay(new Date());
         return jobOffer;
+    }
+
+    private Student createStudent(){
+        Student student = new Student();
+        student.setEmail("student@fontys.nl");
+        byte[] salt = PasswordHelper.generateSalt();
+        byte[] password = PasswordHelper.generateHash(salt, "password");
+        student.setSalt(salt);
+        student.setPassword(password);
+        student.setLastName("Achternaam");
+        student.setFirstName("Voornaam");
+        student.setInstitute("Fontys");
+        student.setDateOfBirth(new Date());
+        student.setRoles(new HashSet<>(Arrays.asList(Role.USER,Role.STUDENT)));
+        return student;
     }
 }
