@@ -13,6 +13,7 @@ libraryDependencies += "com.h2database" % "h2" % "1.4.197"
 libraryDependencies += "org.hibernate" % "hibernate-core" % "5.4.0.Final"
 libraryDependencies += ehcache
 libraryDependencies += "mysql" % "mysql-connector-java" % "5.1.18"
+libraryDependencies += javaWs
 
 libraryDependencies += javaWs % "test"
 
