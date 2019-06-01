@@ -29,6 +29,7 @@ import play.mvc.BodyParser;
 import play.mvc.Controller;
 import play.mvc.Http;
 import play.mvc.Result;
+import web.RestClient;
 
 import javax.inject.Inject;
 import javax.persistence.NoResultException;
@@ -50,18 +51,21 @@ public class JobOfferController extends Controller {
     private final CompanyRepository companyRepository;
     private final ApplicationRepository applicationRepository;
     private final StudentRepository studentRepository;
+    private final RestClient restClient;
 
     @Inject
     public JobOfferController(FormFactory formFactory,
                               JobOfferRepository jobOfferRepository,
                               CompanyRepository companyRepository,
                               ApplicationRepository applicationRepository,
-                              StudentRepository studentRepository) {
+                              StudentRepository studentRepository,
+                              RestClient restClient) {
         this.formFactory = formFactory;
         this.jobOfferRepository = jobOfferRepository;
         this.companyRepository = companyRepository;
         this.applicationRepository = applicationRepository;
         this.studentRepository = studentRepository;
+        this.restClient = restClient;
     }
 
     @BodyParser.Of(BodyParser.Json.class)
@@ -194,6 +198,15 @@ public class JobOfferController extends Controller {
 
     public Result acceptApplicant(String jobOfferId, String applicationId) {
         applicationRepository.markAccepted(jobOfferId, applicationId);
+
+        try {
+            JobOffer j = jobOfferRepository.getJobOfferById(jobOfferId).toCompletableFuture().get();
+            Application a = applicationRepository.get(applicationId).toCompletableFuture().get();
+
+            restClient.createReviews(j.getCompany().getUuid(), a.getApplicant().getUuid());
+        } catch (InterruptedException | ExecutionException e) {
+            e.printStackTrace();
+        }
 
         return noContent();
     }
