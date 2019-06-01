@@ -47,6 +47,19 @@ public class Bootstrap {
     private void addStudent(){
         Student student = createStudent();
         studentRepository.add(student);
+        applyForJobOffer(student);
+    }
+
+    private void applyForJobOffer(Student student){
+        Application application = new Application(student, new Date(), false);
+        applicationRepository.add(application);
+        try {
+            jobRepository.applyForJob(application, jobRepository.getAllJobOffers().toCompletableFuture().get().get(0).getId());
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        } catch (ExecutionException e) {
+            e.printStackTrace();
+        }
     }
 
     private void addJobOffers() {

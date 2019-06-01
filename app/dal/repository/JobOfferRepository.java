@@ -31,4 +31,7 @@ public interface JobOfferRepository {
     CompletionStage<JobOffer> setTopOfDay(String id, Date topOfDay);
 
     CompletionStage<List<JobOffer>> getAllTopOfDays();
+
+    CompletionStage<List<JobOffer>> getForUser(String id);
+
 }
