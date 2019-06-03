@@ -104,7 +104,6 @@ public class JobOfferController extends Controller {
     @BodyParser.Of(BodyParser.Json.class)
     @Authenticate(requiredRole = Role.STUDENT)
     public Result applyForJob(final Http.Request request, String id) {
-
         JsonNode json = request.body().asJson();
         ApplicationDto applicationDto = Json.fromJson(json, ApplicationDto.class);
 
@@ -226,5 +225,16 @@ public class JobOfferController extends Controller {
         return skillSet.stream()
                 .map(Skill::new)
                 .collect(Collectors.toList());
+    }
+
+    public Result appliedJobOffers(String id){
+        try {
+            return ok(toJson(jobOfferRepository.getForUser(id).toCompletableFuture().get().stream().map(JobOfferDto::new).collect(Collectors.toList())));
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        } catch (ExecutionException e) {
+            e.printStackTrace();
+        }
+        return badRequest();
     }
 }

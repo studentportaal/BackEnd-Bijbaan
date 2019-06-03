@@ -13,6 +13,7 @@ GET     /users                      controllers.StudentController.getAllStudents
 GET     /users/:id                  controllers.StudentController.getStudent(id: String)
 PUT     /users/:id                  controllers.StudentController.updateStudent(req: Request, id: String)
 POST    /users/:email/profile       controllers.StudentController.profile(req: Request, email: String)
+GET     /users/:id/applications     controllers.JobOfferController.appliedJobOffers(id: String)
 
 #JobOffers
 GET     /joboffer/:id               controllers.JobOfferController.getJobOfferById(id: String)
@@ -25,6 +26,7 @@ PATCH   /joboffer/:id/skills        controllers.JobOfferController.setSkills(req
 PATCH   /joboffer/:jobId/applications/:id  controllers.JobOfferController.acceptApplicant(jobId: String, id: String)
 POST    /joboffer/topofday          controllers.JobOfferController.setTopOfDay(req: Request)
 GET     /joboffer/topofday/all      controllers.JobOfferController.getAllTopOfDays()
+
 
 #Company
 POST    /company                    controllers.CompanyController.addCompany(request: Request)
@@ -41,3 +43,4 @@ GET     /skills                     controllers.SkillController.getAll(query: St
 GET     /auth/token/refresh         controllers.auth.TokenController.refreshToken(refreshKey: String, userId: String)
 DELETE  /auth/token/:id             controllers.auth.TokenController.deleteToken(request: Request, id: String)
 GET     /auth/me                    controllers.auth.MeController.me(request: Request)
+
