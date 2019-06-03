@@ -14,7 +14,9 @@ import java.util.Set;
 @NamedQueries({
         @NamedQuery(name = "JobOffer.getJobOfferById", query = "SELECT j FROM JobOffer j WHERE j.id = :id"),
         @NamedQuery(name = "JobOffer.getAllJobOffers", query = "SELECT j from JobOffer j"),
-        @NamedQuery(name = "JobOffer.markClosed", query = "UPDATE JobOffer j SET j.isOpen = false WHERE id = :id")
+        @NamedQuery(name = "JobOffer.markClosed", query = "UPDATE JobOffer j SET j.isOpen = false WHERE id = :id"),
+        @NamedQuery(name = "JobOffer.getByApplicant", query = "SELECT j FROM JobOffer j JOIN j.applications a WHERE a.applicant.id = :id ")
+
 })
 public class JobOffer {
     @Id
