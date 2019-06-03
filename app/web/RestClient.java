@@ -17,7 +17,7 @@ import java.util.logging.Logger;
 public class RestClient implements WSBodyReadables, WSBodyWritables {
     private final Logger LOGGER = Logger.getLogger(RestClient.class.getName());
     private final WSClient ws;
-    private final String reviewUrl = "https://us-central1-pts6-bijbaan.cloudfunctions.net/addReview";
+    private final String reviewUrl = "https://europe-west1-pts6-bijbaan.cloudfunctions.net/addReview";
 
     @Inject
     public RestClient(WSClient ws) {
