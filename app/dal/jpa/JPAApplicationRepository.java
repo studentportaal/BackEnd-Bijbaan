@@ -4,6 +4,7 @@ import dal.context.DatabaseExecutionContext;
 import dal.repository.ApplicationRepository;
 import models.domain.Application;
 import play.db.jpa.JPAApi;
+import scala.App;
 
 import javax.inject.Inject;
 import javax.persistence.EntityManager;
@@ -54,7 +55,7 @@ public class JPAApplicationRepository implements ApplicationRepository {
 
     @Override
     public CompletionStage<List<Application>> getByCompnay(String id) {
-        return supplyAsync(() -> wrap(em -> getByCompany(em, id)), executionContext);
+        return supplyAsync(() -> wrap(em -> getByCompanyQuery(em, id)), executionContext);
     }
 
     @Override
@@ -91,7 +92,7 @@ public class JPAApplicationRepository implements ApplicationRepository {
         return query.getSingleResult();
     }
 
-    private List<Application> getByCompany(EntityManager em, String id) {
+    private List<Application> getByCompanyQuery(EntityManager em, String id) {
         TypedQuery<Application> query = em.createNamedQuery("Application.getByCompany", Application.class);
         query.setParameter("id", id);
 
