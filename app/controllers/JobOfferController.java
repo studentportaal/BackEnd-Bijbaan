@@ -34,7 +34,6 @@ import web.RestClient;
 import javax.inject.Inject;
 import javax.persistence.NoResultException;
 import java.io.IOException;
-import java.text.ParseException;
 import java.util.Date;
 import java.util.List;
 import java.util.Set;
@@ -154,9 +153,9 @@ public class JobOfferController extends Controller {
         }
     }
 
-    public Result getJobOfferCount() {
+    public Result getJobOfferCount(String companies) {
         try {
-            return ok(toJson(jobOfferRepository.getJobOfferCount().toCompletableFuture().get()));
+            return ok(toJson(jobOfferRepository.getJobOfferCount(companies).toCompletableFuture().get()));
         } catch (InterruptedException | ExecutionException e) {
             e.printStackTrace();
             return badRequest(toJson(new ApiError<>("Oops something went wrong")));

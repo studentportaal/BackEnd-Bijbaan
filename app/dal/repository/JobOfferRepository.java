@@ -22,7 +22,7 @@ public interface JobOfferRepository {
 
     CompletionStage<List<JobOffer>> getAllJobOffers();
 
-    CompletionStage<String> getJobOfferCount();
+    CompletionStage<String> getJobOfferCount(String companies);
 
     CompletionStage<JobOffer> applyForJob(Application application, String id);
 
