@@ -166,7 +166,7 @@ public class JPAJobOfferRepository implements JobOfferRepository {
     }
 
     private List<JobOffer> allTopOfDays(EntityManager em){
-        TypedQuery<JobOffer> jobOffers = em.createQuery("FROM JobOffer j WHERE j.topOfTheDay > timestampadd(hour, -24, now()) AND j.topOfTheDay IS NOT NULL ORDER BY RAND()", JobOffer.class);
+        TypedQuery<JobOffer> jobOffers = em.createQuery("FROM JobOffer j WHERE j.topOfTheDay > timestampadd(hour, -24, now()) AND j.topOfTheDay IS NOT NULL AND j.isOpen = true ORDER BY RAND()", JobOffer.class);
         return jobOffers.setMaxResults(3).getResultList();
     }
 
