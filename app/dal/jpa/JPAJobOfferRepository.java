@@ -21,6 +21,7 @@ import java.util.function.Function;
 import static java.util.concurrent.CompletableFuture.supplyAsync;
 
 
+@SuppressWarnings("duplicate")
 public class JPAJobOfferRepository implements JobOfferRepository {
 
     private final JPAApi jpaApi;
@@ -80,9 +81,9 @@ public class JPAJobOfferRepository implements JobOfferRepository {
     }
 
     @Override
-    public CompletionStage<String> getJobOfferCount() {
+    public CompletionStage<Long> getJobOfferCount(String companies, boolean isOpen, String skills, String title) {
         return supplyAsync(()
-                -> wrap(this::count), executionContext);
+                -> wrap(em -> count(em, companies, isOpen, skills, title)), executionContext);
     }
 
     @Override
@@ -140,15 +141,49 @@ public class JPAJobOfferRepository implements JobOfferRepository {
         return jpaApi.withTransaction(function);
     }
 
-    private String count(EntityManager em) {
-        Query q = em.createQuery("SELECT COUNT (j) FROM JobOffer j");
-        return q.getSingleResult().toString();
+    @SuppressWarnings("unchecked")
+    private Long count(EntityManager em, String companies, boolean isOpen, String skills, String title) {
+        CriteriaBuilder cb = em.getCriteriaBuilder();
+        CriteriaQuery critQuery = cb.createQuery();
+        Root root = critQuery.from(JobOffer.class);
 
+        List<Predicate> predicates = new ArrayList<>();
+
+        predicates.add(
+                cb.and(cb.equal((root.get("isOpen")), isOpen)));
+
+        if (title != null) {
+            predicates.add(
+                    cb.and(cb.like(
+                            cb.upper(root.get("title")),
+                            "%" + title.toUpperCase() + "%")));
+        }
+
+        if (companies != null && companies.length() != 0) {
+            Join<JobOffer, Company> companyJoin = root.join("company");
+            List<String> companyList = Arrays.asList(companies.split(","));
+
+            Expression<String> exp = companyJoin.get("uuid");
+            predicates.add(exp.in(companyList));
+        }
+
+        if (skills != null && skills.length() != 0) {
+            Join<JobOffer, Skill> skillJoin = root.join("skills");
+            List<String> skillList = Arrays.asList(skills.split(","));
+
+            Expression<String> exp = skillJoin.get("id");
+            predicates.add(exp.in(skillList));
+        }
+
+        critQuery = critQuery.select(cb.count(root));
+
+        Query query = em.createQuery(critQuery.where(cb.and(predicates.toArray(new Predicate[predicates.size()]))));
+
+        return (Long) query.getSingleResult();
     }
 
     @SuppressWarnings("unchecked")
     private List<JobOffer> list(EntityManager em, int startNr, int amount, String companies, boolean isOpen, String skills, String title) {
-
         CriteriaBuilder cb = em.getCriteriaBuilder();
         CriteriaQuery<JobOffer> critQuery = cb.createQuery(JobOffer.class);
         Root<JobOffer> root = critQuery.from(JobOffer.class);
@@ -162,8 +197,7 @@ public class JPAJobOfferRepository implements JobOfferRepository {
             predicates.add(
                     cb.and(cb.like(
                             cb.upper(root.get("title")),
-                            "%" + title.toUpperCase() + "%")
-                    ));
+                            "%" + title.toUpperCase() + "%")));
         }
 
         if (companies != null && companies.length() != 0) {

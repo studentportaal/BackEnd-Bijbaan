@@ -154,9 +154,9 @@ public class JobOfferController extends Controller {
         }
     }
 
-    public Result getJobOfferCount() {
+    public Result getJobOfferCount(String companies, boolean open, String skills, String title) {
         try {
-            return ok(toJson(jobOfferRepository.getJobOfferCount().toCompletableFuture().get()));
+            return ok(toJson(jobOfferRepository.getJobOfferCount(companies, open, skills, title).toCompletableFuture().get()));
         } catch (InterruptedException | ExecutionException e) {
             e.printStackTrace();
             return badRequest(toJson(new ApiError<>("Oops something went wrong")));
