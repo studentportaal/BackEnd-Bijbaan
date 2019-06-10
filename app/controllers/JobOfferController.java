@@ -163,12 +163,12 @@ public class JobOfferController extends Controller {
         }
     }
 
-    public Result getAllJobOffers(String startNr, String amount, String companies, boolean open) {
+    public Result getAllJobOffers(String startNr, String amount, String companies, boolean open, String skills, String title) {
 
         if (startNr != null && amount != null) {
             if (Parser.stringToInt(startNr) && Parser.stringToInt(amount)) {
                 try {
-                    return ok(toJson(jobOfferRepository.getAllJobOffers(Integer.parseInt(startNr), Integer.parseInt(amount), companies, open)
+                    return ok(toJson(jobOfferRepository.getAllJobOffers(Integer.parseInt(startNr), Integer.parseInt(amount), companies, open, skills, title)
                             .toCompletableFuture()
                             .get().stream().map(JobOfferDto::new).collect(Collectors.toList())));
                 } catch (InterruptedException | ExecutionException e) {
