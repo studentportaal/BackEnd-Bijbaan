@@ -3,6 +3,7 @@ package dal.jpa;
 import dal.context.DatabaseExecutionContext;
 import dal.repository.JobOfferRepository;
 import models.domain.Application;
+import models.domain.Company;
 import models.domain.JobOffer;
 import models.domain.Skill;
 import play.db.jpa.JPAApi;
@@ -10,6 +11,7 @@ import play.db.jpa.JPAApi;
 import javax.inject.Inject;
 import javax.persistence.*;
 import javax.persistence.criteria.*;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
@@ -144,36 +146,48 @@ public class JPAJobOfferRepository implements JobOfferRepository {
 
     }
 
+    @SuppressWarnings("unchecked")
     private List<JobOffer> list(EntityManager em, int startNr, int amount, String companies, boolean isOpen, String skills, String title) {
-        TypedQuery<JobOffer> jobOffers;
 
-        if (companies != null && !companies.isEmpty()) {
+        CriteriaBuilder cb = em.getCriteriaBuilder();
+        CriteriaQuery<JobOffer> critQuery = cb.createQuery(JobOffer.class);
+        Root<JobOffer> root = critQuery.from(JobOffer.class);
+
+        List<Predicate> predicates = new ArrayList<>();
+
+        predicates.add(
+                cb.and(cb.equal((root.get("isOpen")), isOpen)));
+
+        if (title != null) {
+            predicates.add(
+                    cb.and(cb.like(
+                            cb.upper(root.get("title")),
+                            "%" + title.toUpperCase() + "%")
+                    ));
+        }
+
+        if (companies != null && companies.length() != 0) {
+            Join<JobOffer, Company> companyJoin = root.join("company");
             List<String> companyList = Arrays.asList(companies.split(","));
 
-            jobOffers = em.createQuery("FROM JobOffer j JOIN j.skills AS skills  WHERE j.company.uuid IN :companies AND j.isOpen = :open AND skills.id IN :skills AND j.title = :title", JobOffer.class);
-            jobOffers.setParameter("companies", companyList);
-            jobOffers.setParameter("open", isOpen);
-            jobOffers.setParameter("title", "%" + title + "%");
-        } else if (skills != null && !skills.isEmpty()) {
+            Expression<String> exp = companyJoin.get("uuid");
+            predicates.add(exp.in(companyList));
+        }
+
+        if (skills != null && skills.length() != 0) {
+            Join<JobOffer, Skill> skillJoin = root.join("skills");
             List<String> skillList = Arrays.asList(skills.split(","));
 
-            jobOffers = em.createQuery("SELECT j FROM JobOffer j JOIN j.skills AS skills WHERE j.isOpen = :open AND skills.id IN (:skills) AND j.title = :title", JobOffer.class);
-            jobOffers.setParameter("open", isOpen);
-            jobOffers.setParameter("skills", skillList);
-
-            if(title != null) {
-                jobOffers.setParameter("title", "%" + title + "%");
-            } else {
-                jobOffers.setParameter("title", "%");
-            }
-
-        } else {
-            jobOffers = em.createQuery("FROM JobOffer j WHERE j.isOpen = :open", JobOffer.class);
-            jobOffers.setParameter("open", isOpen);
+            Expression<String> exp = skillJoin.get("id");
+            predicates.add(exp.in(skillList));
         }
-        jobOffers.setFirstResult(startNr);
-        jobOffers.setMaxResults(amount);
-        return jobOffers.getResultList();
+
+        Query query = em.createQuery(critQuery.where(cb.and(predicates.toArray(new Predicate[predicates.size()]))));
+
+        query.setFirstResult(startNr);
+        query.setMaxResults(amount);
+
+        return query.getResultList();
     }
 
     private List<JobOffer> allList(EntityManager em) {
