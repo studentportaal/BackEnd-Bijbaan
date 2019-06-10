@@ -32,6 +32,7 @@ import web.RestClient;
 import javax.validation.Validation;
 import javax.validation.ValidatorFactory;
 import java.io.IOException;
+import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -255,12 +256,12 @@ public class JobOfferControllerTest {
             jobOfferList.add(jobOffer);
         }
 
-        when(repository.getJobOfferCount()).thenReturn(supplyAsync(() -> String.valueOf(jobOfferList.size())));
+        when(repository.getJobOfferCount("")).thenReturn(supplyAsync(() -> String.valueOf(jobOfferList.size())));
         request = Helpers.fakeRequest("GET", "/").build().withTransientLang("es");
         when(messagesApi.preferred(request)).thenReturn(messages);
 
         final JobOfferController controller = new JobOfferController(formFactory, repository, companyRepository, applicationRepository, studentRepository, restClient);
-        Result stage = controller.getJobOfferCount();
+        Result stage = controller.getJobOfferCount("");
         String result = contentAsString(stage);
 
         assertTrue(result.contains("11"));
