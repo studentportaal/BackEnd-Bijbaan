@@ -142,10 +142,10 @@ public class JPAJobOfferRepository implements JobOfferRepository {
         Query q;
         if (companies != null && !companies.isEmpty()) {
             List<String> companyList = Arrays.asList(companies.split(","));
-            q = em.createQuery("SELECT COUNT (j) FROM JobOffer j WHERE company_uuid IN :companies")
+            q = em.createQuery("SELECT COUNT (j) FROM JobOffer j WHERE company_uuid IN :companies  AND j.isOpen = true")
             .setParameter("companies",companyList);
         } else{
-            q = em.createQuery("SELECT COUNT (j) FROM JobOffer j");
+            q = em.createQuery("SELECT COUNT (j) FROM JobOffer j  WHERE j.isOpen = true");
         }
         return q.getSingleResult().toString();
 
