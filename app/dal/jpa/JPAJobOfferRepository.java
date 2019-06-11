@@ -153,10 +153,13 @@ public class JPAJobOfferRepository implements JobOfferRepository {
                 cb.and(cb.equal((root.get("isOpen")), isOpen)));
 
         if (title != null) {
-            predicates.add(
-                    cb.and(cb.like(
-                            cb.upper(root.get("title")),
-                            "%" + title.toUpperCase() + "%")));
+            Predicate orPredicate = cb.or(
+                    cb.like(cb.upper(root.get("title")),
+                            "%" + title.toUpperCase() + "%"),
+                    cb.like(cb.upper(root.get("information")),
+                            "%" + title.toUpperCase() + "%"));
+
+            predicates.add(cb.and(orPredicate));
         }
 
         if (companies != null && companies.length() != 0) {
@@ -194,10 +197,13 @@ public class JPAJobOfferRepository implements JobOfferRepository {
                 cb.and(cb.equal((root.get("isOpen")), isOpen)));
 
         if (title != null) {
-            predicates.add(
-                    cb.and(cb.like(
-                            cb.upper(root.get("title")),
-                            "%" + title.toUpperCase() + "%")));
+            Predicate orPredicate = cb.or(
+                    cb.like(cb.upper(root.get("title")),
+                            "%" + title.toUpperCase() + "%"),
+                    cb.like(cb.upper(root.get("information")),
+                            "%" + title.toUpperCase() + "%"));
+
+            predicates.add(cb.and(orPredicate));
         }
 
         if (companies != null && companies.length() != 0) {
