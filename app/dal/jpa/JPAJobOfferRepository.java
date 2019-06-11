@@ -21,7 +21,7 @@ import java.util.function.Function;
 import static java.util.concurrent.CompletableFuture.supplyAsync;
 
 
-@SuppressWarnings("duplicate")
+@SuppressWarnings({"duplicate", "Duplicates"})
 public class JPAJobOfferRepository implements JobOfferRepository {
 
     private final JPAApi jpaApi;
