@@ -233,7 +233,7 @@ public class JobOfferControllerTest {
         when(messagesApi.preferred(request)).thenReturn(messages);
 
         final JobOfferController controller = new JobOfferController(formFactory, repository, companyRepository, applicationRepository, studentRepository, restClient);
-        Result stage = controller.getAllJobOffers(null, null, null, false);
+        Result stage = controller.getAllJobOffers(null, null, null, false, null, null);
         String result = contentAsString(stage);
 
         List<JobOffer> jobOffers = new ArrayList<>();
@@ -255,12 +255,12 @@ public class JobOfferControllerTest {
             jobOfferList.add(jobOffer);
         }
 
-        when(repository.getJobOfferCount()).thenReturn(supplyAsync(() -> String.valueOf(jobOfferList.size())));
+        when(repository.getJobOfferCount(null, false, null, null)).thenReturn(supplyAsync(() -> (long) jobOfferList.size()));
         request = Helpers.fakeRequest("GET", "/").build().withTransientLang("es");
         when(messagesApi.preferred(request)).thenReturn(messages);
 
         final JobOfferController controller = new JobOfferController(formFactory, repository, companyRepository, applicationRepository, studentRepository, restClient);
-        Result stage = controller.getJobOfferCount();
+        Result stage = controller.getJobOfferCount(null, false, null, null);
         String result = contentAsString(stage);
 
         assertTrue(result.contains("11"));
@@ -274,7 +274,7 @@ public class JobOfferControllerTest {
             jobOfferList.add(jobOffer);
         }
 
-        when(repository.getAllJobOffers(0, 100, "testbedrijf", true)).thenReturn(supplyAsync(() -> {
+        when(repository.getAllJobOffers(0, 100, "testbedrijf", true, null, null)).thenReturn(supplyAsync(() -> {
             List<JobOffer> paginatedList = new ArrayList<>();
             for (int x = 0; x < 100; x++) {
                 paginatedList.add(jobOfferList.get(x));
@@ -286,7 +286,7 @@ public class JobOfferControllerTest {
         when(messagesApi.preferred(request)).thenReturn(messages);
 
         final JobOfferController controller = new JobOfferController(formFactory, repository, companyRepository, applicationRepository, studentRepository, restClient);
-        Result stage = controller.getAllJobOffers("0", "100", "testbedrijf", true);
+        Result stage = controller.getAllJobOffers("0", "100", "testbedrijf", true, null, null);
         String result = contentAsString(stage);
 
         List<JobOffer> jobOffers = new ArrayList<>();
@@ -304,11 +304,11 @@ public class JobOfferControllerTest {
     public void getAllJobOffersPaginatedInvalidParameters() {
         List<JobOffer> jobOfferList = new ArrayList<>();
 
-        when(repository.getAllJobOffers(0, 5, "x", true)).thenReturn(supplyAsync(() -> jobOfferList));
+        when(repository.getAllJobOffers(0, 5, "x", true, null, null)).thenReturn(supplyAsync(() -> jobOfferList));
         request = Helpers.fakeRequest("GET", "/").build().withTransientLang("es");
 
         final JobOfferController controller = new JobOfferController(formFactory, repository, companyRepository, applicationRepository, studentRepository, restClient);
-        Result stage = controller.getAllJobOffers("test", "henk", "nep-bedrijf", true);
+        Result stage = controller.getAllJobOffers("test", "henk", "nep-bedrijf", true, null, null);
         String result = contentAsString(stage);
 
         ApiError error = Json.fromJson(Json.parse(result), ApiError.class);
@@ -316,7 +316,7 @@ public class JobOfferControllerTest {
         assertEquals(400, stage.status());
         assertEquals("parameters need to be a number", error.getMessage());
 
-        Result stage2 = controller.getAllJobOffers("20", "test", "echt-bedrijf", true);
+        Result stage2 = controller.getAllJobOffers("20", "test", "echt-bedrijf", true, null, null);
         String result2 = contentAsString(stage);
 
         ApiError error2 = Json.fromJson(Json.parse(result2), ApiError.class);
@@ -324,17 +324,12 @@ public class JobOfferControllerTest {
         assertEquals(400, stage2.status());
         assertEquals("parameters need to be a number", error2.getMessage());
 
-        Result stage3 = controller.getAllJobOffers("test", "100", "niet-zo-echt-bedrijf", true);
+        Result stage3 = controller.getAllJobOffers("test", "100", "niet-zo-echt-bedrijf", true, null, null);
         String result3 = contentAsString(stage3);
 
         ApiError error3 = Json.fromJson(Json.parse(result3), ApiError.class);
 
         assertEquals(400, stage3.status());
         assertEquals("parameters need to be a number", error3.getMessage());
-    }
-
-    @Test
-    public void applyForJob(){
-        // TODO fix this test.
     }
 }
