@@ -18,11 +18,11 @@ public interface JobOfferRepository {
 
     CompletionStage<JobOffer> getJobOfferById(String id);
 
-    CompletionStage<List<JobOffer>> getAllJobOffers(int startNr, int amount, String companies, boolean isOpen);
+    CompletionStage<List<JobOffer>> getAllJobOffers(int startNr, int amount, String companies, boolean isOpen, String skills,String title);
 
     CompletionStage<List<JobOffer>> getAllJobOffers();
 
-    CompletionStage<String> getJobOfferCount(String companies);
+    CompletionStage<Long> getJobOfferCount(String companies, boolean isOpen, String skills,String title);
 
     CompletionStage<JobOffer> applyForJob(Application application, String id);
 
