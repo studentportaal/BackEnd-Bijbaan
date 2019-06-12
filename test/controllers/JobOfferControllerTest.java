@@ -32,6 +32,7 @@ import web.RestClient;
 import javax.validation.Validation;
 import javax.validation.ValidatorFactory;
 import java.io.IOException;
+import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.List;
 
