@@ -15,6 +15,8 @@ import javax.transaction.Transactional;
 import java.util.concurrent.CompletionStage;
 import java.util.concurrent.ExecutionException;
 
+import static play.libs.Json.toJson;
+
 public class TokenController extends Controller {
 
     private TokenRepository tokenRepository;
@@ -37,7 +39,7 @@ public class TokenController extends Controller {
             return badRequest("Could not refresh token");
         try {
             tokenRepository.deleteToken(token);
-            return ok(JwtEncoder.toJWT(tokenRepository.createToken(token.getUser()).toCompletableFuture().get()));
+            return ok(toJson(JwtEncoder.toJWT(tokenRepository.createToken(token.getUser()).toCompletableFuture().get())));
         } catch (InterruptedException | ExecutionException e) {
             e.printStackTrace();
             return internalServerError("Could not create token");

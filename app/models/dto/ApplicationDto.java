@@ -16,6 +16,7 @@ public class ApplicationDto {
     private String id;
     @Constraints.Required
     private StudentDto applicant;
+    private String motivationLetter;
     private Date applicationDate = new Date();
     private boolean accepted = false;
 
@@ -23,9 +24,10 @@ public class ApplicationDto {
         // Required no-args constructor
     }
 
-    public ApplicationDto(String id, StudentDto applicant, Date applicationDate, boolean accepted) {
+    public ApplicationDto(String id, StudentDto applicant, String motivationLetter, Date applicationDate, boolean accepted) {
         this.id = id;
         this.applicant = applicant;
+        this.motivationLetter = motivationLetter;
         this.applicationDate = applicationDate;
         this.accepted = accepted;
     }
@@ -35,6 +37,7 @@ public class ApplicationDto {
         this.applicant = new StudentDto(application.getApplicant());
         this.applicationDate = application.getApplicationDate();
         this.accepted = application.isAccepted();
+        this.motivationLetter = application.getMotivationLetter();
     }
 
     public String getId() {
@@ -75,6 +78,8 @@ public class ApplicationDto {
         if( application.getApplicant() != null) {
             application.setId(this.id);
         }
+
+        application.setMotivationLetter(this.motivationLetter);
         application.setAccepted(this.accepted);
         try {
             application.setApplicant(repository.getById(this.applicant.getUuid()).toCompletableFuture().get());
@@ -87,4 +92,11 @@ public class ApplicationDto {
         return application;
     }
 
+    public String getMotivationLetter() {
+        return motivationLetter;
+    }
+
+    public void setMotivationLetter(String motivationLetter) {
+        this.motivationLetter = motivationLetter;
+    }
 }

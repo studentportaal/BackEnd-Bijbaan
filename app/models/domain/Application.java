@@ -22,6 +22,8 @@ public class Application {
     private String id;
     @ManyToOne
     private Student applicant;
+    @Column(columnDefinition = "TEXT")
+    private String motivationLetter;
     private Date applicationDate = new Date();
     private boolean accepted = false;
 
@@ -29,8 +31,9 @@ public class Application {
         // Required no-arg constructor
     }
 
-    public Application(Student applicant, Date applicationDate, boolean accepted) {
+    public Application(Student applicant, String motivationLetter, Date applicationDate, boolean accepted) {
         this.applicant = applicant;
+        this.motivationLetter = motivationLetter;
         this.applicationDate = applicationDate;
         this.accepted = accepted;
     }
@@ -67,4 +70,11 @@ public class Application {
         this.accepted = accepted;
     }
 
+    public String getMotivationLetter() {
+        return motivationLetter;
+    }
+
+    public void setMotivationLetter(String motivationLetter) {
+        this.motivationLetter = motivationLetter;
+    }
 }
