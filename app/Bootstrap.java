@@ -51,7 +51,7 @@ public class Bootstrap {
     }
 
     private void applyForJobOffer(Student student){
-        Application application = new Application(student, "Ik wil graag een baan want ik vind het bedrijf cool", new Date(), false);
+        Application application = new Application(student, "<h3>Ik wil graag een baan want ik vind het bedrijf cool</h3> <p> Verder vind ik het leuk om te werken aan dingen</p> <p>Als laatste vind ik het opdoen van informatie ook erg fijn</p>", new Date(), false);
         applicationRepository.add(application);
         try {
             jobRepository.applyForJob(application, jobRepository.getAllJobOffers().toCompletableFuture().get().get(0).getId());
