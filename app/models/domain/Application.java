@@ -22,6 +22,7 @@ public class Application {
     private String id;
     @ManyToOne
     private Student applicant;
+    @Column(columnDefinition = "TEXT")
     private String motivationLetter;
     private Date applicationDate = new Date();
     private boolean accepted = false;
