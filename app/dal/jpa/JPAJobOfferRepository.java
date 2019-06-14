@@ -3,13 +3,15 @@ package dal.jpa;
 import dal.context.DatabaseExecutionContext;
 import dal.repository.JobOfferRepository;
 import models.domain.Application;
+import models.domain.Company;
 import models.domain.JobOffer;
 import models.domain.Skill;
-import models.domain.Student;
 import play.db.jpa.JPAApi;
 
 import javax.inject.Inject;
 import javax.persistence.*;
+import javax.persistence.criteria.*;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
@@ -19,6 +21,7 @@ import java.util.function.Function;
 import static java.util.concurrent.CompletableFuture.supplyAsync;
 
 
+@SuppressWarnings({"duplicate", "Duplicates"})
 public class JPAJobOfferRepository implements JobOfferRepository {
 
     private final JPAApi jpaApi;
@@ -43,11 +46,11 @@ public class JPAJobOfferRepository implements JobOfferRepository {
 
     @Override
     public CompletionStage<JobOffer> updateJobOffer(JobOffer jobOffer) {
-        JobOffer j = wrap( em -> getJobOfferById(em, jobOffer.getId()));
+        JobOffer j = wrap(em -> getJobOfferById(em, jobOffer.getId()));
         jobOffer.setApplications(j.getApplications());
         jobOffer.setCompany(j.getCompany());
         return supplyAsync(()
-                -> wrap(em ->update(em, jobOffer)), executionContext);
+                -> wrap(em -> update(em, jobOffer)), executionContext);
     }
 
     @Override
@@ -56,9 +59,9 @@ public class JPAJobOfferRepository implements JobOfferRepository {
     }
 
     @Override
-    public CompletionStage<List<JobOffer>> getAllJobOffers(int startNr, int amount, String companies, boolean isOpen) {
+    public CompletionStage<List<JobOffer>> getAllJobOffers(int startNr, int amount, String companies, boolean isOpen, String skills, String title) {
         return supplyAsync(()
-                -> wrap(em -> list(em, startNr, amount, companies, isOpen)), executionContext);
+                -> wrap(em -> list(em, startNr, amount, companies, isOpen, skills, title)), executionContext);
     }
 
     @Override
@@ -67,7 +70,7 @@ public class JPAJobOfferRepository implements JobOfferRepository {
                 -> wrap(this::allList), executionContext);
     }
 
-    public JobOffer getJobOfferById(EntityManager em, String id ){
+    public JobOffer getJobOfferById(EntityManager em, String id) {
         try {
             TypedQuery<JobOffer> namedQuery = em.createNamedQuery("JobOffer.getJobOfferById", JobOffer.class);
             namedQuery.setParameter("id", id);
@@ -78,19 +81,19 @@ public class JPAJobOfferRepository implements JobOfferRepository {
     }
 
     @Override
-    public CompletionStage<String> getJobOfferCount() {
+    public CompletionStage<Long> getJobOfferCount(String companies, boolean isOpen, String skills, String title) {
         return supplyAsync(()
-                -> wrap(this::count), executionContext);
+                -> wrap(em -> count(em, companies, isOpen, skills, title)), executionContext);
     }
 
     @Override
     public CompletionStage<JobOffer> applyForJob(Application application, String id) {
 
-            JobOffer offer = wrap(em -> getJobOfferById(em, id));
-            offer.getApplications().add(application);
+        JobOffer offer = wrap(em -> getJobOfferById(em, id));
+        offer.getApplications().add(application);
 
-            return supplyAsync(()
-                    -> wrap(em -> update(em, offer)));
+        return supplyAsync(()
+                -> wrap(em -> update(em, offer)));
     }
 
     @Override
@@ -105,12 +108,12 @@ public class JPAJobOfferRepository implements JobOfferRepository {
     @Override
     public CompletionStage<JobOffer> setTopOfDay(String id, Date topOfDay) {
         JobOffer offer = wrap(em -> getJobOfferById(em, id));
-        if(offer.getTopOfTheDay() == null){
+        if (offer.getTopOfTheDay() == null) {
             offer.setTopOfTheDay(new Date());
         }
         offer.setTopOfTheDay(topOfDay);
 
-        return supplyAsync(() -> wrap(em -> update(em,offer)));
+        return supplyAsync(() -> wrap(em -> update(em, offer)));
     }
 
     @Override
@@ -138,26 +141,93 @@ public class JPAJobOfferRepository implements JobOfferRepository {
         return jpaApi.withTransaction(function);
     }
 
-    private String count(EntityManager em) {
-        Query q = em.createQuery("SELECT COUNT (j) FROM JobOffer j");
-        return q.getSingleResult().toString();
+    @SuppressWarnings("unchecked")
+    private Long count(EntityManager em, String companies, boolean isOpen, String skills, String title) {
+        CriteriaBuilder cb = em.getCriteriaBuilder();
+        CriteriaQuery critQuery = cb.createQuery();
+        Root root = critQuery.from(JobOffer.class);
 
+        List<Predicate> predicates = new ArrayList<>();
+
+        predicates.add(
+                cb.and(cb.equal((root.get("isOpen")), isOpen)));
+
+        if (title != null) {
+            Predicate orPredicate = cb.or(
+                    cb.like(cb.upper(root.get("title")),
+                            "%" + title.toUpperCase() + "%"),
+                    cb.like(cb.upper(root.get("information")),
+                            "%" + title.toUpperCase() + "%"));
+
+            predicates.add(cb.and(orPredicate));
+        }
+
+        if (companies != null && companies.length() != 0) {
+            Join<JobOffer, Company> companyJoin = root.join("company");
+            List<String> companyList = Arrays.asList(companies.split(","));
+
+            Expression<String> exp = companyJoin.get("uuid");
+            predicates.add(exp.in(companyList));
+        }
+
+        if (skills != null && skills.length() != 0) {
+            Join<JobOffer, Skill> skillJoin = root.join("skills");
+            List<String> skillList = Arrays.asList(skills.split(","));
+
+            Expression<String> exp = skillJoin.get("id");
+            predicates.add(exp.in(skillList));
+        }
+
+        critQuery = critQuery.select(cb.count(root));
+
+        Query query = em.createQuery(critQuery.where(cb.and(predicates.toArray(new Predicate[predicates.size()]))));
+
+        return (Long) query.getSingleResult();
     }
 
-    private List<JobOffer> list(EntityManager em, int startNr, int amount, String companies, boolean isOpen) {
-        TypedQuery<JobOffer> jobOffers;
-        if(companies != null && !companies.isEmpty()){
-            List<String>companyList = Arrays.asList(companies.split(","));
-            jobOffers = em.createQuery("FROM JobOffer j  WHERE company_uuid IN :companies AND j.isOpen = :open", JobOffer.class);
-            jobOffers.setParameter("companies", companyList);
-            jobOffers.setParameter("open", isOpen);
-        }else{
-             jobOffers = em.createQuery("FROM JobOffer j WHERE j.isOpen = :open", JobOffer.class);
-             jobOffers.setParameter("open", isOpen);
+    @SuppressWarnings("unchecked")
+    private List<JobOffer> list(EntityManager em, int startNr, int amount, String companies, boolean isOpen, String skills, String title) {
+        CriteriaBuilder cb = em.getCriteriaBuilder();
+        CriteriaQuery<JobOffer> critQuery = cb.createQuery(JobOffer.class);
+        Root<JobOffer> root = critQuery.from(JobOffer.class);
+
+        List<Predicate> predicates = new ArrayList<>();
+
+        predicates.add(
+                cb.and(cb.equal((root.get("isOpen")), isOpen)));
+
+        if (title != null) {
+            Predicate orPredicate = cb.or(
+                    cb.like(cb.upper(root.get("title")),
+                            "%" + title.toUpperCase() + "%"),
+                    cb.like(cb.upper(root.get("information")),
+                            "%" + title.toUpperCase() + "%"));
+
+            predicates.add(cb.and(orPredicate));
         }
-        jobOffers.setFirstResult(startNr);
-        jobOffers.setMaxResults(amount);
-        return jobOffers.getResultList();
+
+        if (companies != null && companies.length() != 0) {
+            Join<JobOffer, Company> companyJoin = root.join("company");
+            List<String> companyList = Arrays.asList(companies.split(","));
+
+            Expression<String> exp = companyJoin.get("uuid");
+            predicates.add(exp.in(companyList));
+        }
+
+        if (skills != null && skills.length() != 0) {
+            Join<JobOffer, Skill> skillJoin = root.join("skills");
+            List<String> skillList = Arrays.asList(skills.split(","));
+
+            Expression<String> exp = skillJoin.get("id");
+            predicates.add(exp.in(skillList));
+        }
+
+        Query query = em.createQuery(critQuery.where(cb.and(predicates.toArray(new Predicate[predicates.size()]))));
+
+        query.setFirstResult(startNr);
+        query.setMaxResults(amount);
+
+        return query.getResultList();
     }
 
     private List<JobOffer> allList(EntityManager em) {
@@ -165,8 +235,8 @@ public class JPAJobOfferRepository implements JobOfferRepository {
         return jobOffers.getResultList();
     }
 
-    private List<JobOffer> allTopOfDays(EntityManager em){
-        TypedQuery<JobOffer> jobOffers = em.createQuery("FROM JobOffer j WHERE j.topOfTheDay > timestampadd(hour, -24, now()) AND j.topOfTheDay IS NOT NULL ORDER BY RAND()", JobOffer.class);
+    private List<JobOffer> allTopOfDays(EntityManager em) {
+        TypedQuery<JobOffer> jobOffers = em.createQuery("FROM JobOffer j WHERE j.topOfTheDay > timestampadd(hour, -24, now()) AND j.topOfTheDay IS NOT NULL AND j.isOpen = true ORDER BY RAND()", JobOffer.class);
         return jobOffers.setMaxResults(3).getResultList();
     }
 
