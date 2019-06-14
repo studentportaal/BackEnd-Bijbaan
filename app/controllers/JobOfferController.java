@@ -107,7 +107,6 @@ public class JobOfferController extends Controller {
         JsonNode json = request.body().asJson();
         ApplicationDto applicationDto = Json.fromJson(json, ApplicationDto.class);
 
-
         try {
             Application application = applicationRepository.add(applicationDto.toModel(studentRepository)).toCompletableFuture().get();
             return ok(toJson(jobOfferRepository.applyForJob(application, id).toCompletableFuture().get()));
